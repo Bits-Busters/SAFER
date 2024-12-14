@@ -1,0 +1,130 @@
+header {
+    background-color: #6DA2D1;
+    height: 200px;
+    min-width: 800px;
+}
+
+body {
+    margin: 0;
+}
+
+.btnLoggin {
+    margin: 5px 40px 5px 20px;
+    border: none;
+    border-radius: 10px;
+    height: 32px;
+    width: 100px;
+}
+
+.btnRegister {
+    border: none;
+    border-radius: 10px;
+    height: 40px;
+    width: 160px;
+}
+
+.inpLoggin {
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    height: 30px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+}
+
+.contentText {
+    text-align: center;
+    width: 70%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.contentText.ocurrence {
+    color: aliceblue;
+    font-size: 18px;
+    margin: 5px;
+}
+
+#hrContentTop {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#hrContentBottom {
+    display: flex;
+    justify-content: flex-end;
+    height: 60px;
+}
+
+#hrInput {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 200;
+    height: 140px
+}
+
+#hrButton {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 140px
+}
+
+#passwordRecover {
+    font-size: 12px; 
+    padding-right: 225px; 
+    text-decoration: none; 
+    color: aliceblue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#headerLeft {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 50%;
+    float: left;
+    height: 200px;
+}
+
+#logo {
+    padding: 20px;
+}
+
+#hlContent {
+    display: flex;
+    justify-content: flex-start;
+}
+
+#hlTextContent {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    color: aliceblue
+}
+
+#ocurrenceBox {
+    width: 400px;
+    height: 150px;
+    background-color: #D2A68D;
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 768px) {
+    header {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    #ocurrenceBox {
+        height: 90%;
+        width: 90%;
+    }
+}
