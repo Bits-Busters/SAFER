@@ -1,11 +1,12 @@
-from datetime import datetime
-from Usuario import Usuario
+from django.db import models
+from SAFERapp.models import CustomUser
 
-class Post():
-    def __init__(self, usuario: Usuario, descricao: str):
-        self.usuario = usuario
-        self.descricao = descricao
-        self.dataHora = datetime.now()
+class Post(models.Model):
+    Id = models.AutoField(primary_key=True)
+    Id_Autor = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
+    Titulo = models.CharField(max_length=100)
+    Texto = models.TextField()
+    Data = models.DateTimeField()
 
     def alterar_descricao(self, nova_descricao: str):
         return
@@ -13,5 +14,5 @@ class Post():
     def excluir_post(self):
         return
     
-    def __str__(self) -> str:
-        return f"Post de {self.usuario.nome} em {self.dataHora}"
+    def __str__(self):
+        return self.Titulo

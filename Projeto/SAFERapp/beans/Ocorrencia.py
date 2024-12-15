@@ -1,16 +1,18 @@
-from datetime import datetime
-from Enums import Status, Registro, RelacaoUFRPE, TipoUsuario
-from Usuario import Usuario
+from django.db import models
+from SAFERapp.models import CustomUser
+from SAFERapp.beans.Enums import Status
 
-class Ocorrencia():
-    def __init__(self, usuario: Usuario, descricao: str, local, imagens, registro: Registro, status: Status = Status.aberto, analista: Usuario = None):
-        self.usuario = usuario
-        self.descricao = descricao
-        self.local = local
-        self.imagens = imagens
-        self.dataHora = datetime.now()
-        self.registro = registro
-        self.status = status
+class Ocorrencia(models.Model):
+    Autor = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    Descricao = models.TextField()
+    Local = models.CharField(max_length=100)
+    DataHora = models.DateTimeField()
+    Status = models.CharField(
+        max_length=20,
+        choices= Status.choices,
+        default = Status.ABERTO,
+        verbose_name= "Status do chamado"
+    )
     
     def alterar_status(self, novo_status: Status):
         return
@@ -18,9 +20,9 @@ class Ocorrencia():
     def alterar_descricao(self, nova_descricao: str):
         return
     
-    def adicionar_analista(self, analista: Usuario):
+    def adicionar_analista(self, analista: CustomUser):
         return
     
     def __str__(self) -> str:
-        return f"Ocorrência de {self.usuario.nome} em {self.dataHora}"
+        return f"Ocorrência de {self.Autor} em {self.DataHora}"
     
