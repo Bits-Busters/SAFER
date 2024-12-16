@@ -1,23 +1,28 @@
-from enum import Enum
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-class RelacaoUFRPE(Enum):
-    docente = 1, "Docente"
-    discente = 2, "Discente"
-    tecnico = 3, "Técnico"
-    terceirizado = 4, "Terceirizado"
-    visitante = 5, "Visitante"
+# Enums no Django
+class RelacaoUFRPE(models.TextChoices):
+    DOCENTE = 'docente', _('Docente')
+    DISCENTE = 'discente', _('Discente')
+    TECNICO = 'tecnico', _('Técnico')
+    TERCEIRIZADO = 'terceirizado', _('Terceirizado')
+    VISITANTE = 'visitante', _('Visitante')
 
-class TipoUsuario(Enum):
-    admin = 1, "Admin"
-    gestor = 2, "Gestor"
-    analista = 3, "Analista"
-    comum = 4, "Comum"
 
-class Registro(Enum):
-    presenca = 1, "Presença"
-    intervencao = 2, "Intervenção"
+class TipoUsuario(models.TextChoices):
+    ADMIN = 'admin', _('Administrador')
+    GESTOR = 'gestor', _('Gestor')
+    ANALISTA = 'analista', _('Analista')
+    COMUM = 'comum', _('Comum')
 
-class Status(Enum):
-    aberto = 1, "Aberto"
-    emAnalise = 2, "Em andamento"
-    fechado = 3, "Fechado"
+
+class Registro(models.TextChoices):
+    PRESENCA = 'presenca', _('Presença')
+    INTERVENCAO = 'intervencao', _('Intervenção')
+
+
+class Status(models.TextChoices):
+    ABERTO = 'aberto', _('Aberto')
+    EM_ANALISE = 'em_analise', _('Em análise')
+    FECHADO = 'fechado', _('Fechado')
