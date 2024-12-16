@@ -5,15 +5,16 @@ from SAFERapp.beans.Forms import FormularioForm
 # Create your views here.
 
 class FormularioView(View):
-    def get(self, request):
-        if request.method == 'POST':
-            form = FormularioForm(request.POST, request.FILES)
-            if form.is_valid():
-                form.save()
-                return redirect('home')  # Página de sucesso após envio
-        else:
-            form = FormularioForm()
 
+    def get(self, request):
+        form = FormularioForm()  # Exibe o formulário vazio
+        return render(request, 'Form.html', {'form': form})
+
+    def post(self, request):
+        form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
+        if form.is_valid():
+            form.save()  # Salva os dados no banco de dados
+            return redirect('home')  # Redireciona para a página de sucesso
         return render(request, 'Form.html', {'form': form})
 
 class HomeView(View):
