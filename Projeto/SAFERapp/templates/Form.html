@@ -29,44 +29,67 @@
             <!-- Página 1 -->
             <div class="page active" id="page1">
                 <h2>Página 1</h2>
+
                 <div class="form-group">
-                    {{ form.Nome_Autor}}
+                    <label for="{{ form.Nome_Autor.id_for_label }}">Nome do Autor</label>
+                    <p class="text-muted">Informe o seu nome completo.</p>
+                    {{ form.Nome_Autor }}
                 </div>
                 <div class="form-group">
-                    {{ form.Celular_Autor}}
+                    <label for="{{ form.Celular_Autor.id_for_label }}">Celular do Autor</label>
+                    <p class="text-muted">Informe seu número de celular para contato.</p>
+                    {{ form.Celular_Autor }}
                 </div>
                 <div class="form-group">
-                    {{ form.Telefone_Autor}}
+                    <label for="{{ form.Telefone_Autor.id_for_label }}">Telefone do Autor</label>
+                    <p class="text-muted">Informe seu número de telefone fixo (opcional).</p>
+                    {{ form.Telefone_Autor }}
                 </div>
                 <div class="form-group">
-                    {{ form.Relacao_Autor}}
+                    <label for="{{ form.Relacao_Autor.id_for_label }}">Relação com a UFRPE</label>
+                    <p class="text-muted">Escolha sua relação com a UFRPE.</p>
+                    {{ form.Relacao_Autor }}
                 </div>
+
                 <button type="button" class="btn btn-primary" onclick="nextPage(2)">Próxima Página</button>
             </div>
 
             <!-- Página 2 -->
             <div class="page" id="page2">
                 <h2>Página 2</h2>
+
                 <div class="form-group">
-                    {{ form.Nome_Animal}}
+                    <label for="{{ form.Nome_Animal.id_for_label }}">Nome do Animal</label>
+                    <p class="text-muted">Informe o nome do animal envolvido.</p>
+                    {{ form.Nome_Animal }}
                 </div>
                 <div class="form-group">
-                    {{ form.Local}}
+                    <label for="{{ form.Local.id_for_label }}">Local do Evento</label>
+                    <p class="text-muted">Informe o local onde o incidente ocorreu.</p>
+                    {{ form.Local }}
                 </div>
                 <div class="form-group">
-                    {{ form.Referencia}}
+                    <label for="{{ form.Referencia.id_for_label }}">Referência</label>
+                    <p class="text-muted">Informe qualquer referência adicional sobre o caso.</p>
+                    {{ form.Referencia }}
                 </div>
                 <div class="form-group">
-                    {{ form.Tipo_Caso}}
+                    <label for="{{ form.Tipo_Caso.id_for_label }}">Tipo de Caso</label>
+                    <p class="text-muted">Escolha o tipo do caso ocorrido.</p>
+                    {{ form.Tipo_Caso }}
                 </div>
+
                 <button type="button" class="btn btn-primary" onclick="nextPage(3)">Próxima Página</button>
             </div>
 
             <!-- Página 3 -->
             <div class="page" id="page3">
                 <h2>Página 3</h2>
+
                 <div class="form-group">
-                    {{ form.Descricao}}
+                    <label for="{{ form.Descricao.id_for_label }}">Descrição do Caso</label>
+                    <p class="text-muted">Forneça uma descrição detalhada do caso.</p>
+                    {{ form.Descricao }}
                 </div>
                 <button type="submit" class="btn btn-success">Enviar</button>
             </div>
