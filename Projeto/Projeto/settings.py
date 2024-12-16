@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'SAFERapp',
 ]
 
-AUTH_USER_MODEL = 'SAFERapp.CustomUser'
+# AUTH_USER_MODEL = 'SAFERapp.CustomUser'
+AUTH_USER_MODEL = 'auth.User'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
