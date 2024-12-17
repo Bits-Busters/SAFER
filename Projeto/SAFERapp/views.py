@@ -16,6 +16,7 @@ class FormularioView(View):
 
         return render(request, 'Form.html', {'form': form})
 
+
 class HomeView(View):
     def get(self, request):
         return render(request, 'home.html', {})
