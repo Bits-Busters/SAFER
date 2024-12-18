@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.views.generic import View
 from django.shortcuts import render, redirect
 
 from SAFERapp.beans.Forms import FormularioForm
 from SAFERapp.beans.Forms import CadastroForm
+from SAFERapp.beans.Ocorrencia import Ocorrencia
+
+
 # Create your views here.
 
 @login_required
@@ -13,7 +17,18 @@ def TelaUsuario(request, username):
     if username != request.user.nome:
         messages.error(request, "Este não era o seu perfil")
         return render(request, 'home.html')
-    return render(request, 'TelaUsuario.html')
+    # Obtém as ocorrências do usuário logado
+    ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+
+    # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
+    paginator = Paginator(ocorrencia, 5)  # 5 ocorrências por página
+
+    # Obtém o número da página atual
+    page_number = request.GET.get('page')  # Pode vir da URL (por exemplo: ?page=2)
+    page_obj = paginator.get_page(page_number)
+
+    # Renderiza a página com as ocorrências paginadas
+    return render(request, 'TelaUsuario.html', {'page_obj': page_obj})
 
 
 class FormularioView(View):
@@ -25,7 +40,10 @@ class FormularioView(View):
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         if form.is_valid():
-            form.save()  # Salva os dados no banco de dados
+            ocorrencia = form.save(commit=False)
+            if request.user is not None:
+                ocorrencia.Autor = request.user
+            ocorrencia.save()  # Salva os dados no banco de dados
             return redirect('home')  # Redireciona para a página de sucesso
         return render(request, 'Form.html', {'form': form})
 

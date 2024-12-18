@@ -21,7 +21,6 @@ class FormularioForm(forms.ModelForm):
 
         self.helper.add_input(Submit('submit', 'Enviar'))
 
-
 class CadastroForm(forms.ModelForm):
     senha = forms.CharField(widget=forms.PasswordInput, label='Senha', min_length=8)
     confirmar_senha = forms.CharField(widget=forms.PasswordInput, label='Confirmar Senha', min_length=8)
