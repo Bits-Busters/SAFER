@@ -1,9 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Cadastro da Conta</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <style>
         .page {
@@ -12,50 +15,85 @@
         .active {
             display: block;
         }
-        button {
-            padding: 10px 15px;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
+    <header>
+        <div id="headerLeft">
+            <div id ="hlContent">
+                <a href="{% url 'home' %}">
+                    <img id="logo" logo src="{% static 'images/logo.jpg' %}" height="160" width="160">
+                </a>
+                <div id="hlTextContent">
+                    <p>
+                        <div style="display: flex; justify-content: center; font-size: 50px;">
+                            SAFER
+                        </div>
+                        <div style="margin-top: 0px;">
+                            Sistema de Apoio à Fauna 
+                            <br>
+                            em Emergências da Rural
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div id="headerRight">
+            <div id="hrContentTop">
+                <div id="hrInput">
+                    <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
+                    <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
+                </div>
+                <div id="hrButton">
+                        <button class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>                   
+                    <a href="{% url 'cadastro' %}">
+                        <button class="btnLoggin" style="background-color: #D2A68D; color: aliceblue">Cadastro</button>
+                    </a>
+                </div>
+            </div>
+            <div id="hrContentBottom">
+                <a href="#" id="passwordRecover">Esqueceu a senha?</a>
+            </div>
+        </div>
+    </header>
     <div class="container">
-        <h1 class="mt-5">Cadastro</h1>
-
+        
         <form method="POST" enctype="multipart/form-data" class="mt-4">
             {% load crispy_forms_tags %}
             {% csrf_token %}
+            <h2 class="container contentText">Criar sua conta</h2>
+            <hr width="250px">
 
             <!-- Página 1 -->
-            <div class="page active" id="page1">
-                <h2>Cadastre-se</h2>
-
-                <div class="form-group">
-                    <label for="{{ form.Nome_Autor.id_for_label }}">Nome</label>
-                    <p class="text-muted">Informe o seu nome completo.</p>
-                    {{ form.nome }}
+            <div class="content">
+                    <div class="page active " id="page1">
+                    <div class="form-group">
+                        <label for="{{ form.Nome_Autor.id_for_label }}">Nome</label>
+                        <p>{{ form.nome }}</p>
+                        <p class="text-muted">Informe o seu nome completo.</p>                    
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.Celular_Autor.id_for_label }}">Email</label>
+                        <p>{{ form.email }}</p>
+                        <p class="text-muted">Informe seu email para contato.</p>                    
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.Telefone_Autor.id_for_label }}">Celular</label>
+                        <p>{{ form.telefone }}</p>
+                        <p class="text-muted">Informe seu número de celular para contato.</p>                    
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.Relacao_Autor.id_for_label }}">Telefone</label>
+                        <p>{{ form.telefone_fixo }}</p>
+                        <p class="text-muted">Informe seu número de telefone fixo (opcional)..</p>                    
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.Relacao_Autor.id_for_label }}">Relação com a UFRPE</label>
+                        <p>{{ form.relacao_ufrpe }}</p>
+                        <p class="text-muted">Escolha sua relação com a UFRPE.</p>                    
+                    </div>
+                    <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Criar</button>
                 </div>
-                <div class="form-group">
-                    <label for="{{ form.Celular_Autor.id_for_label }}">Email</label>
-                    <p class="text-muted">Informe seu email para contato.</p>
-                    {{ form.email }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.Telefone_Autor.id_for_label }}">Celular</label>
-                    <p class="text-muted">Informe seu número de celular para contato.</p>
-                    {{ form.telefone }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.Relacao_Autor.id_for_label }}">Telefone</label>
-                    <p class="text-muted">Informe seu número de telefone fixo (opcional)..</p>
-                    {{ form.telefone_fixo }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.Relacao_Autor.id_for_label }}">Relação com a UFRPE</label>
-                    <p class="text-muted">Escolha sua relação com a UFRPE.</p>
-                    {{ form.relacao_ufrpe }}
-                </div>
-                <button type="submit" class="btn btn-success">Enviar</button>
             </div>
         </form>
     </div>
