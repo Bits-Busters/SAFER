@@ -1,8 +1,20 @@
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from django.shortcuts import render, redirect
+
 from SAFERapp.beans.Forms import FormularioForm
 from SAFERapp.beans.Forms import CadastroForm
 # Create your views here.
+
+@login_required
+def TelaUsuario(request, username):
+    if username != request.user.nome:
+        messages.error(request, "Este não era o seu perfil")
+        return render(request, 'home.html')
+    return render(request, 'TelaUsuario.html')
+
 
 class FormularioView(View):
 
@@ -32,4 +44,17 @@ class CadastroView(View):
 
 class HomeView(View):
     def get(self, request):
+        if request.user is not None:
+            return redirect('TelaUsuario', username=request.user.nome)
         return render(request, 'home.html', {})
+    def post(self, request):
+        email = request.POST['emailLogin']
+        password = request.POST['passwordLogin']
+
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('TelaUsuario', username=user.nome)
+        else:
+            return render(request, 'home.html', {'error': 'E-mail ou senha inválidos.'})

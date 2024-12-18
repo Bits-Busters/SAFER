@@ -10,6 +10,13 @@
 </head>
 <body>
     <header>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li class="alert alert-danger">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <div id="headerLeft">
             <div id ="hlContent">
                 <img id="logo" logo src="{% static 'images/logo.jpg' %}" alt="" height="160" width="160">
@@ -29,14 +36,21 @@
         </div>
         <div id="headerRight">
             <div id="hrContentTop">
-                <div id="hrInput">
-                    <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
-                    <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
-                </div>
-                <div id="hrButton">
-                    <button class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
+                <form method="POST" action="{% url 'home'%}">
+                    {% csrf_token %}
+                    <div id="hrInput">
+                        <input id="login" class="inpLoggin" type="email" name="emailLogin" placeholder=" E-mail" required>
+                        <input id="password" class="inpLoggin" type="password" name="passwordLogin" placeholder=" Senha" required>
+                    </div>
+                    <div id="hrButton">
+                        <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
+                    </div>
+                </form>
+
+                <!-- Botão de Cadastro fora do formulário mas dentro da mesma div -->
+                <div id="hrButton2">
                     <a href="{% url 'cadastro' %}">
-                        <button class="btnLoggin" style="background-color: #D2A68D; color: aliceblue">Cadastro</button>
+                        <button type="button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue;">Cadastro</button>
                     </a>
                 </div>
             </div>
