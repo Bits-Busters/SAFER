@@ -25,7 +25,7 @@ class Ocorrencia(models.Model):
     Nome_Animal = models.CharField(max_length=100)
     Local = models.CharField(max_length=100)
     Referencia = models.CharField(max_length=100)
-    DataHora = models.DateTimeField(default=now())
+    DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
         max_length=20,
         choices= Status.choices,
