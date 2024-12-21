@@ -1,12 +1,31 @@
 from django.db import models
 from SAFERapp.models import CustomUser
-from SAFERapp.beans.Enums import Status
+from SAFERapp.beans.Enums import Status, RelacaoUFRPE, Registro
+from datetime import datetime
+from django.utils.timezone import now
 
 class Ocorrencia(models.Model):
-    Autor = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    Autor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1)
+    Nome_Autor = models.CharField(max_length=100)
+    Celular_Autor = models.CharField(max_length=20)
+    Telefone_Autor = models.CharField(max_length=20)
+    Relacao_Autor = models.CharField(
+        max_length=20,
+        choices=RelacaoUFRPE.choices,
+        default=RelacaoUFRPE.VISITANTE,
+        verbose_name="Relação com a UFRPE"
+    )
+    Tipo_Caso = models.CharField(
+        max_length=20,
+        choices=Registro.choices,
+        default=Registro.PRESENCA,
+        verbose_name="Tipo do caso"
+    )
     Descricao = models.TextField()
+    Nome_Animal = models.CharField(max_length=100)
     Local = models.CharField(max_length=100)
-    DataHora = models.DateTimeField()
+    Referencia = models.CharField(max_length=100)
+    DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
         max_length=20,
         choices= Status.choices,

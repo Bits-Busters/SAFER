@@ -16,11 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from SAFERapp.views import HomeView
+from SAFERapp.views import HomeView, FormularioView, CadastroView, TelaUsuario
+
 
 # todas as URLs do projeto
 urlpatterns = [
     path('admin/', admin.site.urls),
     # URL da página inicial
     path('', HomeView.as_view(), name='home'),
+    # URL da página de formulario
+    path('formulario/', FormularioView.as_view(), name='formulario'),
+    # URL da página de cadastro
+    path('cadastro/', CadastroView.as_view(), name='cadastro'),
+    # URL da página de usuario
+    path('perfil/<str:username>', TelaUsuario, name ='TelaUsuario')
 ]
