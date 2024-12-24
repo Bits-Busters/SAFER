@@ -35,7 +35,7 @@ urlpatterns = [
     # URL da página de ocorrencias
     path('meus-chamados/<str:username>', telaOcorrencias, name ='telaChamados'),
     #URL da página de perfil
-    path('meu-perfil/<str:username>', telaOcorrencias, name ='telaPerfil'),
+    path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
-    path('chamado/<int:id>', telaOcorrencias, name ='telaDetalhesChamado')
+    path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado')
 ]

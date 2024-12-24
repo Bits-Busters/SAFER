@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.views.generic import View
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from SAFERapp.beans.Forms import FormularioForm
 from SAFERapp.beans.Forms import CadastroForm
@@ -38,7 +38,8 @@ def telaUsuario(request, username):
 
 def telaDetalhesChamado(request, id):
     #verificar se o chamado em questão pertence ao usuario
-    return render(request, 'TelaDetalhesChamado.html')
+    ocorrencia = get_object_or_404(Ocorrencia, id=id)
+    return render(request, 'TelaDetalhesChamado.html', {"ocorrencia": ocorrencia})
 
 def telaPerfil(request, username):
     if username != request.user.nome:
