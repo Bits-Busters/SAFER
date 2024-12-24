@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from SAFERapp.views import HomeView, FormularioView, CadastroView, TelaUsuario
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
 
 
 # todas as URLs do projeto
@@ -29,5 +29,13 @@ urlpatterns = [
     # URL da página de cadastro
     path('cadastro/', CadastroView.as_view(), name='cadastro'),
     # URL da página de usuario
-    path('perfil/<str:username>', TelaUsuario, name ='TelaUsuario')
+    path('Dashboard/<str:username>', telaUsuario, name ='telaUsuario'),
+    #URL para deslogar o usuario
+    path('logout/', logout_view, name='logout'),
+    # URL da página de ocorrencias
+    path('meus-chamados/<str:username>', telaOcorrencias, name ='telaChamados'),
+    #URL da página de perfil
+    path('meu-perfil/<str:username>', telaOcorrencias, name ='telaPerfil'),
+    #URL da página de detalhamento de chamado
+    path('chamado/<int:id>', telaOcorrencias, name ='telaDetalhesChamado')
 ]
