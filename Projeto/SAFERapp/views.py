@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from SAFERapp.beans.Forms import FormularioForm
 from SAFERapp.beans.Forms import CadastroForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
+from .models import CustomUser
 
 
 # Create your views here.
@@ -82,11 +83,33 @@ class FormularioView(View):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         if form.is_valid():
             ocorrencia = form.save(commit=False)
-            if request.user is not None:
-                ocorrencia.Autor = request.user
-            ocorrencia.save()  # Salva os dados no banco de dados
-            return redirect('home')  # Redireciona para a página de sucesso
-        return render(request, 'Form.html', {'form': form})
+            if request.user.is_authenticated:  # Se o usuário estiver logado
+                ocorrencia.Autor = request.user  # Associa o usuário logado à ocorrência
+            else:
+                try:
+                    ocorrencia.Autor = CustomUser.objects.get(nome='Anônimo Usuário')
+                except CustomUser.DoesNotExist:
+                    # Cria o usuário anônimo se não existir
+                    autor_anônimo = CustomUser.objects.create(
+                        email='anonimo@example.com',  # Define um email único
+                        nome="Anônimo Usuário",
+                        telefone="000000000",
+                        telefone_fixo="000000000",
+                        relacao_ufrpe="VISITANTE",  # Ou o valor padrão que você preferir
+                        tipo_usuario="COMUM",  # Ou o valor padrão que você preferir
+                        is_active=True
+                    )
+                    ocorrencia.Autor = autor_anônimo  # Atribui o usuário anônimo criado
+                    pass
+
+            # Adicione uma mensagem de sucesso e redirecione para a página inicial
+            return render(request, 'Form.html', {'form': FormularioForm(), 'success': True, 'redirect_url': 'home'})
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(f"{field}: {error}")
+        return render(request, 'Form.html', {'form': form, 'error': True, 'error_messages': error_messages})
+    
 
 def logout_view(request):
     logout(request)
@@ -102,8 +125,9 @@ class CadastroView(View):
         form = CadastroForm(request.POST, request.FILES)  # Processa os dados do formulário
         if form.is_valid():
             form.save()  # Salva os dados no banco de dados
-            return redirect('home')  # Redireciona para a página de sucesso
-        return render(request, 'Cadastro.html', {'form': form})
+            # Adicione uma mensagem de sucesso e redirecione para a página inicial
+            return render(request, 'Cadastro.html', {'form': CadastroForm(), 'success': True, 'redirect_url': 'home'})
+        return render(request, 'Cadastro.html', {'form': form, 'error': True})
 
 class HomeView(View):
     def get(self, request):
