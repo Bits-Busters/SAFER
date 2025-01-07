@@ -6,4 +6,21 @@
 {% block title %}Meu perfil{% endblock %}
 
 {% block content %}
+    <div class="perfil-container">
+    <h2>Perfil de {{ user.nome }}</h2>
+
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Nome:</strong> {{ user.nome }}</p>
+    <p><strong>Telefone:</strong> {{ user.telefone }}</p>
+    <p><strong>Telefone Fixo:</strong> {{ user.telefone_fixo }}</p>
+    <p><strong>Relação com a UFRPE:</strong> {{ user.relacao_ufrpe }}</p>
+    <p><strong>Tipo de Usuário:</strong> {{ user.tipo_usuario }}</p>
+
+    <h3>Alterar Senha</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Alterar Senha</button>
+    </form>
+    </div>
 {% endblock %}

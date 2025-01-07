@@ -10,6 +10,18 @@
         <h1>Menu</h1>
         <a href="{% url 'formulario' %}"><button class="button">Registrar um chamado</button></a>
         <a href="{% url 'telaChamados' username=user.nome %}"><button class="button">Meus chamados</button></a>
-        <a href= "#" ><button class="button">Meu Perfil</button></a>
+        {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
+            <a href= "#" ><button class="button">Outros Chamados</button></a>
+        {% endif %}
+        {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
+            <a href= "#" ><button class="button">Chamados Aceitos</button></a>
+        {% endif %}
+        {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
+            <a href= "#" ><button class="button">Gerenciar Usuários</button></a>
+        {% endif %}
+        {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
+            <a href= "#" ><button class="button">Gerar Relatório</button></a>
+        {% endif %}
+        <a href= "{% url 'telaPerfil' username=user.nome%}" ><button class="button">Meu Perfil</button></a>
     </div>
 {% endblock %}

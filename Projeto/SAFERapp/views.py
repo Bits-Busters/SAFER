@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
@@ -41,11 +42,26 @@ def telaDetalhesChamado(request, id):
     ocorrencia = get_object_or_404(Ocorrencia, id=id)
     return render(request, 'TelaDetalhesChamado.html', {"ocorrencia": ocorrencia})
 
+@login_required
 def telaPerfil(request, username):
     if username != request.user.nome:
         messages.error(request, "Este não era o seu perfil")
         return render(request, 'home.html')
-    return render(request, 'TelaPerfil.html')
+    else:
+        user = request.user
+        if request.method == "POST":
+            form = PasswordChangeForm(user=user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Sua senha foi alterada com sucesso!")
+                return redirect('telaPerfil', username=request.user.nome)  # Redireciona para a página de perfil
+        else:
+            form = PasswordChangeForm(user=user)
+
+        return render(request, 'TelaPerfil.html', {
+            'user': user,
+            'form': form
+        })
 
 
 class FormularioView(View):
