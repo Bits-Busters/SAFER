@@ -61,6 +61,17 @@ body {
     justify-content: flex-end;
 }
 
+#hrContentTopLogado {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#welcomeMessage {
+    color: aliceblue;
+    font-size: 18px;
+    margin-right: 20px; /* Espaço entre o texto e o botão */
+}
+
 #hrContentBottom {
     display: flex;
     justify-content: flex-end;
@@ -79,20 +90,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 70px
-}
-
-#hrButton2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 70px
+    height: 140px
 }
 
 #passwordRecover {
-    font-size: 12px; 
-    padding-right: 225px; 
-    text-decoration: none; 
+    font-size: 12px;
+    padding-right: 225px;
+    text-decoration: none;
     color: aliceblue;
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -116,8 +120,8 @@ body {
 }
 
 #hlTextContent {
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     color: aliceblue
 }

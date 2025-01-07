@@ -1,0 +1,24 @@
+{% extends 'TopTemplate.html' %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block title %}Tela Chamado{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Detalhes da Ocorrência</h3>
+    <p><strong>Autor:</strong> {{ ocorrencia.Nome_Autor }}</p>
+    <p><strong>Celular:</strong> {{ ocorrencia.Celular_Autor }}</p>
+    <p><strong>Telefone:</strong> {{ ocorrencia.Telefone_Autor }}</p>
+    <p><strong>Relação com a UFRPE:</strong> {{ ocorrencia.Relacao_Autor }}</p>
+    <p><strong>Tipo do Caso:</strong> {{ ocorrencia.Tipo_Caso }}</p>
+    <p><strong>Descrição:</strong> {{ ocorrencia.Descricao }}</p>
+    <p><strong>Nome do Animal:</strong> {{ ocorrencia.Nome_Animal }}</p>
+    <p><strong>Local:</strong> {{ ocorrencia.Local }}</p>
+    <p><strong>Referência:</strong> {{ ocorrencia.Referencia }}</p>
+    <p><strong>Data e Hora:</strong> {{ ocorrencia.DataHora|date:"d/m/Y H:i" }}</p>
+    <p><strong>Status:</strong> {{ ocorrencia.Status }}</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+{% endblock %}

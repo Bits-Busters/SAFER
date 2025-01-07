@@ -5,6 +5,7 @@ from crispy_forms.layout import Submit
 from django import forms
 
 class FormularioForm(forms.ModelForm):
+
     class Meta:
         model = Ocorrencia
         fields = ['Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor', 'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao']
@@ -57,4 +58,3 @@ class CadastroForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
