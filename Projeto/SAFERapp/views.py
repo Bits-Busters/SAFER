@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 
-from SAFERapp.beans.Forms import FormularioForm
+from SAFERapp.beans.Forms import FormularioForm, FilterForm
 from SAFERapp.beans.Forms import CadastroForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 
@@ -18,8 +18,28 @@ def telaOcorrencias(request, username):
     if username != request.user.nome:
         messages.error(request, "Este não era o seu perfil")
         return render(request, 'home.html')
+
     # Obtém as ocorrências do usuário logado
     ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+    form = FilterForm(request.GET or None)
+
+    if form.is_valid():
+        # Acessando os dados validados do formulário
+        animal = form.cleaned_data.get('Animal')
+        if animal:
+            ocorrencia = ocorrencia.filter(Nome_Animal=animal)
+
+        tipoCaso = form.cleaned_data.get('TipoCaso')
+        if tipoCaso:
+            ocorrencia = ocorrencia.filter(TipoCaso=tipoCaso)
+
+        data = form.cleaned_data.get('Data')  # Aqui você acessa a data corretamente
+        if data:
+            ocorrencia = ocorrencia.filter(DataHora__date=data)  # Filtra apenas pela data, não pelo horário
+
+        local = form.cleaned_data.get('Local')
+        if local:
+            ocorrencia = ocorrencia.filter(Local=local)
 
     # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
     paginator = Paginator(ocorrencia, 5)  # 5 ocorrências por página
@@ -29,7 +49,8 @@ def telaOcorrencias(request, username):
     page_obj = paginator.get_page(page_number)
 
     # Renderiza a página com as ocorrências paginadas
-    return render(request, 'TelaChamados.html', {'page_obj': page_obj})
+    return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form})
+
 
 def telaUsuario(request, username):
     if username != request.user.nome:

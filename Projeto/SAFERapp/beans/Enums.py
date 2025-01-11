@@ -26,3 +26,9 @@ class Status(models.TextChoices):
     ABERTO = 'aberto', _('Aberto')
     EM_ANALISE = 'em_analise', _('Em análise')
     FECHADO = 'fechado', _('Fechado')
+
+class Local(models.TextChoices):
+    DC = 'dc', _('DC')
+    VET = 'veterinaria', _('Veterinaria')
+    TRANSRURAL = 'trasrural', _('Transrutal')
+    RU = 'ru', _('RU')

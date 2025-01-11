@@ -1,3 +1,4 @@
+from SAFERapp.beans.Enums import Registro, Local
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.models import CustomUser
 from crispy_forms.helper import FormHelper
@@ -58,3 +59,27 @@ class CadastroForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+class FilterForm(forms.Form):
+    Animal = forms.CharField(
+        required=False,
+        label="Animal",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite o nome do animal'})
+    )
+    Data = forms.DateField(
+        required=False,
+        label="Data",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    TipoCaso = forms.ChoiceField(
+        required=False,
+        label="Tipo de Caso",
+        choices=[('', 'Todos')] + Registro.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    Local = forms.ChoiceField(
+        required=False,
+        label="Local",
+        choices=[('', 'Todos')] + Local.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
