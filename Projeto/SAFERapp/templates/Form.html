@@ -15,6 +15,20 @@
 
 {% block content %}
 <div class="container">
+
+    {% if success %}
+        <script>
+            alert("Formulário enviado com sucesso!");
+            window.location.href = "{% url redirect_url %}";
+        </script>
+    {% endif %}
+
+    {% if error %}
+        <script>
+            alert("Erro ao enviar o formulário. Por favor, verifique os campos e tente novamente.");
+        </script>
+    {% endif %}
+
         <form method="POST" action="{% url 'formulario' %}" enctype="multipart/form-data" class="mt-4">
             {% load crispy_forms_tags %}
             {% csrf_token %}
@@ -26,7 +40,7 @@
                 <div class="page active " id="page1">
                     <h2 class="container contentText">Insira seus dados pessoais</h2>
                     <div class="form-group">
-                        <label for="{{ form.Nome_Autor.id_for_label }}">Nome do Autor</label>
+                        <label for="{{form.Nome_Autor.id_for_label}}">Nome do Autor</label>
                         <p>{{ form.Nome_Autor }}</p>
                         <p class="text-muted">Informe o seu nome completo.</p>
                     </div>
