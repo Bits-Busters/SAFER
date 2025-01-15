@@ -15,13 +15,22 @@ from .models import CustomUser
 # Create your views here.
 
 @login_required
-def telaOcorrencias(request, username):
-    if username != request.user.nome:
-        messages.error(request, "Este não era o seu perfil")
+def telaOcorrencias(request, tipoChamado):
+    if tipoChamado == "meus-chamados":
+        # Obtém as ocorrências do usuário logado
+        nome = "Meus chamados"
+        ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+    elif tipoChamado == "todos-os-chamados":
+        # Obtém as ocorrências do usuário logado
+        nome = "Todos os chamados"
+        ocorrencia = Ocorrencia.objects.order_by('-DataHora')
+    elif tipoChamado == "chamados-aceitos":
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados aceitos"
+        ocorrencia = Ocorrencia.objects.filter(Analista=request.user).order_by('-DataHora')
+    else:
+        messages.error(request, "Esta não é uma página válida")
         return render(request, 'home.html')
-
-    # Obtém as ocorrências do usuário logado
-    ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
     form = FilterForm(request.GET or None)
 
     if form.is_valid():
@@ -50,7 +59,7 @@ def telaOcorrencias(request, username):
     page_obj = paginator.get_page(page_number)
 
     # Renderiza a página com as ocorrências paginadas
-    return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form})
+    return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
 
 
 def telaUsuario(request, username):

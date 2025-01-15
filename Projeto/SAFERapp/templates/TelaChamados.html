@@ -24,11 +24,11 @@
 </style>
 {% endblock %}
 
-{% block title %}Meus chamados{% endblock %}
+{% block title %}{{nome}}{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-        <h1>Minhas Ocorrências</h1>
+        <h1>{{nome}}</h1>
 
         <!-- Botão Criar Ocorrência -->
         <div class="mb-4">
@@ -56,7 +56,7 @@
             </div>
             <div class="form-row">
                 <button type="submit" class="btn btn-success">Filtrar</button>
-                <a href="{% url 'telaChamados' username=user.nome %}" class="btn btn-secondary ml-2">Limpar Filtros</a>
+                <a href="{% url 'telaChamados' tipoChamado=nome %}" class="btn btn-secondary ml-2">Limpar Filtros</a>
             </div>
         </form>
 

@@ -33,7 +33,7 @@ urlpatterns = [
     #URL para deslogar o usuario
     path('logout/', logout_view, name='logout'),
     # URL da página de ocorrencias
-    path('meus-chamados/<str:username>', telaOcorrencias, name ='telaChamados'),
+    path('chamados/<str:tipoChamado>', telaOcorrencias, name ='telaChamados'),
     #URL da página de perfil
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
