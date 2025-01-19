@@ -1,7 +1,7 @@
 header {
     background-color: #6DA2D1;
-    height: 200px;
-    min-width: 800px;
+    min-height: 200px; /* Altura relativa à altura da viewport */
+    min-width: 100%; /* Ajuste dinâmico à largura da tela */
 }
 
 body {
@@ -9,26 +9,25 @@ body {
 }
 
 .btnLoggin {
-    margin: 5px 40px 5px 20px;
+    margin: 0.5rem 2rem 0.5rem 1rem; /* Usando unidades relativas */
     border: none;
     border-radius: 10px;
-    height: 32px;
-    width: 100px;
+    height: 2rem; /* Altura relativa */
+    width: 6rem; /* Largura relativa */
 }
 
 .btnRegister {
     border: none;
     border-radius: 10px;
-    height: 40px;
-    width: 160px;
+    height: 2.5rem;
+    width: 10rem;
 }
 
-
 .inpLoggin {
-    margin: 5px;
+    margin: 0.5rem;
     border: none;
     border-radius: 10px;
-    height: 30px;
+    height: 2rem;
 }
 
 .content {
@@ -36,12 +35,12 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: auto;
+    width: 100%; /* Ocupar toda a largura disponível */
 }
 
 .contentText {
     text-align: center;
-    width: 70%;
+    width: 70%; /* Ajustável com base no conteúdo */
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -52,8 +51,15 @@ body {
 
 .contentText.ocurrence {
     color: aliceblue;
-    font-size: 18px;
-    margin: 5px;
+    font-size: 100%; /* Fonte ajustável ao contexto */
+    margin: 1%;
+}
+
+#logo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
 }
 
 #hrContentTop {
@@ -68,80 +74,101 @@ body {
 
 #welcomeMessage {
     color: aliceblue;
-    font-size: 18px;
-    margin-right: 20px; /* Espaço entre o texto e o botão */
-}
-
-#hrContentBottom {
-    display: flex;
-    justify-content: flex-end;
-    height: 60px;
+    font-size: 100%;
+    margin-right: 5%; /* Espaço em porcentagem */
 }
 
 #hrInput {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    width: 200;
-    height: 140px
+    width: 30%;
+    height: 20%;
 }
 
 #hrButton {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 140px
+    height: 20%;
 }
 
 #passwordRecover {
-    font-size: 12px;
-    padding-right: 225px;
+    font-size: 80%;
     text-decoration: none;
     color: aliceblue;
     font-family: Arial, Helvetica, sans-serif;
+    padding-left: 10px;
 }
 
 #headerLeft {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 50%;
+    width: 60%;
     float: left;
-    height: 200px;
+    min-height: 200px;
 }
 
-#logo {
-    padding: 20px;
+#headerRight {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;
+    min-height: 200px;
 }
 
 #hlContent {
     display: flex;
     justify-content: flex-start;
+    height: 200px;
 }
 
 #hlTextContent {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: aliceblue
+    color: aliceblue;
 }
 
 #ocurrenceBox {
-    width: 400px;
-    height: 150px;
+    width: auto; /* Substitui largura fixa em pixels */
+    height: 25%; /* Substitui altura fixa em pixels */
     background-color: #D2A68D;
     border-radius: 5px;
 }
 
-@media screen and (max-width: 768px) {
+/* Media Queries para maior responsividade */
+@media (max-width: 992px) {
     header {
-        height: auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        height: 10%;
     }
+
+    .contentText {
+        width: 90%; /* Mais espaço em telas menores */
+    }
+
     #ocurrenceBox {
-        height: 90%;
-        width: 90%;
+        width: 90%; /* Adaptação para dispositivos menores */
+    }
+
+    #welcomeMessage {
+        font-size: 90%;
+    }
+
+    #hrContentTop {
+        justify-content: flex-start;
+    }
+
+    #hrInput {
+        width: 50%;
+    }
+
+    #headerLeft {
+        width: 100%;
+    }
+
+    #hrContentTopLogado {
+        justify-content: flex-start;
     }
 }

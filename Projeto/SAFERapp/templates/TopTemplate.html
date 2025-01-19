@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     {% block extra_css %}
@@ -15,13 +16,15 @@
     <header>
         <div id="headerLeft">
             <div id ="hlContent">
-                <img id="logo" logo src="{% static 'images/logo.jpg' %}" alt="" height="160" width="160">
+                <div id="logo">
+                    <img logo src="{% static 'images/logo.jpg' %}" alt="" height="160" width="160">
+                </div>
                 <div id="hlTextContent">
                     <p>
                         <div style="display: flex; justify-content: center; font-size: 50px;">
                             SAFER
                         </div>
-                        <div style="margin-top: 0px;">
+                        <div style="margin-top: 0px; text-align: center;">
                             Sistema de Apoio à Fauna
                             <br>
                             em Emergências da Rural
@@ -30,47 +33,116 @@
                 </div>
             </div>
         </div>
-        <div id="headerRight">
-    {% if user.is_authenticated %}
-        <div id="hrContentTopLogado">
-            <div id="welcomeMessage">
-                <p>Bem-vindo, {{ user.nome }}!</p>
-            </div>
-            <div id="logoutButton">
-                <form method="POST" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button class="btnLoggin" style="background-color: #D9534F; color: white;">Sair</button>
+        <div id="headerRight" class="d-none d-lg-flex">
+            {% if user.is_authenticated %}
+                <div id="hrContentTopLogado" >
+                    <div id="welcomeMessage">
+                        <p>Bem-vindo, {{ user.nome }}!</p>
+                    </div>
+                    <div id="logoutButton">
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button class="btnLoggin" style="background-color: #D9534F; color: white;">Sair</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <form method="POST" action="{% url 'home' %}">
+                {% csrf_token %}
+                <div id="hrContentTop">
+                    <div id="hrInput">
+                        <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
+                        <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
+                        <a href="#" id="passwordRecover">Esqueceu a senha?</a>
+                    </div>
+                    <div id="hrButton">
+                        <button type = "submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
+                        <a href="{% url 'cadastro' %}">
+                            <button type = "button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue">Cadastro</button>
+                        </a>
+                        
+                    </div>
+                </div>
                 </form>
-            </div>
-        </div>
-    {% else %}
-            <form method="POST" action="{% url 'home' %}">
-            {% csrf_token %}
-            <div id="hrContentTop">
-                <div id="hrInput">
-                    <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
-                    <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
-                </div>
-                <div id="hrButton">
-                    <button type = "submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
-                    <a href="{% url 'cadastro' %}">
-                        <button type = "button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue">Cadastro</button>
-                    </a>
-                </div>
-            </div>
-            </form>
-            <div id="hrContentBottom">
-                <a href="#" id="passwordRecover">Esqueceu a senha?</a>
-            </div>
-    {% endif %}
+            {% endif %}
         </div>
     </header>
-
-
+    <nav class="navbar navbar-expand-lg navbar-light" style= "background-color: #5f8db6; width: 100%; height: auto;">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#textoNavbar" aria-controls="textoNavbar" aria-expanded="false" aria-label="Alterna navegação">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="textoNavbar">
+            
+            <ul class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                    <p class="d-lg-none">Bem-vindo, {{ user.nome }}!</p>
+                {% endif %}
+                <li class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link" href="#">Início <span class="sr-only">(Página atual)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'formulario' %}" class="nav-link" href="#">Cadastrar Ocorrência</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Informativos</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href= "{% url 'telaPerfil' username=user.nome%}" class="nav-link" href="#">Meu Perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'telaChamados' tipoChamado='meus-chamados' %}" class="nav-link" href="#">Meus Chamados</a>
+                </li>
+                <li class="nav-item">
+                    <a href= "{% url 'telaChamados' tipoChamado='todos-os-chamados' %}" class="nav-link" href="#">Todos os Chamados</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Chamadas em Aberto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Opção 2</a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="d-lg-none">
+                {% if user.is_authenticated %}
+                <div id="hrContentTopLogado">
+                    <div id="logoutButton">
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button class="btnLoggin" style="background-color: #D9534F; color: white;">Sair</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <form method="POST" action="{% url 'home' %}">
+                {% csrf_token %}
+                <div id="hrContentTop">
+                    <div id="hrInput">
+                        <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
+                        <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
+                        <a href="#" id="passwordRecover">Esqueceu a senha?</a>
+                    </div>
+                    <div id="hrButton">
+                        <button type = "submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
+                        <a href="{% url 'cadastro' %}">
+                            <button type = "button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue">Cadastro</button>
+                        </a>
+                        
+                    </div>
+                </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+      </nav>
     <!-- Conteúdo específico da página -->
     <div class="content">
         {% block content %}
         {% endblock %}
     </div>
-</body>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
 </html>
