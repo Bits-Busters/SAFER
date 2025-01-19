@@ -14,8 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+
+from Projeto import settings
 from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
 
 
@@ -39,3 +42,6 @@ urlpatterns = [
     #URL da página de detalhamento de chamado
     path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
