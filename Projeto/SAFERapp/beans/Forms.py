@@ -1,4 +1,7 @@
+from django.forms import inlineformset_factory
+
 from SAFERapp.beans.Enums import Registro, Local
+from SAFERapp.beans.Imagens import Imagens
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.models import CustomUser
 from crispy_forms.helper import FormHelper
@@ -83,3 +86,16 @@ class FilterForm(forms.Form):
         choices=[('', 'Todos')] + Local.choices,  # Adiciona a opção "Todos"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
+class ImagemForm(forms.ModelForm):
+    class Meta:
+        model = Imagens
+        fields = ['Image']
+
+ImagemFormSet = inlineformset_factory(
+    Ocorrencia,  # Modelo pai
+    Imagens,      # Modelo filho
+    form=ImagemForm,  # Campos do modelo Imagem
+    extra=5,  # Quantidade de campos extras para imagens
+    can_delete=True  # Permite deletar imagens existentes
+)

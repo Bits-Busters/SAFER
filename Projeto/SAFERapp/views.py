@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 
-from SAFERapp.beans.Forms import FormularioForm, FilterForm
+from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
 from SAFERapp.beans.Forms import CadastroForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from .models import CustomUser
@@ -107,11 +107,13 @@ class FormularioView(View):
                 'Relacao_Autor': request.user.relacao_ufrpe,  # Supondo que você tenha este campo
             }
         form = FormularioForm(initial=initial_data)
-        return render(request, 'Form.html', {'form': form})
+        formset = ImagemFormSet()
+        return render(request, 'Form.html', {'form': form, 'formset': formset})
 
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
-        if form.is_valid():
+        formset = ImagemFormSet(request.POST, request.FILES)  # Lembre-se de passar request.FILES para os arquivos!
+        if form.is_valid() and formset.is_valid():
             ocorrencia = form.save(commit=False)
             if request.user.is_authenticated:  # Se o usuário estiver logado
                 ocorrencia.Autor = request.user  # Associa o usuário logado à ocorrência
@@ -132,13 +134,22 @@ class FormularioView(View):
                     ocorrencia.Autor = autor_anônimo  # Atribui o usuário anônimo criado
                     pass
 
+                # Salva a ocorrência
+                ocorrencia = ocorrencia.save()
+
+                # Associa as imagens à ocorrência e salva
+                imagens = formset.save(commit=False)
+                for imagem in imagens:
+                    imagem.ocorrencia = ocorrencia  # Associa a imagem à ocorrência
+                    imagem.save()
+
             # Adicione uma mensagem de sucesso e redirecione para a página inicial
-            return render(request, 'Form.html', {'form': FormularioForm(), 'success': True, 'redirect_url': 'home'})
+            return render(request, 'Form.html', {'form': FormularioForm(), 'form_set': ImagemFormSet(), 'success': True, 'redirect_url': 'home'})
         error_messages = []
         for field, errors in form.errors.items():
             for error in errors:
                 error_messages.append(f"{field}: {error}")
-        return render(request, 'Form.html', {'form': form, 'error': True, 'error_messages': error_messages})
+        return render(request, 'Form.html', {'form': form, 'form_set': formset, 'error': True, 'error_messages': error_messages})
     
 
 def logout_view(request):

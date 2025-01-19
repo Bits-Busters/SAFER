@@ -107,6 +107,17 @@
                         <p>{{ form.Descricao }}</p>
                         <p class="text-muted">Forneça uma descrição detalhada do caso.</p>
                     </div>
+                    <!-- Campos para as imagens -->
+                    <h3 class="container contentText">Imagens Relacionadas</h3>
+                    <div id="imagens-container">
+                        {% for imagem_form in formset %}
+                            <div class="form-group">
+                                <label for="{{ imagem_form.Imagem.id_for_label }}">Imagem {{ forloop.counter }}</label>
+                                {{ imagem_form.Image }}
+                                <p class="text-muted">Adicione uma imagem relacionada ao caso.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
 
                     <button type="button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue;" onclick="navigatePage(2)">Voltar</button>
                     <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Enviar</button>

@@ -49,6 +49,9 @@ AUTH_USER_MODEL = 'SAFERapp.CustomUser'
 
 LOGIN_URL = '/'
 
+MEDIA_URL = '/media/'  # URL base para acessar os arquivos de mídia
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Diretório onde os arquivos de mídia serão salvos
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
