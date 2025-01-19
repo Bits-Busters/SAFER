@@ -1,7 +1,7 @@
 header {
     background-color: #6DA2D1;
-    min-height: 200px; /* Altura relativa à altura da viewport */
-    min-width: 100%; /* Ajuste dinâmico à largura da tela */
+    min-height: 200px;
+    min-width: 100%;
 }
 
 body {
@@ -9,11 +9,11 @@ body {
 }
 
 .btnLoggin {
-    margin: 0.5rem 2rem 0.5rem 1rem; /* Usando unidades relativas */
+    margin: 0.5rem 2rem 0.5rem 1rem;
     border: none;
     border-radius: 10px;
-    height: 2rem; /* Altura relativa */
-    width: 6rem; /* Largura relativa */
+    height: 2rem;
+    width: 6rem;
 }
 
 .btnRegister {
@@ -35,12 +35,12 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Ocupar toda a largura disponível */
+    width: 100%;
 }
 
 .contentText {
     text-align: center;
-    width: 70%; /* Ajustável com base no conteúdo */
+    width: 70%; 
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -51,7 +51,7 @@ body {
 
 .contentText.ocurrence {
     color: aliceblue;
-    font-size: 100%; /* Fonte ajustável ao contexto */
+    font-size: 100%;
     margin: 1%;
 }
 
@@ -75,7 +75,7 @@ body {
 #welcomeMessage {
     color: aliceblue;
     font-size: 100%;
-    margin-right: 5%; /* Espaço em porcentagem */
+    margin-right: 5%;
 }
 
 #hrInput {
@@ -132,24 +132,23 @@ body {
 }
 
 #ocurrenceBox {
-    width: auto; /* Substitui largura fixa em pixels */
-    height: 25%; /* Substitui altura fixa em pixels */
+    width: auto;
+    height: 25%;
     background-color: #D2A68D;
     border-radius: 5px;
 }
 
-/* Media Queries para maior responsividade */
 @media (max-width: 992px) {
     header {
         height: 10%;
     }
 
     .contentText {
-        width: 90%; /* Mais espaço em telas menores */
+        width: 90%; 
     }
 
     #ocurrenceBox {
-        width: 90%; /* Adaptação para dispositivos menores */
+        width: 90%;
     }
 
     #welcomeMessage {

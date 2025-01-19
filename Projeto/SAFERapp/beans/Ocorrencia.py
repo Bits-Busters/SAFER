@@ -1,6 +1,6 @@
 from django.db import models
 from SAFERapp.models import CustomUser
-from SAFERapp.beans.Enums import Status, RelacaoUFRPE, Registro
+from SAFERapp.beans.Enums import Status, RelacaoUFRPE, Registro, Local
 from django.utils.timezone import now
 
 class Ocorrencia(models.Model):
@@ -22,7 +22,12 @@ class Ocorrencia(models.Model):
     )
     Descricao = models.TextField()
     Nome_Animal = models.CharField(max_length=100)
-    Local = models.CharField(max_length=100)
+    Local = models.CharField(
+        max_length=20,
+        choices=Local.choices,
+        default=Local.RU,
+        verbose_name="Local do caso"
+    )
     Referencia = models.CharField(max_length=100)
     DataHora = models.DateTimeField(default=now)
     Status = models.CharField(

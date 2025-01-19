@@ -9,7 +9,6 @@ class RelacaoUFRPE(models.TextChoices):
     TERCEIRIZADO = 'terceirizado', _('Terceirizado')
     VISITANTE = 'visitante', _('Visitante')
 
-
 class TipoUsuario(models.TextChoices):
     ADMIN = 'admin', _('Administrador')
     GESTOR = 'gestor', _('Gestor')
@@ -28,7 +27,13 @@ class Status(models.TextChoices):
     FECHADO = 'fechado', _('Fechado')
 
 class Local(models.TextChoices):
-    DC = 'dc', _('DC')
-    VET = 'veterinaria', _('Veterinaria')
-    TRANSRURAL = 'trasrural', _('Transrutal')
     RU = 'ru', _('RU')
+    TRANSRURAL = 'trasrural', _('Transrural')
+    BIBLIOTECACENTRAL = 'biblioteca_central', _('Biblioteca Central')
+    BIBLIOTECASETORIAL = 'biblioteca_setorial', _('Biblioteca Setorial')
+    CEAGRI = 'ceagri', _('CEAGRI')
+    CEGOE = 'cegoe', _('CEGOE')
+    DEPMED = 'dep_medicina_vet', _('Departamento de Medicina Veterinária')
+    DEPZOO = 'dep_zootecnia', _('Departamento de Zootecnia')
+    CENTRAL = 'pred_central', _('Prédio Central')
+    PREF = 'oref_rural', _('Prefeitura da UFRPE')
