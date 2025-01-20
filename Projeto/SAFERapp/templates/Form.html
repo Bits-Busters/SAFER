@@ -111,6 +111,7 @@
                     <h3 class="container contentText">Imagens da Ocorrência</h3>
                     <p class="text-muted">Inserir imagens do animal e do Local</p>
                     <div id="imagens-container">
+                        {{ formset.management_form }}
                         {% for imagem_form in formset %}
                             {{ imagem_form.Image }}
                             <br>

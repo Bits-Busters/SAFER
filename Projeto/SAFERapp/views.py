@@ -112,45 +112,76 @@ class FormularioView(View):
 
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
-        formset = ImagemFormSet(request.POST, request.FILES)  # Lembre-se de passar request.FILES para os arquivos!
+        formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
+
         if form.is_valid() and formset.is_valid():
-            ocorrencia = form.save(commit=False)
-            if request.user.is_authenticated:  # Se o usuário estiver logado
-                ocorrencia.Autor = request.user  # Associa o usuário logado à ocorrência
+            ocorrencia = form.save(commit=False)  # Cria a instância sem salvar ainda
+
+            # Associa o autor à ocorrência
+            if request.user.is_authenticated:
+                ocorrencia.Autor = request.user
             else:
                 try:
                     ocorrencia.Autor = CustomUser.objects.get(nome='Anônimo Usuário')
                 except CustomUser.DoesNotExist:
-                    # Cria o usuário anônimo se não existir
                     autor_anônimo = CustomUser.objects.create(
-                        email='anonimo@example.com',  # Define um email único
+                        email='anonimo@example.com',  # Email genérico
                         nome="Anônimo Usuário",
                         telefone="000000000",
                         telefone_fixo="000000000",
-                        relacao_ufrpe="VISITANTE",  # Ou o valor padrão que você preferir
-                        tipo_usuario="COMUM",  # Ou o valor padrão que você preferir
+                        relacao_ufrpe="VISITANTE",  # Valor padrão
+                        tipo_usuario="COMUM",
                         is_active=True
                     )
-                    ocorrencia.Autor = autor_anônimo  # Atribui o usuário anônimo criado
-                    pass
+                    ocorrencia.Autor = autor_anônimo
 
-                # Salva a ocorrência
-                ocorrencia = ocorrencia.save()
+            # Salva a ocorrência
+            ocorrencia.save()
 
-                # Associa as imagens à ocorrência e salva
-                imagens = formset.save(commit=False)
-                for imagem in imagens:
-                    imagem.ocorrencia = ocorrencia  # Associa a imagem à ocorrência
-                    imagem.save()
+            # Associa as imagens à ocorrência e salva
+            imagens = formset.save(commit=False)
+            for imagem in imagens:
+                imagem.IdOcorrencia = ocorrencia  # Relaciona cada imagem à ocorrência
+                imagem.save()
 
-            # Adicione uma mensagem de sucesso e redirecione para a página inicial
-            return render(request, 'Form.html', {'form': FormularioForm(), 'form_set': ImagemFormSet(), 'success': True, 'redirect_url': 'home'})
-        error_messages = []
-        for field, errors in form.errors.items():
-            for error in errors:
-                error_messages.append(f"{field}: {error}")
-        return render(request, 'Form.html', {'form': form, 'form_set': formset, 'error': True, 'error_messages': error_messages})
-    
+            # Redireciona ou limpa o formulário após salvar com sucesso
+            form = FormularioForm()  # Reseta o formulário
+            formset = ImagemFormSet()  # Reseta o formset
+            return render(request, 'Form.html',
+                          {'form': form, 'formset': formset, 'success': True, 'redirect_url': 'home'})
+        else:
+
+            # Caso os formulários sejam inválidos, processa os erros
+            error_messages = []
+
+            # Erros do formulário principal
+            if not form.is_valid():
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_messages.append(f"Erro no campo '{field}': {error}")
+
+            # Erros do formset
+            if not formset.is_valid():
+                for i, form_errors in enumerate(formset.errors):
+                    for field, errors in form_errors.items():
+                        for error in errors:
+                            error_messages.append(f"Erro no formulário de imagem {i + 1} - campo '{field}': {error}")
+
+            # Erros gerais do formset
+            if formset.non_form_errors():
+                for error in formset.non_form_errors():
+                    error_messages.append(f"Erro geral no formset de imagens: {error}")
+
+            print(error_messages)
+
+            # Retorna os erros no contexto
+            return render(request, 'Form.html', {
+                'form': form,
+                'formset': formset,
+                'error': True,
+                'error_messages': error_messages,
+            })
+
 
 def logout_view(request):
     logout(request)
