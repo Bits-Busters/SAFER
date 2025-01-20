@@ -93,7 +93,6 @@ class ImagemForm(forms.ModelForm):
         fields = ['Image']
         widgets = {
             'Image': forms.ClearableFileInput(attrs={
-            'class': 'form-control',
             'style': '''
                 font-size: 12px;
                 display: block;

@@ -204,6 +204,7 @@ class CadastroView(View):
 class HomeView(View):
     def get(self, request):
         return render(request, 'home.html', {})
+    
     def post(self, request):
         email = request.POST['emailLogin']
         password = request.POST['passwordLogin']
@@ -212,7 +213,7 @@ class HomeView(View):
 
         if user is not None:
             login(request, user)
-            return redirect('telaUsuario', username=user.nome)
+            return render(request, 'home.html', {})
         else:
             print("Email ou senha errados")
             print(user)
