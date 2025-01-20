@@ -110,7 +110,7 @@
                     <!-- Campos para as imagens -->
                     <h3 class="container contentText">Imagens Da Ocorrência</h3>
                     <div id="imagens-container">
-                        
+                        {{ formset.management_form }}
                         {% for imagem_form in formset %}
                             <div class="form-group">
                                 <label for="{{ imagem_form.Imagem.id_for_label }}"></label>
