@@ -14,7 +14,7 @@ class FormularioForm(forms.ModelForm):
         model = Ocorrencia
         fields = ['Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor', 'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao']
         widgets = {
-            'Descricao': forms.Textarea(attrs={'rows': 4, 'cols': 50}),
+            'Descricao': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -90,7 +90,7 @@ class FilterForm(forms.Form):
 class ImagemForm(forms.ModelForm):
     class Meta:
         model = Imagens
-        fields = ['Image']
+        fields = ['Image']  
 
 ImagemFormSet = inlineformset_factory(
     Ocorrencia,  # Modelo pai

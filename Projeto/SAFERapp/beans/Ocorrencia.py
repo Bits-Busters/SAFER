@@ -1,6 +1,6 @@
 from django.db import models
 from SAFERapp.models import CustomUser
-from SAFERapp.beans.Enums import Status, RelacaoUFRPE, Registro, Local
+from SAFERapp.beans.Enums import Estado, RelacaoUFRPE, Registro, Local
 from django.utils.timezone import now
 
 class Ocorrencia(models.Model):
@@ -32,8 +32,8 @@ class Ocorrencia(models.Model):
     DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
         max_length=20,
-        choices=Status.choices,
-        default=Status.ABERTO,
+        choices=Estado.choices,
+        default=Estado.ABERTO,
         verbose_name="Status do chamado"
     )
     # Nova chave estrangeira

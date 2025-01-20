@@ -21,7 +21,7 @@ class Registro(models.TextChoices):
     INTERVENCAO = 'intervencao', _('Intervenção')
 
 
-class Status(models.TextChoices):
+class Estado(models.TextChoices):
     ABERTO = 'aberto', _('Aberto')
     EM_ANALISE = 'em_analise', _('Em análise')
     FECHADO = 'fechado', _('Fechado')

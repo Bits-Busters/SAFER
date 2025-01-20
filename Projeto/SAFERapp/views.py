@@ -172,11 +172,7 @@ class CadastroView(View):
 
 class HomeView(View):
     def get(self, request):
-
-        if request.user.is_authenticated:
-            return redirect('telaUsuario', username=request.user.nome)
-        else:
-            return render(request, 'home.html', {})
+        return render(request, 'home.html', {})
     def post(self, request):
         email = request.POST['emailLogin']
         password = request.POST['passwordLogin']
