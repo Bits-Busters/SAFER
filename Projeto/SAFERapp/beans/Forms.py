@@ -90,7 +90,28 @@ class FilterForm(forms.Form):
 class ImagemForm(forms.ModelForm):
     class Meta:
         model = Imagens
-        fields = ['Image']  
+        fields = ['Image']
+        widgets = {
+            'Image': forms.ClearableFileInput(attrs={
+            'class': 'form-control',
+            'style': '''
+                font-size: 12px;
+                display: block;
+                width: 100%;
+                height: 100%;
+                padding: .375rem .75rem;
+                font-weight: 400;
+                line-height: 1.5;
+                color: #495057;
+                background-color: #fff;
+                background-clip: padding-box;
+                border: 1px solid #ced4da;
+                border-radius: .25rem;
+                transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            ''',
+            }),
+        }
+        
 
 ImagemFormSet = inlineformset_factory(
     Ocorrencia,  # Modelo pai
