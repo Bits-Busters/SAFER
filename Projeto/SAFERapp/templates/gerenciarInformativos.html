@@ -1,0 +1,92 @@
+{% extends 'TopTemplate.html' %}
+
+{% block extra_css %}
+<style>
+    .page {
+        display: none;
+    }
+    .active {
+        display: block;
+    }
+    .btnLoggin {
+        margin: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .btnInfo {
+        margin: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 20px;
+        cursor: pointer;
+        width: 100%; /* O botão ocupa toda a largura do container */
+        max-width: 300px; /* Define um limite máximo */
+        display: flex;
+        align-items: center;  /* Alinha o conteúdo verticalmente */
+        justify-content: center;  /* Alinha o conteúdo horizontalmente */
+    }
+    
+
+</style>
+{% endblock %}
+
+{% block title %}Informativos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Lista de informativos -->
+    <h1 class="contentText">Informativos</h1>
+    <hr width="250px">
+
+    <!-- Botões para gestores ou administradores logados -->
+    {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' %}
+        <div class="mb-4">
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'criarInformativoNovo' %}">
+                    <button class="btnInfo" style="background-color: #70C296; color: white;">
+                        Criar Informativo
+                    </button>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if informativos %}
+        <div>
+            {% for informativo in informativos %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Coluna 1: Título, Corpo e Imagem -->
+                        <div class="col-md-6">
+                            <h2 class="card-title">{{ informativo.titulo }}</h2>
+                            <p class="card-text">{{ informativo.corpo }}</p>
+                            <small class="text-muted">
+                                Publicado por: {{ informativo.id_Autor }} em {{ informativo.data_criacao }}
+                            </small>
+                        </div>
+            
+                        <!-- Coluna 2: Imagem e Informações de Publicação -->
+                        <div class="col-md-6">
+                            <img src="{{ informativo.imagens.url }}" alt="Imagem do Informativo" style="max-width: 200px; height: auto;">
+                        </div>
+                    </div>
+                    <button class="btnInfo" style="background-color: #70C296; color: white;">
+                        <a href="{% url 'criarInformativo' informativo.id %}" style="color: white;">Editar</a>
+                    </button>
+                    <form action="{% url 'gerenciarInformativos' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button class="btnInfo" name="id" value="{{informativo.id}}" style="background-color: #D2A68D; color: white;">Deletar</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Não há informativos disponíveis no momento.</p>
+    {% endif %}
+</div>
+{% endblock %}

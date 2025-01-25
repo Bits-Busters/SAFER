@@ -3,13 +3,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.urls import reverse
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import transaction
 
 from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
-from SAFERapp.beans.Forms import CadastroForm
+from SAFERapp.beans.Forms import CadastroForm, InformativoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
-from .models import CustomUser
+from SAFERapp.beans.Informativos import Informativo
+from .models import CustomUser, get_or_create_anonymous_user
+
+from SAFERapp.beans.Imagens import Imagens
 
 
 # Create your views here.
@@ -61,7 +67,6 @@ def telaOcorrencias(request, tipoChamado):
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
 
-
 def telaUsuario(request, username):
     if username != request.user.nome:
         messages.error(request, "Este não era o seu perfil")
@@ -71,7 +76,8 @@ def telaUsuario(request, username):
 def telaDetalhesChamado(request, id):
     #verificar se o chamado em questão pertence ao usuario
     ocorrencia = get_object_or_404(Ocorrencia, id=id)
-    return render(request, 'TelaDetalhesChamado.html', {"ocorrencia": ocorrencia})
+    ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia).first()
+    return render(request, 'TelaDetalhesChamado.html', {"ocorrencia": ocorrencia, 'imagem': ocorrenciaImagem})
 
 @login_required
 def telaPerfil(request, username):
@@ -94,7 +100,6 @@ def telaPerfil(request, username):
             'form': form
         })
 
-
 class FormularioView(View):
 
     def get(self, request):
@@ -110,45 +115,33 @@ class FormularioView(View):
         formset = ImagemFormSet()
         return render(request, 'Form.html', {'form': form, 'formset': formset})
 
+
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
 
-        if form.is_valid() and formset.is_valid():
-            ocorrencia = form.save(commit=False)  # Cria a instância sem salvar ainda
+        # Verifica se é uma requisição AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid() and formset.is_valid():
+                
+                ocorrencia = form.save(commit=False)
+                if request.user.is_authenticated:
+                    ocorrencia.Autor = request.user
+                else:
+                    ocorrencia.Autor = get_or_create_anonymous_user()
+                ocorrencia.save()
 
-            # Associa o autor à ocorrência
-            if request.user.is_authenticated:
-                ocorrencia.Autor = request.user
-            else:
-                try:
-                    ocorrencia.Autor = CustomUser.objects.get(nome='Anônimo Usuário')
-                except CustomUser.DoesNotExist:
-                    autor_anônimo = CustomUser.objects.create(
-                        email='anonimo@example.com',  # Email genérico
-                        nome="Anônimo Usuário",
-                        telefone="000000000",
-                        telefone_fixo="000000000",
-                        relacao_ufrpe="VISITANTE",  # Valor padrão
-                        tipo_usuario="COMUM",
-                        is_active=True
-                    )
-                    ocorrencia.Autor = autor_anônimo
-
-            # Salva a ocorrência
-            ocorrencia.save()
-
-            # Associa as imagens à ocorrência e salva
-            imagens = formset.save(commit=False)
-            for imagem in imagens:
-                imagem.IdOcorrencia = ocorrencia  # Relaciona cada imagem à ocorrência
-                imagem.save()
+                imagens = formset.save(commit=False)
+                for imagem in imagens:
+                    imagem.IdOcorrencia = ocorrencia
+                    imagem.save()
 
             # Redireciona ou limpa o formulário após salvar com sucesso
             form = FormularioForm()  # Reseta o formulário
             formset = ImagemFormSet()  # Reseta o formset
-            return render(request, 'Form.html',
-                          {'form': form, 'formset': formset, 'success': True, 'redirect_url': 'home'})
+
+            return JsonResponse({'success': True, 'message': 'Formulário enviado com sucesso!', 'redirect_url': reverse('home')})
+
         else:
 
             # Caso os formulários sejam inválidos, processa os erros
@@ -171,17 +164,10 @@ class FormularioView(View):
             if formset.non_form_errors():
                 for error in formset.non_form_errors():
                     error_messages.append(f"Erro geral no formset de imagens: {error}")
-
-            print(error_messages)
-
+                    
             # Retorna os erros no contexto
-            return render(request, 'Form.html', {
-                'form': form,
-                'formset': formset,
-                'error': True,
-                'error_messages': error_messages,
-            })
-
+            return JsonResponse({'success': False, 'errors': error_messages})
+        
 
 def logout_view(request):
     logout(request)
@@ -218,3 +204,61 @@ class HomeView(View):
             print("Email ou senha errados")
             print(user)
             return render(request, 'home.html', {'error': 'E-mail ou senha inválidos.'})
+
+class InformativosView(View):
+    def get(self, request):
+        # Busca todos os informativos ordenados pela data de criação (mais recentes primeiro)
+        informativos = Informativo.objects.order_by('-data_criacao')
+        
+        # Passa os informativos para o contexto do template
+        contexto = {
+            'informativos': informativos,
+        }
+
+        # Renderiza o template com o contexto
+        return render(request, 'TelaInformativos.html', contexto)
+
+class CriarInformativoView(View):
+    def get(self, request, id=None):
+        if id is None:
+            form = InformativoForm(user=request.user)
+            contexto = {'form': form, 'informativo': None}
+        else:
+            informativo = Informativo.objects.get(id=id)
+            form = InformativoForm(instance=informativo, user=request.user)  # Passa o usuário e o informativo
+            contexto = {'form': form, 'informativo': informativo}
+
+        return render(request, 'criarInformativos.html', contexto)
+
+    def post(self, request, id=None):
+        if id is None:
+            form = InformativoForm(request.POST, request.FILES, user=request.user)
+        else:
+            informativo = Informativo.objects.get(id=id)
+            form = InformativoForm(request.POST, request.FILES, instance=informativo, user=request.user)
+
+        if form.is_valid():
+            informativo = form.save()  # Salva o informativo
+            # imagens = request.FILES.getlist('imagens')
+            return redirect('gerenciarInformativos')
+        else:
+            return render(request, 'criarInformativos.html', {'form': form})
+
+    
+class GerenciarInformativosView(View):
+    def get(self, request):
+        # Busca todos os informativos ordenados pela data de criação (mais recentes primeiro)
+        informativos = Informativo.objects.order_by('-data_criacao').filter(id_Autor=request.user)
+        # Passa os informativos para o contexto do template
+        contexto = {
+            'informativos': informativos
+        }
+
+        # Renderiza o template com o contexto
+        return render(request, 'gerenciarInformativos.html', contexto)
+    
+    def post(self, request):
+        id = request.POST['id']
+        informativo = Informativo.objects.get(id=id)
+        informativo.excluir_informativo()
+        return redirect('gerenciarInformativos')
