@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
-
+from django.contrib.auth import views as auth_views
 
 # todas as URLs do projeto
 urlpatterns = [
@@ -38,4 +38,13 @@ urlpatterns = [
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
     path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
+
+    # Página para reiniciar a senha
+    path('senha-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    # Página de notificação de sucesso após o envio do email
+    path('senha-reset-feito/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    # Página de redefinição de senha com o token (enviado por email)
+    path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    # Sucesso após redefinição da senha
+    path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

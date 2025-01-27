@@ -8,7 +8,7 @@ from SAFERapp.models import CustomUser  # Ajuste conforme o nome do seu app
 def enviar_email_boas_vindas(sender, instance, created, **kwargs):
     if created:  # Só envia o email quando o usuário for criado
         subject = 'Bem-vindo ao nosso site!'
-        message = f'Olá {instance.username}, obrigado por se cadastrar no nosso site!'
+        message = f'Olá {instance.nome}, obrigado por se cadastrar no nosso site!'
         from_email = settings.DEFAULT_FROM_EMAIL  # Usando o valor configurado no settings.py
         recipient_list = [instance.email]
 
