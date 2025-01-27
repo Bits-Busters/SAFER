@@ -8,6 +8,10 @@ body {
     margin: 0;
 }
 
+.navbar .navbar-nav .nav-link {
+    color: white !important;
+}
+
 .btnLoggin {
     margin: 0.5rem 2rem 0.5rem 1rem;
     border: none;
