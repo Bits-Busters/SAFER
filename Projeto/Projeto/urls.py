@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 
 from Projeto import settings
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado, InformativosView, GerenciarInformativosView, CriarInformativoView
 
 
 # todas as URLs do projeto
@@ -41,7 +41,14 @@ urlpatterns = [
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
     path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
-]
+    #URL da página de Informativos
+    path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
+    #URL da página de criação de Informativos
+    path('informativos/criar/<int:id>', CriarInformativoView.as_view(), name ='criarInformativo'),
+    path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
+    #URL da página de gerenciamento de Informativos
+    path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
+    ] 
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

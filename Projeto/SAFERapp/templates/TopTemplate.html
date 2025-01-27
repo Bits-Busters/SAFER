@@ -11,13 +11,20 @@
     {% block extra_css %}
     {% endblock %}
     <title>{% block title %}SAFER{% endblock %}</title>
+    <style>
+        img {
+          float: right; /* Faz a imagem flutuar para a esquerda */
+          margin-right: 30px; /* Cria uma margem direita de 20 pixels */
+          margin-left: 20px; /* Cria uma margem esquerda de 20 pixels */
+        }
+      </style>
 </head>
 <body>
     <header>
         <div id="headerLeft">
             <div id ="hlContent">
                 <div id="logo">
-                    <img logo src="{% static 'images/logo.jpg' %}" alt="" height="160" width="160">
+                    <img logo src="{% static 'images/iconSafer.png' %}" alt="" height="160" width="160">
                 </div>
                 <div id="hlTextContent">
                     <p>
@@ -84,7 +91,7 @@
                     <a href="{% url 'formulario' %}" class="nav-link" href="#" style="color: aliceblue;">Cadastrar Ocorrência</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="color: aliceblue;">Informativos</a>
+                    <a href="{% url 'telaInformativos' %}" class="nav-link" href="#">Informativos</a>
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
