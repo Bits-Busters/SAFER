@@ -13,6 +13,13 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
     ports:
       - "8000:8000"
+    command: |
+      sh -c "
+      python3 Projeto/manage.py makemigrations 
+      python3 Projeto/manage.py migrate
+      python3 Projeto/manage.py runserver 0.0.0.0:8000
+      "
+
     volumes:
       - .:/app
   db:
