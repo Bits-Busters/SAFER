@@ -19,8 +19,12 @@ RUN poetry install --no-interaction --no-ansi
 # Copia todo o código do projeto para dentro do container
 COPY . .
 
-# Expondo a porta 8000 (Django padrão)
+# Porta usada pelo container
 EXPOSE 8000
+
+# Faz migrações
+RUN python3 Projeto/manage.py makemigrations
+RUN python3 Projeto/manage.py migrate
 
 # Comando padrão para rodar o Django
 CMD ["python3", "Projeto/manage.py", "runserver", "0.0.0.0:8000"]
