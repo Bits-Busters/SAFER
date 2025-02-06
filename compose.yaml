@@ -1,0 +1,39 @@
+version: '3.11'
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    depends_on:
+      - db
+    environment:
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    ports:
+      - "8000:8000"
+    command: |
+      sh -c "
+      python3 Projeto/manage.py makemigrations 
+      python3 Projeto/manage.py migrate
+      python3 Projeto/manage.py runserver 0.0.0.0:8000
+      "
+
+    volumes:
+      - .:/app
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    environment:
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data: {}
