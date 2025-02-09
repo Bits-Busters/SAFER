@@ -1,8 +1,14 @@
 # Usa a imagem oficial do Python
-FROM python:3.12
+FROM python:3.12-slim
 
 # Define a raiz do container
 WORKDIR /app
+
+# Instala dependências do sistema e remove cache de instalação
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libmariadb-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instala o Poetry globalmente
 RUN pip install --no-cache-dir poetry
