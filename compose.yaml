@@ -1,10 +1,14 @@
 services:
   web:
-    build: .
+    build: 
+      context: .
+      target: prod
+      dockerfile: Dockerfile
     container_name: django_app
     depends_on:
       - db
     environment:
+      - PYTHONPATH=/app/Projeto
       - MYSQL_DATABASE=mydatabase
       - MYSQL_USER=myuser
       - MYSQL_PASSWORD=secret
@@ -15,11 +19,10 @@ services:
       sh -c "
       python3 Projeto/manage.py makemigrations 
       python3 Projeto/manage.py migrate
-      python3 Projeto/manage.py runserver 0.0.0.0:8000
+      gunicorn --bind 0.0.0.0:8000 Projeto.wsgi:application
       "
-
     volumes:
-      - .:/app
+      - ./Projeto:/app/Projeto
   db:
     image: mysql:latest
     container_name: mysql_db
