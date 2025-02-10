@@ -1,5 +1,5 @@
 # Usa a imagem oficial do Python
-FROM python:3.12-slim
+FROM python:3.12-slim AS builder
 
 # Define a raiz do container
 WORKDIR /app
@@ -17,6 +17,18 @@ RUN pip install --no-cache-dir poetry
 # Copia os arquivos do Poetry primeiro para otimizar o cache
 COPY pyproject.toml poetry.lock ./
 
+# Baixa dependências e comprime elas em wheels
+RUN poetry export -f requirements.txt --output requirements.txt \
+    && pip wheel --no-cache-dir --no-deps -r requirements.txt -w /wheels
+
+# -------------------------------------------------------------------------
+
+FROM python:3.12-slim AS prod  
+
+WORKDIR /app
+
+COPY --from=builder /wheels /wheels
+COPY --from=builder /app/requirements.txt /wheels/requirements.txt
 # Configura o Poetry para não usar virtualenvs 
 RUN poetry config virtualenvs.create false 
 
@@ -30,4 +42,7 @@ COPY . .
 EXPOSE 8000
 
 # Comando padrão para rodar o Django
-CMD ["python3", "Projeto/manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["python3", "Projeto/manage.py", "runserver", "0.0.0.0:8000"]
+
+# Comando de inicialização do Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "SAFERapp.wsgi:application"]
