@@ -31,6 +31,10 @@ FROM python:3.12-slim AS prod
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y \
+    libmariadb-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Instala depedências pré-compiladas
 COPY --from=builder /wheels /wheels
 COPY --from=builder /app/requirements.txt /wheels/requirements.txt

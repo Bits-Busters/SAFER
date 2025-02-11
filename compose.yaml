@@ -1,18 +1,22 @@
 services:
   web:
+    pull_policy: never
+    image: safer-backend
     build: 
       context: .
       target: prod
       dockerfile: Dockerfile
-    container_name: django_app
+    container_name: safer-web
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - PYTHONPATH=/app/Projeto
-      - MYSQL_DATABASE=mydatabase
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      - DB_NAME=safer_db
+      - DB_USER=safer_user
+      - DB_PASSWORD=safer_pass
+      - DB_HOST=db  # Nome do serviço MySQL
+      - DB_PORT=3306
     ports:
       - "8000:8000"
     command: |
@@ -27,10 +31,14 @@ services:
     image: mysql:latest
     container_name: mysql_db
     environment:
-      - MYSQL_DATABASE=mydatabase
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: safer_db
+      MYSQL_USER: safer_user
+      MYSQL_PASSWORD: safer_pass
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 160
     ports:
       - "3306:3306"
     volumes:
