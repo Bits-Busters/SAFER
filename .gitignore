@@ -1,12 +1,11 @@
 SAFER/
 venv/
-<<<<<<< HEAD
+
 Projeto/media/
-=======
+
 .idea/
 Projeto/.idea/
-    
->>>>>>> docker
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
