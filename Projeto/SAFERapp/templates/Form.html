@@ -15,6 +15,66 @@
         .form-group input.is-invalid, .form-group textarea.is-invalid {
             border-color: red;
         }
+        
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            text-align: center;
+            width: 33%;
+            position: relative;
+        }
+
+        .step span {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step.active span {
+            background: #70C296;
+            color: #fff;
+        }
+
+        .step p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+            z-index: -1;
+        }
+
+        .step.active::after {
+            background: #70C296;
+        }
+
+        .step:first-child::after {
+            left: 50%;
+            width: 100%;
+        }
+
+        .step:last-child::after {
+            width: 0;
+        }
+
     </style>
 {% endblock %}
 
@@ -40,6 +100,22 @@
             {% csrf_token %}
             <h2 class="container contentText">Formulário</h2>
             <hr width="250px">
+
+            <div class="progress-indicator d-flex justify-content-between mb-4">
+                <div class="step active">
+                    <span>1</span>
+                    <p>Informações Pessoais</p>
+                </div>
+                <div class="step {% if current_page >= 2 %}active{% endif %}">
+                    <span>2</span>
+                    <p>Informações do Animal</p>
+                </div>
+                <div class="step {% if current_page >= 3 %}active{% endif %}">
+                    <span>3</span>
+                    <p>Descrição</p>
+                </div>
+            </div>
+            
 
             <!-- Página 1 -->
             <div class="content">
@@ -133,6 +209,18 @@
         </form>
     </div>
     <script>
+
+        function updateProgressIndicator(pageNumber) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index < pageNumber) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
         function navigatePage(pageNumber) {
             const pages = document.querySelectorAll('.page');
             if (pageNumber > 1) {
@@ -154,6 +242,7 @@
                 }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById('page' + pageNumber).classList.add('active');
+            updateProgressIndicator(pageNumber);
         }
 
         function handleSubmit(event) {
