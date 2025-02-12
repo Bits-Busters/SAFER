@@ -17,15 +17,13 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-<<<<<<< HEAD
 
 from Projeto import settings
 from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado, InformativosView, GerenciarInformativosView, CriarInformativoView
 
-=======
 from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
 from django.contrib.auth import views as auth_views
->>>>>>> docker
+
 
 # todas as URLs do projeto
 urlpatterns = [
@@ -46,7 +44,7 @@ urlpatterns = [
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
     path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
-<<<<<<< HEAD
+
     #URL da página de Informativos
     path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
     #URL da página de criação de Informativos
@@ -54,12 +52,7 @@ urlpatterns = [
     path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
     #URL da página de gerenciamento de Informativos
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
-    ] 
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-=======
-
+    
     # Página para reiniciar a senha
     path('senha-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     # Página de notificação de sucesso após o envio do email
@@ -69,4 +62,9 @@ if settings.DEBUG:
     # Sucesso após redefinição da senha
     path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
->>>>>>> docker
+    ] 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
