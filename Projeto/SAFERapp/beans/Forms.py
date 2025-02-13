@@ -1,4 +1,4 @@
-from tkinter import Image
+
 from django.forms import inlineformset_factory
 
 from SAFERapp.beans.Enums import Registro, Local
