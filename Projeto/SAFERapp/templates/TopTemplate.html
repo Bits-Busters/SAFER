@@ -60,7 +60,7 @@
                     <div id="hrInput">
                         <input id="login" class="inpLoggin" type="text" name="emailLogin" placeholder=" E-mail">
                         <input id="password" class="inpLoggin" type="password"  name="passwordLogin" placeholder=" Senha">
-                        <a href="#" id="passwordRecover">Esqueceu a senha?</a>
+                        <a href="{% url 'password_reset' %}" id="passwordRecover">Esqueceu a senha?</a>
                     </div>
                     <div id="hrButton">
                         <button type = "submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Login</button>
