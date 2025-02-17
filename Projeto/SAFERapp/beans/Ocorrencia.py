@@ -1,10 +1,10 @@
 from django.db import models
 from SAFERapp.models import CustomUser
-from SAFERapp.beans.Enums import Estado, RelacaoUFRPE, Registro, Local
+from SAFERapp.beans.Enums import RelacaoUFRPE, Registro, Local, StatusChamado
 from django.utils.timezone import now
 
 class Ocorrencia(models.Model):
-    Autor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1, related_name="ocorrencias_criadas")
+    Autor = models.ForeignKey(CustomUser, on_delete=models.SET_DEFAULT, default=1, related_name="ocorrencias_criadas")
     Nome_Autor = models.CharField(max_length=100)
     Celular_Autor = models.CharField(max_length=20)
     Telefone_Autor = models.CharField(max_length=20)
@@ -32,21 +32,21 @@ class Ocorrencia(models.Model):
     DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
         max_length=20,
-        choices=Estado.choices,
-        default=Estado.ABERTO,
+        choices=StatusChamado.choices,
+        default=StatusChamado.ABERTO,
         verbose_name="Status do chamado"
     )
     # Nova chave estrangeira
-    Analista = models.ForeignKey(
+    Resgatista = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="ocorrencias_analizadas",
-        verbose_name="Analista responsável"
+        verbose_name="Resgatista responsável"
     )
 
-    def alterar_status(self, novo_status: Status):
+    def alterar_status(self, novo_status: StatusChamado):
         self.Status = novo_status
         self.save()
 
@@ -54,12 +54,12 @@ class Ocorrencia(models.Model):
         self.Descricao = nova_descricao
         self.save()
 
-    def adicionar_analista(self, analista: CustomUser):
-        if analista.is_staff:  # Verifica se o usuário é administrador
-            self.Analista = analista
+    def adicionar_Resgatista(self, Resgatista: CustomUser):
+        if Resgatista.is_staff:  # Verifica se o usuário é administrador
+            self.Resgatista = Resgatista
             self.save()
         else:
-            raise ValueError("O analista deve ser um administrador.")
+            raise ValueError("O Resgatista deve ser um administrador.")
 
     def __str__(self) -> str:
         return f"Ocorrência de {self.Autor} em {self.DataHora}"

@@ -17,14 +17,8 @@ class TipoUsuario(models.TextChoices):
 
 
 class Registro(models.TextChoices):
-    PRESENCA = 'presenca', _('Presença')
-    INTERVENCAO = 'intervencao', _('Intervenção')
-
-
-class Estado(models.TextChoices):
-    ABERTO = 'aberto', _('Aberto')
-    EM_ANALISE = 'em_analise', _('Em análise')
-    FECHADO = 'fechado', _('Fechado')
+    PRESENCA = 'presenca', _('Presença de animal')
+    INTERVENCAO = 'intervencao', _('Intervenção necessária')
 
 class Local(models.TextChoices):
     RU = 'ru', _('RU')
@@ -37,3 +31,9 @@ class Local(models.TextChoices):
     DEPZOO = 'dep_zootecnia', _('Departamento de Zootecnia')
     CENTRAL = 'pred_central', _('Prédio Central')
     PREF = 'oref_rural', _('Prefeitura da UFRPE')
+
+class StatusChamado(models.TextChoices):
+    ABERTO = 'aberto', _('Aberto')
+    EM_ANALISE = 'em_analise', _('Em análise')
+    EM_ANDAMENTO = 'em_andamento', _('Em andamento')
+    FECHADO = 'fechado', _('Fechado')

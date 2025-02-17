@@ -178,3 +178,17 @@ ImagemFormSet = inlineformset_factory(
     extra=5,  # Quantidade de campos extras para imagens
     can_delete=True  # Permite deletar imagens existentes
 )
+
+class ObservacaoForm(forms.Form):
+    observacao = forms.CharField(
+        label="Observação",
+        widget=forms.Textarea(attrs={'rows': 4, 'cols': 40, 'class': 'form-control'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ObservacaoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.form_class = 'form-horizontal'
+        self.helper.form_tag = True  # Não renderizar a tag <form> automaticamente
+        self.helper.add_input(Submit('submit', 'Enviar'))

@@ -11,7 +11,7 @@
     </style>
 {% endblock %}
 
-{% block title %}Criar Informativo{% endblock %}
+{% block title %}Criar Observação{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -22,37 +22,14 @@
         <h2 class="container contentText">Criar sua conta</h2>
         <hr width="250px">
 
-        <!-- Página 1 -->
         <div class="content">
             <div class="page active " id="page1">
-                <div class="form-group">
-                    <label for="{{ form.titulo.id_for_label }}">Título</label>
-                    <p>{{ form.titulo }}</p>
-                </div>
-                <h2 class="container contentText">Corpo do Informativo</h3>
+                <h2 class="container contentText">Observação</h3>
                 <div class="form-group">
                     <label for="{{ form.corpo.id_for_label }}">Corpo</label>
                     <p>{{ form.corpo }}</p>
                 </div>                
-                <!-- Campos para as imagens -->
-                <div class="form-group">
-                    <label for="{{ form.imagens.id_for_label }}">Imagens</label>
-                    <p>{{ form.imagens }}</p>
-                </div>
-
-                {% if informativo.imagens %}
-                    <div class="form-group">
-                        <p>Imagem Atual:</p>
-                        <img src="{{ informativo.imagens.url }}" alt="Imagem Atual" style="max-width: 200px; height: auto;">
-                    </div>
-                {% endif %}
-                
-                <!-- Muda o nome do botão dependendo se o formulário está preenchido -->
-                {% if form.titulo.value or form.corpo.value or form.imagens.value %}
-                    <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Atualizar</button>
-                {% else %}
                     <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Criar</button>
-                {% endif %}
             </div>
         </div>
     </form>

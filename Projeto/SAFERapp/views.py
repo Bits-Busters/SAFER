@@ -9,8 +9,9 @@ from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 
+from SAFERapp.beans.Enums import StatusChamado
 from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
-from SAFERapp.beans.Forms import CadastroForm, InformativoForm
+from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
 from .models import CustomUser, get_or_create_anonymous_user
@@ -33,7 +34,11 @@ def telaOcorrencias(request, tipoChamado):
     elif tipoChamado == "chamados-aceitos":
         # Obtém as ocorrências do usuário logado
         nome = "Chamados aceitos"
-        ocorrencia = Ocorrencia.objects.filter(Analista=request.user).order_by('-DataHora')
+        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
+    elif tipoChamado == "chamados-em-aberto":
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados em aberto"
+        ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
     else:
         messages.error(request, "Esta não é uma página válida")
         return render(request, 'home.html')
@@ -73,11 +78,64 @@ def telaUsuario(request, username):
         return render(request, 'home.html')
     return render(request, 'TelaUsuario.html')
 
-def telaDetalhesChamado(request, id):
-    #verificar se o chamado em questão pertence ao usuario
-    ocorrencia = get_object_or_404(Ocorrencia, id=id)
-    ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia).first()
-    return render(request, 'TelaDetalhesChamado.html', {"ocorrencia": ocorrencia, 'imagem': ocorrenciaImagem})
+class TelaDetalhesChamadoView(View):
+    resgatistas = ['admin', 'gestor', 'analista']
+
+    def get(self, request, id):
+        # Verificar se o chamado em questão pertence ao usuário
+        ocorrencia = get_object_or_404(Ocorrencia, id=id)
+        ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia).first()
+        
+        return render(request, 'TelaDetalhesChamado.html', {
+            "ocorrencia": ocorrencia, 
+            "imagem": ocorrenciaImagem,
+            "resgatistas": self.resgatistas  # Agora está no contexto
+        })
+
+    def post(self, request, id):
+        ocorrencia = get_object_or_404(Ocorrencia, id=id)
+        resgatista = request.user  # Obtém o usuário autenticado
+        ocorrencia.Resgatista = resgatista
+        ocorrencia.Status = StatusChamado.EM_ANALISE
+        ocorrencia.save()
+
+        tipoChamado = 'chamados-aceitos'  # Exemplo de valor dinâmico para tipoChamado
+    
+        # Caso de sucesso (ou sua lógica de verificação)
+        success = True
+        
+        # Gera a URL do redirecionamento usando reverse, incluindo o parâmetro tipoChamado
+        redirect_url = reverse('telaChamados', kwargs={'tipoChamado': tipoChamado})
+        messages.success(request, "Chamado aceito com sucesso!")
+        return redirect('telaChamados', tipoChamado=tipoChamado)
+
+class TelaCriarObservacoesView(View):
+    def get(self, request, id=None):
+        if id is None:
+            form = ObservacaoForm
+            contexto = {'form': form, 'informativo': None}
+        else:
+            observacao = ObservacaoForm.objects.get(id=id)
+            form = InformativoForm(instance=observacao, user=request.user)  # Passa o usuário e o informativo
+            contexto = {'form': form, 'observacao': observacao}
+
+        return render(request, 'TelaObservacoes.html', contexto)
+
+    def post(self, request, id=None):
+        if id is None:
+            form = ObservacaoForm(request.POST, request.FILES, user=request.user)
+        else:
+            observacao = ObservacaoForm.objects.get(id=id)
+            form = ObservacaoForm(request.POST, request.FILES, instance=observacao, user=request.user)
+
+        if form.is_valid():
+            observacao = form.save()  # Salva o informativo
+            # imagens = request.FILES.getlist('imagens')
+            ocorrencia = Ocorrencia.objects.get(id=observacao.IdOcorrencia)
+            return redirect('telaDetalhesChamado', id=ocorrencia.id)
+        else:
+            return render(request, 'TelaObservacoes.html', {'form': form})
+
 
 @login_required
 def telaPerfil(request, username):
@@ -262,3 +320,4 @@ class GerenciarInformativosView(View):
         informativo = Informativo.objects.get(id=id)
         informativo.excluir_informativo()
         return redirect('gerenciarInformativos')
+    

@@ -19,9 +19,7 @@ from django.contrib import admin
 from django.urls import path
 
 from Projeto import settings
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado, InformativosView, GerenciarInformativosView, CriarInformativoView
-
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView
 from django.contrib.auth import views as auth_views
 
 
@@ -43,7 +41,10 @@ urlpatterns = [
     #URL da página de perfil
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
-    path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
+    path('chamado/<int:id>',TelaDetalhesChamadoView.as_view(), name ='telaDetalhesChamado'),
+    #URL da página de Observações
+    path('observacoes/criar/<int:id>', TelaCriarObservacoesView.as_view(), name ='criarObservacao'),
+
 
     #URL da página de Informativos
     path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
