@@ -1,6 +1,7 @@
 
 from django.forms import inlineformset_factory
 
+from SAFERapp.beans.Observacoes import Observacoes
 from SAFERapp.beans.Enums import Registro, Local
 from SAFERapp.beans.Imagens import Imagens 
 from SAFERapp.beans.Ocorrencia import Ocorrencia
@@ -179,16 +180,19 @@ ImagemFormSet = inlineformset_factory(
     can_delete=True  # Permite deletar imagens existentes
 )
 
-class ObservacaoForm(forms.Form):
-    observacao = forms.CharField(
-        label="Observação",
-        widget=forms.Textarea(attrs={'rows': 4, 'cols': 40, 'class': 'form-control'})
-    )
+class ObservacaoForm(forms.ModelForm):
+    class Meta:
+        model = Observacoes
+        fields = ['corpo']  # Campos do formulário
+
+        widgets = {
+            'corpo': forms.Textarea(attrs={'rows': 4, 'cols': 40, 'class': 'form-control', 'placeholder': 'Adicione uma observação...'})
+        }
 
     def __init__(self, *args, **kwargs):
         super(ObservacaoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.form_class = 'form-horizontal'
-        self.helper.form_tag = True  # Não renderizar a tag <form> automaticamente
+        self.helper.form_tag = True
         self.helper.add_input(Submit('submit', 'Enviar'))

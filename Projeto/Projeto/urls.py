@@ -42,14 +42,15 @@ urlpatterns = [
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
     path('chamado/<int:id>',TelaDetalhesChamadoView.as_view(), name ='telaDetalhesChamado'),
-    #URL da página de Observações
-    path('observacoes/criar/<int:id>', TelaCriarObservacoesView.as_view(), name ='criarObservacao'),
+    #URL da página de criar Observações, carrega o id do chamado
+    path('observacoes/criar/<int:ocorrencia_id>', TelaCriarObservacoesView.as_view(), name ='criarObservacao'),
 
 
     #URL da página de Informativos
     path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
-    #URL da página de criação de Informativos
+    #URL da página de atualização de Informativos
     path('informativos/criar/<int:id>', CriarInformativoView.as_view(), name ='criarInformativo'),
+    #URL da página de criação de Informativos
     path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
     #URL da página de gerenciamento de Informativos
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),

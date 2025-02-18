@@ -14,6 +14,7 @@ from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
 from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
+from SAFERapp.beans.Observacoes import Observacoes
 from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
@@ -82,60 +83,67 @@ class TelaDetalhesChamadoView(View):
     resgatistas = ['admin', 'gestor', 'analista']
 
     def get(self, request, id):
-        # Verificar se o chamado em questão pertence ao usuário
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
         ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia).first()
+        observacoes_ocorrencia = Observacoes.objects.filter(ocorrencia=ocorrencia).order_by('-dataHora')
+        form = ObservacaoForm()  # Formulário de observação vazio
         
         return render(request, 'TelaDetalhesChamado.html', {
             "ocorrencia": ocorrencia, 
             "imagem": ocorrenciaImagem,
-            "resgatistas": self.resgatistas  # Agora está no contexto
+            "resgatistas": self.resgatistas,
+            "observacoes": observacoes_ocorrencia,
+            "form": form
         })
 
     def post(self, request, id):
+        form_type = request.POST.get("form_type")
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
-        resgatista = request.user  # Obtém o usuário autenticado
-        ocorrencia.Resgatista = resgatista
-        ocorrencia.Status = StatusChamado.EM_ANALISE
-        ocorrencia.save()
 
-        tipoChamado = 'chamados-aceitos'  # Exemplo de valor dinâmico para tipoChamado
-    
-        # Caso de sucesso (ou sua lógica de verificação)
-        success = True
-        
-        # Gera a URL do redirecionamento usando reverse, incluindo o parâmetro tipoChamado
-        redirect_url = reverse('telaChamados', kwargs={'tipoChamado': tipoChamado})
-        messages.success(request, "Chamado aceito com sucesso!")
-        return redirect('telaChamados', tipoChamado=tipoChamado)
+        if form_type == "aceitar_chamado":
+            ocorrencia.Resgatista = request.user
+            ocorrencia.Status = StatusChamado.EM_ANALISE
+            ocorrencia.save()
 
+            return render(request, 'TelaDetalhesChamado.html', {'success': True, 'redirect_url': 'home'})
+
+        elif form_type == "adicionar_observacao":
+            form = ObservacaoForm(request.POST, request.FILES)
+            if form.is_valid():
+                observacao = form.save(commit=False)
+                observacao.ocorrencia = ocorrencia
+                observacao.autor = request.user
+                observacao.save()
+                print(observacao)
+                messages.success(request, "Observação criada com sucesso!")
+            else:
+                messages.error(request, "Erro ao salvar a observação. Verifique os dados.")
+            
+        form = ObservacaoForm()  # Formulário de observação vazio
+
+        return redirect('telaDetalhesChamado', ocorrencia.id)
+
+
+
+# Inicio da implementacao da tela de observacoes
 class TelaCriarObservacoesView(View):
-    def get(self, request, id=None):
-        if id is None:
-            form = ObservacaoForm
-            contexto = {'form': form, 'informativo': None}
-        else:
-            observacao = ObservacaoForm.objects.get(id=id)
-            form = InformativoForm(instance=observacao, user=request.user)  # Passa o usuário e o informativo
-            contexto = {'form': form, 'observacao': observacao}
+    def get(self, request, ocorrencia_id):
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        form = ObservacaoForm()
+        return render(request, 'TelaObservacoes.html', {'form': form, 'ocorrencia': ocorrencia})
 
-        return render(request, 'TelaObservacoes.html', contexto)
-
-    def post(self, request, id=None):
-        if id is None:
-            form = ObservacaoForm(request.POST, request.FILES, user=request.user)
-        else:
-            observacao = ObservacaoForm.objects.get(id=id)
-            form = ObservacaoForm(request.POST, request.FILES, instance=observacao, user=request.user)
-
+    def post(self, request, ocorrencia_id):
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        form = ObservacaoForm(request.POST)
         if form.is_valid():
-            observacao = form.save()  # Salva o informativo
-            # imagens = request.FILES.getlist('imagens')
-            ocorrencia = Ocorrencia.objects.get(id=observacao.IdOcorrencia)
-            return redirect('telaDetalhesChamado', id=ocorrencia.id)
-        else:
-            return render(request, 'TelaObservacoes.html', {'form': form})
+            observacao = form.save(commit=False)
+            observacao.ocorrencia = ocorrencia
+            observacao.autor = request.user
+            observacao.save()
+            messages.success(request, "Observação criada com sucesso!")
+            return redirect('telaDetalhesChamado', ocorrencia_id=ocorrencia.id)
 
+        return render(request, 'TelaObservacoes.html', {'form': form, 'ocorrencia': ocorrencia})
 
 @login_required
 def telaPerfil(request, username):
