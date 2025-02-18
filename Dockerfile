@@ -48,5 +48,6 @@ COPY ./Projeto ./Projeto
 EXPOSE 8000
 RUN python Projeto/manage.py collectstatic --noinput
 
+
 # Comando de inicialização do Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "Projeto.wsgi:application"]
