@@ -14,10 +14,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, telaDetalhesChamado
+
+from Projeto import settings
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView
 from django.contrib.auth import views as auth_views
+
 
 # todas as URLs do projeto
 urlpatterns = [
@@ -33,12 +37,24 @@ urlpatterns = [
     #URL para deslogar o usuario
     path('logout/', logout_view, name='logout'),
     # URL da página de ocorrencias
-    path('meus-chamados/<str:username>', telaOcorrencias, name ='telaChamados'),
+    path('chamados/<str:tipoChamado>', telaOcorrencias, name ='telaChamados'),
     #URL da página de perfil
     path('meu-perfil/<str:username>', telaPerfil, name ='telaPerfil'),
     #URL da página de detalhamento de chamado
-    path('chamado/<int:id>', telaDetalhesChamado, name ='telaDetalhesChamado'),
+    path('chamado/<int:id>',TelaDetalhesChamadoView.as_view(), name ='telaDetalhesChamado'),
+    #URL da página de criar Observações, carrega o id do chamado
+    path('observacoes/criar/<int:ocorrencia_id>', TelaCriarObservacoesView.as_view(), name ='criarObservacao'),
 
+
+    #URL da página de Informativos
+    path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
+    #URL da página de atualização de Informativos
+    path('informativos/criar/<int:id>', CriarInformativoView.as_view(), name ='criarInformativo'),
+    #URL da página de criação de Informativos
+    path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
+    #URL da página de gerenciamento de Informativos
+    path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
+    
     # Página para reiniciar a senha
     path('senha-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     # Página de notificação de sucesso após o envio do email
@@ -48,3 +64,8 @@ urlpatterns = [
     # Sucesso após redefinição da senha
     path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

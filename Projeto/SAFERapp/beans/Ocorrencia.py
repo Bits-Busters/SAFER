@@ -1,11 +1,10 @@
 from django.db import models
 from SAFERapp.models import CustomUser
-from SAFERapp.beans.Enums import Status, RelacaoUFRPE, Registro
-from datetime import datetime
+from SAFERapp.beans.Enums import RelacaoUFRPE, Registro, Local, StatusChamado
 from django.utils.timezone import now
 
 class Ocorrencia(models.Model):
-    Autor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=1)
+    Autor = models.ForeignKey(CustomUser, on_delete=models.SET_DEFAULT, default=1, related_name="ocorrencias_criadas")
     Nome_Autor = models.CharField(max_length=100)
     Celular_Autor = models.CharField(max_length=20)
     Telefone_Autor = models.CharField(max_length=20)
@@ -23,25 +22,44 @@ class Ocorrencia(models.Model):
     )
     Descricao = models.TextField()
     Nome_Animal = models.CharField(max_length=100)
-    Local = models.CharField(max_length=100)
+    Local = models.CharField(
+        max_length=20,
+        choices=Local.choices,
+        default=Local.RU,
+        verbose_name="Local do caso"
+    )
     Referencia = models.CharField(max_length=100)
     DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
         max_length=20,
-        choices= Status.choices,
-        default = Status.ABERTO,
-        verbose_name= "Status do chamado"
+        choices=StatusChamado.choices,
+        default=StatusChamado.ABERTO,
+        verbose_name="Status do chamado"
     )
-    
-    def alterar_status(self, novo_status: Status):
-        return
-    
+    # Nova chave estrangeira
+    Resgatista = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ocorrencias_analizadas",
+        verbose_name="Resgatista responsável"
+    )
+
+    def alterar_status(self, novo_status: StatusChamado):
+        self.Status = novo_status
+        self.save()
+
     def alterar_descricao(self, nova_descricao: str):
-        return
-    
-    def adicionar_analista(self, analista: CustomUser):
-        return
-    
+        self.Descricao = nova_descricao
+        self.save()
+
+    def adicionar_Resgatista(self, Resgatista: CustomUser):
+        if Resgatista.is_staff:  # Verifica se o usuário é administrador
+            self.Resgatista = Resgatista
+            self.save()
+        else:
+            raise ValueError("O Resgatista deve ser um administrador.")
+
     def __str__(self) -> str:
         return f"Ocorrência de {self.Autor} em {self.DataHora}"
-    

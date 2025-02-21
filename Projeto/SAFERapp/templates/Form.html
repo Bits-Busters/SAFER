@@ -8,6 +8,73 @@
         .active {
             display: block;
         }
+        .text-danger {
+        color: red;
+        font-size: 0.9em;
+        }
+        .form-group input.is-invalid, .form-group textarea.is-invalid {
+            border-color: red;
+        }
+        
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            text-align: center;
+            width: 33%;
+            position: relative;
+        }
+
+        .step span {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step.active span {
+            background: #70C296;
+            color: #fff;
+        }
+
+        .step p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+            z-index: -1;
+        }
+
+        .step.active::after {
+            background: #70C296;
+        }
+
+        .step:first-child::after {
+            left: 50%;
+            width: 100%;
+        }
+
+        .step:last-child::after {
+            width: 0;
+        }
+
     </style>
 {% endblock %}
 
@@ -15,25 +82,56 @@
 
 {% block content %}
 <div class="container">
-        <form method="POST" action="{% url 'formulario' %}" enctype="multipart/form-data" class="mt-4">
+
+
+    {% if error_messages %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for message in error_messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+
+        <form id="form_ocorrencia" method="POST" action="{% url 'formulario' %}" enctype="multipart/form-data" class="mt-4" novalidate>
             {% load crispy_forms_tags %}
             {% csrf_token %}
             <h2 class="container contentText">Formulário</h2>
             <hr width="250px">
+
+            <div class="progress-indicator d-flex justify-content-between mb-4">
+                <div class="step active">
+                    <span>1</span>
+                    <p>Informações Pessoais</p>
+                </div>
+                <div class="step {% if current_page >= 2 %}active{% endif %}">
+                    <span>2</span>
+                    <p>Informações do Animal</p>
+                </div>
+                <div class="step {% if current_page >= 3 %}active{% endif %}">
+                    <span>3</span>
+                    <p>Descrição</p>
+                </div>
+            </div>
+            
 
             <!-- Página 1 -->
             <div class="content">
                 <div class="page active " id="page1">
                     <h2 class="container contentText">Insira seus dados pessoais</h2>
                     <div class="form-group">
-                        <label for="{{ form.Nome_Autor.id_for_label }}">Nome do Autor</label>
+                        <label for="{{form.Nome_Autor.id_for_label}}">Nome do Autor</label>
                         <p>{{ form.Nome_Autor }}</p>
                         <p class="text-muted">Informe o seu nome completo.</p>
+                        <div class="invalid-feedback">Este campo é obrigatório.</div>
                     </div>
                     <div class="form-group">
                         <label for="{{ form.Celular_Autor.id_for_label }}">Celular do Autor</label>
                         <p>{{ form.Celular_Autor }}</p>
                         <p class="text-muted">Informe seu número de celular para contato.</p>
+                        <div class="invalid-feedback">Este campo é obrigatório.</div>
                     </div>
                     <div class="form-group">
                         <label for="{{ form.Telefone_Autor.id_for_label }}">Telefone do Autor</label>
@@ -93,21 +191,117 @@
                         <p>{{ form.Descricao }}</p>
                         <p class="text-muted">Forneça uma descrição detalhada do caso.</p>
                     </div>
-
+                    <!-- Campos para as imagens -->
+                    <h3 class="container contentText">Imagens da Ocorrência</h3>
+                    <p class="text-muted">Inserir imagens do animal e do Local</p>
+                    <div id="imagens-container">
+                        {{ formset.management_form }}
+                        {% for imagem_form in formset %}
+                            {{ imagem_form.Image }}
+                            <br>
+                        {% endfor %}
+                        <p class="text-muted">Adicione imagens relacionadas ao caso</p>
+                    </div>
                     <button type="button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue;" onclick="navigatePage(2)">Voltar</button>
-                    <button type="submit" class="btnLoggin" style="background-color: #70C296; color: aliceblue;">Enviar</button>
+                    <button type="button" class="btnLoggin" style="background-color: #70C296; color: aliceblue;" onclick="handleSubmit(event)" >Enviar</button>
                 </div>
             </div>
         </form>
     </div>
     <script>
+
+        function updateProgressIndicator(pageNumber) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index < pageNumber) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
         function navigatePage(pageNumber) {
             const pages = document.querySelectorAll('.page');
+            if (pageNumber > 1) {
+                    const currentPage = document.querySelector('.page.active');
+                    const invalidFields = currentPage.querySelectorAll(':invalid');
+                    if (invalidFields.length > 0) {
+                        invalidFields[0].focus();
+                        invalidFields.forEach(field => {
+                            field.classList.add('is-invalid');
+                            let errorElement = document.createElement('div');
+                            errorElement.className = 'invalid-feedback';
+                            errorElement.innerText = field.validationMessage;
+                            if (!field.nextElementSibling) {
+                                field.insertAdjacentElement('afterend', errorElement);
+                            }
+                        });
+                        return;
+                    }
+                }
             pages.forEach(page => page.classList.remove('active'));
-
             document.getElementById('page' + pageNumber).classList.add('active');
+            updateProgressIndicator(pageNumber);
         }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('form_ocorrencia');
+            const currentPage = document.querySelector('.page.active');
+            const invalidFields = currentPage.querySelectorAll(':invalid');
+
+            if (invalidFields.length > 0) {
+                invalidFields[0].focus();
+                invalidFields.forEach(field => {
+                    field.classList.add('is-invalid');
+                    let errorElement = document.createElement('div');
+                    errorElement.className = 'invalid-feedback';
+                    errorElement.innerText = field.validationMessage;
+                    if (!field.nextElementSibling) {
+                        field.insertAdjacentElement('afterend', errorElement);
+                    }
+                });
+                return;
+            }
+            
+
+            // Usando fetch para enviar o formulário via AJAX
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Certifique-se de incluir isso
+                },
+                body: formData
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Log parsed data here
+                for (const [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+
+                    if (data.success) {
+                        alert("Formulário enviado com sucesso!");
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert('Erro: ' + data.errors.join('\n'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar o formulário:', error);
+                    alert('Ocorreu um erro ao enviar o formulário.');
+                });
+
+        }
+
+
     </script>
+    
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>

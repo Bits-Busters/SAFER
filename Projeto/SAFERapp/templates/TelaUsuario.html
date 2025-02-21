@@ -9,12 +9,12 @@
     <div class="container">
         <h1>Menu</h1>
         <a href="{% url 'formulario' %}"><button class="button">Registrar um chamado</button></a>
-        <a href="{% url 'telaChamados' username=user.nome %}"><button class="button">Meus chamados</button></a>
+        <a href="{% url 'telaChamados' tipoChamado='meus-chamados' %}"><button class="button">Meus chamados</button></a>
         {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
-            <a href= "#" ><button class="button">Outros Chamados</button></a>
+            <a href= "{% url 'telaChamados' tipoChamado='todos-os-chamados' %}" ><button class="button">Outros Chamados</button></a>
         {% endif %}
         {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
-            <a href= "#" ><button class="button">Chamados Aceitos</button></a>
+            <a href= "{% url 'telaChamados' tipoChamado='chamados-aceitos' %}" ><button class="button">Chamados Aceitos</button></a>
         {% endif %}
         {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
             <a href= "#" ><button class="button">Gerenciar Usuários</button></a>

@@ -15,11 +15,13 @@ class CustomUserManager(UserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
+        # Definir valores padrão para campos de usuário normal
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
-        return self.create_user(email, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password=None, **extra_fields):
+        # Definir valores padrão para campos de superusuário
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -35,7 +37,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     # Removendo o campo `username` padrão, usando email como identificador
     username = None
-    email = models.EmailField(unique=True, verbose_name="Email")
+    email = models.EmailField(unique=True, primary_key=True, verbose_name="Email")
 
     # Campos extras
     nome = models.CharField(max_length=100, verbose_name="Nome")
@@ -75,19 +77,38 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         Atualiza as informações pessoais do usuário.
         """
         for campo, valor in kwargs.items():
-            if hasattr(self, campo):
+            if hasattr(self, campo):  # Verifica se o campo existe no modelo
                 setattr(self, campo, valor)
+            else:
+                raise AttributeError(f"O campo '{campo}' não existe no modelo.")
         self.save()
 
     def promover_usuario(self, novo_tipo: TipoUsuario):
         """
-        Promove o tipo de usuário.
+        Promove o tipo de usuário para um novo tipo, verificando se o tipo é válido.
         """
+        if novo_tipo not in TipoUsuario.choices:
+            raise ValueError(f"Tipo de usuário '{novo_tipo}' não é válido.")
         self.tipo_usuario = novo_tipo
         self.save()
 
-    def realizar_ocorrencia(self, descricao, local, imagens, registro):
+    def registrar_ocorrencia(self, descricao, local, imagens, registro):
         """
-        Simula a criação de uma ocorrência.
+        Registra uma ocorrência com as informações fornecidas.
         """
+        # Aqui você pode interagir com um modelo real de Ocorrência, se houver
         return f"Ocorrência registrada: {descricao} no local {local} com registro {registro}."
+
+def get_or_create_anonymous_user():
+        try:
+            return CustomUser.objects.get(nome='Anônimo Usuário')
+        except CustomUser.DoesNotExist:
+            return CustomUser.objects.create(
+                email='anonimo@example.com',
+                nome="Anônimo Usuário",
+                telefone="000000000",
+                telefone_fixo="000000000",
+                relacao_ufrpe="VISITANTE",
+                tipo_usuario="COMUM",
+                is_active=True
+            )

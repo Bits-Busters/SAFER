@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+PASSWORD_RESET_TIMEOUT = 300
 
 # Application definition
 
@@ -49,6 +50,9 @@ AUTH_USER_MODEL = 'SAFERapp.CustomUser'
 
 LOGIN_URL = '/'
 
+MEDIA_URL = '/media/'  # URL base para acessar os arquivos de mídia
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Diretório onde os arquivos de mídia serão salvos
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
 ]
 
 ROOT_URLCONF = 'Projeto.urls'
@@ -83,13 +89,25 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# SQlite DB
+# DATABASES = {
+#      'default': {
+#          'ENGINE': 'django.db.backends.sqlite3',
+#          'NAME': BASE_DIR / 'db.sqlite3',
+#      }
+#  }
 
+## Mysql DB
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.mysql',
+       'NAME': os.getenv('DB_NAME', 'safer_db'),
+       'USER': os.getenv('DB_USER', 'safer_user'),
+       'PASSWORD': os.getenv('DB_PASSWORD', 'safer_pass'),
+       'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
+       'PORT': os.getenv('DB_PORT', '3306'),
+   }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -115,7 +133,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -126,6 +144,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
