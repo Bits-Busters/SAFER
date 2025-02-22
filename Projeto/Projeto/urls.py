@@ -56,13 +56,13 @@ urlpatterns = [
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
     
     # Página para reiniciar a senha
-    path('senha-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('senha-reset/', auth_views.PasswordResetView.as_view(template_name='reset_password_templates/password_reset_form.html'), name='password_reset'),
     # Página de notificação de sucesso após o envio do email
-    path('senha-reset-feito/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('senha-reset-feito/', auth_views.PasswordResetDoneView.as_view(template_name='reset_password_templates/password_reset_done.html'), name='password_reset_done'),
     # Página de redefinição de senha com o token (enviado por email)
-    path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='reset_password_templates/password_reset_confirm.html'), name='password_reset_confirm'),
     # Sucesso após redefinição da senha
-    path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(template_name='reset_password_templates/password_reset_complete.html'), name='password_reset_complete'),
 ]
 
 if settings.DEBUG:
