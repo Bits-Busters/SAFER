@@ -29,8 +29,6 @@
         align-items: center;  /* Alinha o conteúdo verticalmente */
         justify-content: center;  /* Alinha o conteúdo horizontalmente */
     }
-    
-
 </style>
 {% endblock %}
 
@@ -77,11 +75,14 @@
                         </div>
             
                         <!-- Coluna 2: Imagem e Informações de Publicação -->
+                        {% if informativo.imagens %}
                         <div class="col-md-6">
                             <img src="{{ informativo.imagens.url }}" alt="Imagem do Informativo" style="max-width: 200px; height: auto;">
                         </div>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
     {% else %}

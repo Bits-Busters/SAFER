@@ -20,7 +20,7 @@ class InformativoForm(forms.ModelForm):
     
         widgets = {
             'corpo': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
-            'imagens': forms.ClearableFileInput(attrs={'style': 'font-size: 12px; display: block; width: 100%; height: 100%; padding: .375rem .75rem; font-weight: 400; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;'}),
+            'imagens': forms.ClearableFileInput(attrs={'style': 'font-size: 12px; display: block; width: 100%; height: 100%; padding: .375rem .75rem; font-weight: 400; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;','required':False}),
         }
 
     def __init__(self, *args, **kwargs):

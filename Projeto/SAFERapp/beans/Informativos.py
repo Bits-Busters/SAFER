@@ -15,7 +15,7 @@ class Informativo(models.Model):
     )
     titulo = models.CharField(max_length=100, verbose_name="Título do Informativo")
     corpo = models.TextField(verbose_name="Corpo do Informativo")
-    imagens = models.ImageField(upload_to='imagens/', verbose_name="Imagens do Informativo")
+    imagens = models.ImageField(upload_to='imagens/', verbose_name="Imagens do Informativo", blank=True, null=True)
     data_criacao = models.DateTimeField(default=timezone.now, verbose_name="Data de Criação")
 
 

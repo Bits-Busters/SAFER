@@ -29,8 +29,6 @@
         align-items: center;  /* Alinha o conteúdo verticalmente */
         justify-content: center;  /* Alinha o conteúdo horizontalmente */
     }
-    
-
 </style>
 {% endblock %}
 
@@ -72,9 +70,11 @@
                         </div>
             
                         <!-- Coluna 2: Imagem e Informações de Publicação -->
+                        {% if informativo.imagens %}
                         <div class="col-md-6">
                             <img src="{{ informativo.imagens.url }}" alt="Imagem do Informativo" style="max-width: 200px; height: auto;">
                         </div>
+                        {% endif %}
                     </div>
                     <button class="btnInfo" style="background-color: #70C296; color: white;">
                         <a href="{% url 'criarInformativo' informativo.id %}" style="color: white;">Editar</a>
@@ -82,7 +82,9 @@
                     <form action="{% url 'gerenciarInformativos' %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button class="btnInfo" name="id" value="{{informativo.id}}" style="background-color: #D2A68D; color: white;">Deletar</button>
+                    </form>
                 </div>
+            </div>
             {% endfor %}
         </div>
     {% else %}
@@ -90,3 +92,4 @@
     {% endif %}
 </div>
 {% endblock %}
+ss
