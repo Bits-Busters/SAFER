@@ -5,7 +5,18 @@ de informativos e estão sendo automatizados usando o selenium. Além disso,
 o driver usado é o chromedriver versão 133.0.6943.126,que já está no
 repositório e é compatível com a versão mais atual do google chrome.  
 """
+import os
+import sys
+import django
 
+# Adiciona o caminho do diretório raiz do projeto ao sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Projeto')))
+
+# Define a variável de ambiente DJANGO_SETTINGS_MODULE
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Projeto.settings')
+
+# Inicializa o Django
+django.setup()
 
 import time
 import json
