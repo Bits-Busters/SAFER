@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from SAFERapp.beans.Enums import StatusChamado
 from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
@@ -162,26 +163,42 @@ class TelaCriarObservacoesView(View):
 
         return render(request, 'TelaObservacoes.html', {'form': form, 'ocorrencia': ocorrencia})
 
-@login_required
-def telaPerfil(request, username):
-    if username != request.user.nome:
-        messages.error(request, "Este não era o seu perfil")
-        return render(request, 'home.html')
-    else:
-        user = request.user
-        if request.method == "POST":
-            form = PasswordChangeForm(user=user, data=request.POST)
+class PerfilView(LoginRequiredMixin, View):
+    def get(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form = PasswordChangeForm(user=request.user)
+        return render(request, 'TelaPerfil.html', {
+            'user': request.user,
+            'form': form
+        })
+
+    def post(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form_type = request.POST.get("form_type")
+
+        if form_type == "alterar_senha":
+            form = PasswordChangeForm(user=request.user, data=request.POST)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Sua senha foi alterada com sucesso!")
-                return redirect('telaPerfil', username=request.user.nome)  # Redireciona para a página de perfil
-        else:
-            form = PasswordChangeForm(user=user)
+                return redirect('telaPerfil', username=request.user.nome)
+            else:
+                messages.error(request, "Erro ao alterar senha. Verifique os dados.")
 
-        return render(request, 'TelaPerfil.html', {
-            'user': user,
-            'form': form
-        })
+        elif form_type == "excluir_perfil":
+            user = request.user
+            user.delete()
+            messages.success(request, "Sua conta foi excluída com sucesso!")
+            return redirect('home')  # Redireciona para a página inicial após exclusão
+
+        form = PasswordChangeForm(user=request.user)  # Recarrega o formulário se der erro
+        return render(request, 'TelaPerfil.html', {'user': request.user, 'form': form})
 
 class FormularioView(View):
 

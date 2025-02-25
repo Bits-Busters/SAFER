@@ -7,20 +7,28 @@
 
 {% block content %}
     <div class="perfil-container">
-    <h2>Perfil de {{ user.nome }}</h2>
+        <h2>Perfil de {{ user.nome }}</h2>
 
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Nome:</strong> {{ user.nome }}</p>
-    <p><strong>Telefone:</strong> {{ user.telefone }}</p>
-    <p><strong>Telefone Fixo:</strong> {{ user.telefone_fixo }}</p>
-    <p><strong>Relação com a UFRPE:</strong> {{ user.relacao_ufrpe }}</p>
-    <p><strong>Tipo de Usuário:</strong> {{ user.tipo_usuario }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Nome:</strong> {{ user.nome }}</p>
+        <p><strong>Telefone:</strong> {{ user.telefone }}</p>
+        <p><strong>Telefone Fixo:</strong> {{ user.telefone_fixo }}</p>
+        <p><strong>Relação com a UFRPE:</strong> {{ user.relacao_ufrpe }}</p>
+        <p><strong>Tipo de Usuário:</strong> {{ user.tipo_usuario }}</p>
 
-    <h3>Alterar Senha</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Alterar Senha</button>
-    </form>
+        <h3>Alterar Senha</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="alterar_senha">
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Alterar Senha</button>
+        </form>
+
+        <h3>Excluir Conta</h3>
+        <form method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita!');">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="excluir_perfil">
+            <button type="submit" class="btn btn-danger">Excluir Perfil</button>
+        </form>
     </div>
 {% endblock %}
