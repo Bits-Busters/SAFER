@@ -97,32 +97,49 @@ class TelaDetalhesChamadoView(View):
         })
 
     def post(self, request, id):
-        form_type = request.POST.get("form_type")
+        form_type = request.POST.get("form_type")  # Identifica a ação no formulário
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
 
         if form_type == "aceitar_chamado":
             ocorrencia.Resgatista = request.user
             ocorrencia.Status = StatusChamado.EM_ANALISE
             ocorrencia.save()
-
-            return render(request, 'TelaDetalhesChamado.html', {'success': True, 'redirect_url': 'home'})
+            return redirect('home')
 
         elif form_type == "adicionar_observacao":
-            form = ObservacaoForm(request.POST, request.FILES)
+            form = ObservacaoForm(request.POST)
             if form.is_valid():
                 observacao = form.save(commit=False)
                 observacao.ocorrencia = ocorrencia
                 observacao.autor = request.user
                 observacao.save()
-                print(observacao)
                 messages.success(request, "Observação criada com sucesso!")
             else:
                 messages.error(request, "Erro ao salvar a observação. Verifique os dados.")
-            
+
+        elif form_type == "editar_observacao":
+            observacao_id = request.POST.get("observacao_id")
+            observacao = get_object_or_404(Observacoes, id=observacao_id, ocorrencia=ocorrencia)
+
+            if observacao.autor == request.user:  # Garante que o usuário só edite suas próprias observações
+                form = ObservacaoForm(request.POST, instance=observacao)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, "Observação atualizada com sucesso!")
+                else:
+                    messages.error(request, "Erro ao atualizar a observação. Verifique os dados.")
+
+        elif form_type == "excluir_observacao":
+            observacao_id = request.POST.get("observacao_id")
+            observacao = get_object_or_404(Observacoes, id=observacao_id, ocorrencia=ocorrencia)
+
+            if observacao.autor == request.user:  # Garante que o usuário só exclua suas próprias observações
+                observacao.delete()
+                messages.success(request, "Observação excluída com sucesso!")
+
         form = ObservacaoForm()  # Formulário de observação vazio
 
         return redirect('telaDetalhesChamado', ocorrencia.id)
-
 
 
 # Inicio da implementacao da tela de observacoes
