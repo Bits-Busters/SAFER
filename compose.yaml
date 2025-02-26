@@ -7,15 +7,12 @@ services:
       target: prod
       dockerfile: Dockerfile
     container_name: safer-web
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       - PYTHONPATH=/app/Projeto
-      - DB_NAME=safer_db
-      - DB_USER=safer_user
-      - DB_PASSWORD=safer_pass
-      - DB_HOST=db  # Nome do serviço MySQL
+      - DB_NAME=db-safer
+      - DB_USER=admin
+      - DB_PASSWORD=$af&r2o25
+      - DB_HOST=db-safer.ch8kmqwykuch.us-east-2.rds.amazonaws.com  # Nome do serviço MySQL
       - DB_PORT=3306
     ports:
       - "8000:8000"
@@ -25,22 +22,4 @@ services:
       python3 Projeto/manage.py migrate
       gunicorn --bind 0.0.0.0:8000 Projeto.wsgi:application
       "
-  db:
-    image: mysql:latest
-    container_name: mysql_db
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: safer_db
-      MYSQL_USER: safer_user
-      MYSQL_PASSWORD: safer_pass
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 5s
-      retries: 160
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
 
-volumes:
-  mysql_data: {}
