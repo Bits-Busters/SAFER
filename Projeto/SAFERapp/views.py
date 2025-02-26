@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -15,6 +16,7 @@ from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
 from SAFERapp.beans.Observacoes import Observacoes
+from SAFERapp.models import Notificacao
 from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
@@ -328,4 +330,32 @@ class GerenciarInformativosView(View):
         informativo = Informativo.objects.get(id=id)
         informativo.excluir_informativo()
         return redirect('gerenciarInformativos')
+
+def staff(user):
+    return user.is_staff
+# View que notifica um staff oua acima de um novo chamado
+@login_required # precisa esta logado
+@user_passes_test(staff) # precisa ser staff
+def notificacoes_view(request): # envia um JSON para página para criacao do popup de notificao
+    notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False)
+    dados = [{
+        'id': notificacao.id,
+        'mensagem': notificacao.mensagem,
+        'lida': notificacao.lida
+    } for notificacao in notificacoes]
+    return JsonResponse({'notificacoes': dados})
+
+# View que atualiaza uma notificacao para lida
+@login_required
+@require_POST
+def notificacao_lida(request):
+    notification_id = request.POST.get("notification_id")
+    if not notification_id: # Verifica o ID da notificao
+        return JsonResponse({"success": False, "error": "ID não fornecido."}, status=400)
     
+    try:
+        notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True) # marca todas as notificacoes do usuario como lidas
+        Notification.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
+        return JsonResponse({"success": True, "notificacoes_lidas": notificacoes}) # envia resposta JSON a pagina
+    except Notificacao.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Notificação não encontrada."}, status=404)

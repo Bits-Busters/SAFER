@@ -4,7 +4,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from SAFERapp.models import CustomUser  # Ajuste conforme o nome do seu app
 from SAFERapp.beans.Ocorrencia import Ocorrencia 
-
+from SAFERapp.models import Notificacao
+from django.contrib.auth import get_user_model
 
 @receiver(post_save, sender=CustomUser)
 def enviar_email_boas_vindas(sender, instance, created, **kwargs):
@@ -26,3 +27,18 @@ def envia_email_status_alterado(sender, instance, **kwargs):
         from_email = settings.DEFAULT_FROM_EMAIL  # Usando o valor configurado no settings.py
         recipient_list = [instance.Autor.email] # Lista de destinatários
         send_mail(subject, message, from_email, recipient_list) # Envia o email
+
+
+
+customuser = get_user_model() #pega o modelo de AUTH_USER_MODEL 
+@receiver(post_save, sender=Ocorrencia)
+def notifica_novo_chamado(sender, instance, created, **kwargs):
+    if created:
+        lista_staff = CustomUser.objects.filter(is_staff=True)
+        for staff_instance in lista_staff:
+            notificacao = Notificacao.objects.create( # cria notificação
+                usuario = staff_instance, # Instancia da staff 
+                ocorrencia = instance, # instancia de Ocorrencia
+                mensagem = f"Um novo chamado foi criado"
+
+            )

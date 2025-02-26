@@ -19,7 +19,8 @@ from django.contrib import admin
 from django.urls import path
 
 from Projeto import settings
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+
 from django.contrib.auth import views as auth_views
 
 
@@ -55,6 +56,11 @@ urlpatterns = [
     #URL da página de gerenciamento de Informativos
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
     
+    # Noticicações
+    path('staff/notificacoes', notificacoes_view, name="staffNotificacoes" ),
+    path('staff/notificacaolida', notificacao_lida, name='notificacaolida'),
+
+
     # Página para reiniciar a senha
     path('senha-reset/', auth_views.PasswordResetView.as_view(template_name='reset_password_templates/password_reset_form.html'), name='password_reset'),
     # Página de notificação de sucesso após o envio do email
