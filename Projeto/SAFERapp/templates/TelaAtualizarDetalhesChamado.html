@@ -1,0 +1,98 @@
+{% extends 'TopTemplate.html' %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block title %}Atualizar Ocorrência{% endblock %}
+
+{% block content %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <script>alert("{{ message }}");</script>
+        {% endfor %}
+    {% endif %}
+
+    <div class="container mt-4">
+        <h3>Atualizar Ocorrência</h3>
+
+        {% if user.tipo_usuario in resgatistas %}
+        <div class="row">
+            <div class="col-md-4">
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Nome:</strong> {{ user.nome }}</p>
+                <p><strong>Telefone:</strong> {{ user.telefone }}</p>
+                <p><strong>Telefone Fixo:</strong> {{ user.telefone_fixo }}</p>
+                <p><strong>Relação com a UFRPE:</strong> {{ user.relacao_ufrpe }}</p>
+                <p><strong>Tipo de Usuário:</strong> {{ user.tipo_usuario }}</p>                
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+                {% if user == ocorrencia.Autor %}
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="id_Nome_Autor">Autor:</label>
+                            <p>{{ ocorrencia.Nome_Autor }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_Celular_Autor">Celular:</label>
+                            <p>{{ ocorrencia.Celular_Autor }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_Telefone_Autor">Telefone:</label>
+                            <p>{{ ocorrencia.Telefone_Autor }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_Relacao_Autor">Relação com a UFRPE:</label>
+                            <p>{{ ocorrencia.Relacao_Autor }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="id_Nome_Animal">Nome do Animal:</label>
+                        {{ form.Nome_Animal }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_Local">Local:</label>
+                        {{ form.Local }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_Referencia">Referência:</label>
+                        {{ form.Referencia }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_Tipo_Caso">Tipo do Caso:</label>
+                        {{ form.Tipo_Caso }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="id_Descricao">Descrição:</label>
+                        {{ form.Descricao }}
+                    </div>
+                    
+                    {% if user.tipo_usuario in resgatistas %}
+                        <div class="form-group">
+                            <label for="id_Status">Status do Chamado:</label>
+                            {{ form.Status }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Atualizar</button>
+            <a href="{% url 'telaDetalhesChamado' ocorrencia.id %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+
+{% endblock %}

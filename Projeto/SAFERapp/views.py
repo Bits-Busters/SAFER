@@ -163,6 +163,28 @@ class TelaCriarObservacoesView(View):
 
         return render(request, 'TelaObservacoes.html', {'form': form, 'ocorrencia': ocorrencia})
 
+class AtualizarOcorrenciaView(LoginRequiredMixin, View):
+    resgatistas = ['admin', 'gestor', 'analista']
+
+    def get(self, request, ocorrencia_id):
+        """ Exibe o formulário preenchido com os dados da ocorrência """
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        form = FormularioForm(instance=ocorrencia)
+        return render(request, 'TelaAtualizarDetalhesChamado.html', {'form': form, 'ocorrencia': ocorrencia, 'resgatistas': self.resgatistas})
+
+    def post(self, request, ocorrencia_id):
+        """ Processa a atualização da ocorrência """
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        form = FormularioForm(request.POST, instance=ocorrencia)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ocorrência atualizada com sucesso!")
+            return redirect('telaDetalhesChamado', id=ocorrencia.id)
+        
+        messages.error(request, "Erro ao atualizar a ocorrência. Verifique os campos.")
+        return render(request, self.template_name, {'form': form, 'ocorrencia': ocorrencia})
+
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request, username):
         if username != request.user.nome:

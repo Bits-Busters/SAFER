@@ -33,7 +33,7 @@
         </div>
         <div class="col-md-4">
             {% if imagem %}
-                <p><img src="{{ imagem.Image.url }}" alt="Imagem da Ocorrência" style="max-width: 200px; height: auto;"></p>
+                <p><img src="{{ imagem.Image.url }}" alt="Ocorrência" style="max-width: 200px; height: auto;"></p>
             {% else %}
                 <p><em>Sem imagem disponível</em></p>
             {% endif %}
@@ -48,6 +48,10 @@
                 <button type="submit" class="btn btn-success">Gerar Resgate</button>
             </form>
         </div>
+    {% endif %}
+
+    {% if user.tipo_usuario in resgatistas or user == ocorrencia.Autor and ocorrencia.Status == 'ABERTO' %}
+        <a href="{% url 'telaAtualizarChamado' ocorrencia.id %}" class="btn btn-primary mt-2">Atualizar</a>
     {% endif %}
 
     {% if observacoes %}

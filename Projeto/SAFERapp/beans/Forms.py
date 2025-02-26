@@ -45,7 +45,7 @@ class FormularioForm(forms.ModelForm):
 
     class Meta:
         model = Ocorrencia
-        fields = ['Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor', 'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao']
+        fields = ['Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor', 'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao', 'Status']
         widgets = {
             'Descricao': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
         }
@@ -62,7 +62,8 @@ class FormularioForm(forms.ModelForm):
             'Local', 
             'Referencia', 
             'Tipo_Caso', 
-            'Descricao'
+            'Descricao',
+            'Status'
         ]
 
         for field in required_fields:
@@ -110,8 +111,8 @@ class CadastroForm(forms.ModelForm):
         confirmar_senha = cleaned_data.get('confirmar_senha')
 
         if senha and confirmar_senha:
-            if senha != confirmar_senha:
-                raise forms.ValidationError('As senhas não coincidem.')
+                if senha != confirmar_senha:
+                    raise forms.ValidationError('As senhas não coincidem.')
 
         return cleaned_data
 
