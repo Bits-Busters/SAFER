@@ -157,6 +157,86 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script>
+        function marcarComoLida(notificationId, popup) {
+    // Obtenha o token CSRF (exemplo para Django, ajuste conforme sua implementação)
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch("{% url 'notificacaolida' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrfToken
+        },
+        body: new URLSearchParams({
+            "notification_id": notificationId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success){
+            // Remove o pop-up se a notificação foi marcada como lida
+            popup.remove();
+        } else {
+            console.error("Erro:", data.error);
+        }
+    })
+    .catch(error => console.error("Erro ao marcar notificação:", error));
+}
+        function fetchNotificacoes() {
+            fetch("{% url 'staffNotificacoes' %}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.notificacoes.length > 0) {
+                        // Exibe o pop-up com a primeira notificação (ou customize para listar todas)
+                        exibirPopup(data.notificacoes[0]);
+                    }
+                })
+                .catch(error => console.error("Erro ao buscar notificações:", error));
+        }
+        
+        function exibirPopup(notificacao) {
+            // Verifica se o pop-up já existe para não duplicar
+            if (document.getElementById("popup-notificacao")) return;
+        
+            let popup = document.createElement("div");
+            popup.id = "popup-notificacao";
+            popup.style.position = "fixed";
+            popup.style.bottom = "20px";
+            popup.style.right = "20px";
+            popup.style.backgroundColor = "#f0f0f0";
+            popup.style.padding = "15px";
+            popup.style.border = "1px solid #ccc";
+            popup.style.borderRadius = "5px";
+            popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.1)";
+            popup.style.cursor = "pointer";
+            popup.innerHTML = `
+                <span style="float:right; font-weight:bold; cursor:pointer;" id="popup-close">X</span>
+                <div>${notificacao.mensagem}</div>
+            `;
+        
+            // Ao clicar no pop-up (exceto no X), redireciona para a tela de chamados
+            popup.addEventListener("click", function(event) {
+                // Se o clique for no botão de fechar, não redireciona
+                if (event.target.id === "popup-close") return;
+                marcarComoLida(notificacao.id, popup)   
+                window.location.href = "/chamados/chamados-em-aberto";  // ajuste a URL conforme necessário
+            });
+        
+            // Botão de fechar: remove o pop-up
+            popup.querySelector("#popup-close").addEventListener("click", function(event) {
+                event.stopPropagation(); // evita que o clique seja propagado para o container
+                popup.remove();
+                marcarComoLida(notificacao.id, popup);
+            });
+        
+            document.body.appendChild(popup);
+        }
+        
+        // Consulta a cada 5 segundos
+        setInterval(fetchNotificacoes, 5000);
+        
+        </script>
     <!-- Conteúdo específico da página -->
     <div class="content">
         {% block content %}
