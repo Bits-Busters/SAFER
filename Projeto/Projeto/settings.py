@@ -97,18 +97,31 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 #      }
 #  }
 
-## Mysql DB
+# ## Mysql DB
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': os.getenv('DB_NAME', 'safer_db'),
+#        'USER': os.getenv('DB_USER', 'safer_user'),
+#        'PASSWORD': os.getenv('DB_PASSWORD', 'safer_pass'),
+#        'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
+#        'PORT': os.getenv('DB_PORT', '3306'),
+#    }
+# }
+## MS SQL DB
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.mysql',
-       'NAME': os.getenv('DB_NAME', 'safer_db'),
-       'USER': os.getenv('DB_USER', 'safer_user'),
-       'PASSWORD': os.getenv('DB_PASSWORD', 'safer_pass'),
-       'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
-       'PORT': os.getenv('DB_PORT', '3306'),
-   }
-}
+        'default': {
+            'ENGINE': 'mssql',
+            'NAME': 'safer-db',
+            'USER': 'safer-admin@safer-server',
+            'PASSWORD': '$af&r2o25',
+            'HOST': 'safer-server.database.windows.net',
 
+            'OPTIONS': {
+                'driver': 'ODBC Driver 18 for SQL Server',
+            },
+        },
+    }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
