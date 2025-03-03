@@ -20,7 +20,7 @@ from django.urls import path
 
 from Projeto import settings
 
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
 from django.contrib.auth import views as auth_views
 
 
@@ -68,6 +68,11 @@ urlpatterns = [
     path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='reset_password_templates/password_reset_confirm.html'), name='password_reset_confirm'),
     # Sucesso após redefinição da senha
     path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(template_name='reset_password_templates/password_reset_complete.html'), name='password_reset_complete'),
+
+    # Lista os usuários
+    path('usuarios/gerenciar', telaGerenciarUsuarios, name='gerenciarUsuarios'),
+    path('editar_usuario/<str:usuario_email>/', editar_usuario, name='editar_usuario'),
+    path('deletar_usuario/<str:usuario_email>/', deletar_usuario, name='deletar_usuario'),
 ]
 
 if settings.DEBUG:

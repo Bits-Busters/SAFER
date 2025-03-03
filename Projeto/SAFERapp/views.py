@@ -12,7 +12,7 @@ from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from SAFERapp.beans.Enums import StatusChamado
-from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
+from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet, CustomUserForm
 from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
@@ -75,6 +75,44 @@ def telaOcorrencias(request, tipoChamado):
 
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
+
+@login_required
+def editar_usuario(request, usuario_email):
+    usuario = get_object_or_404(CustomUser, email=usuario_email)
+
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            return redirect('gerenciarUsuarios')  # Redireciona de volta para a lista de usuários
+    else:
+        form = CustomUserForm(instance=usuario)
+
+    return render(request, 'DetalhesUsuario.html', {'form': form, 'usuario': usuario})
+
+@login_required
+def deletar_usuario(request, usuario_email):
+    usuario = get_object_or_404(CustomUser, email=usuario_email)
+    
+    # Verifica se o usuário que está tentando excluir não é ele mesmo
+    if usuario == request.user:
+        return redirect('gerenciarUsuarios')
+
+    usuario.delete()
+    return redirect('gerenciarUsuarios')
+
+@login_required
+def telaGerenciarUsuarios(request):
+    usuarios = CustomUser.objects.all().order_by('nome')
+    # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
+    paginator = Paginator(usuarios, 5)  # 5 ocorrências por página
+
+    # Obtém o número da página atual
+    page_number = request.GET.get('page')  # Pode vir da URL (por exemplo: ?page=2)
+    page_obj = paginator.get_page(page_number)
+
+    # Renderiza a página com as ocorrências paginadas
+    return render(request, 'TelaGerenciarUsuarios.html', {'page_obj': page_obj})
 
 def telaUsuario(request, username):
     if username != request.user.nome:

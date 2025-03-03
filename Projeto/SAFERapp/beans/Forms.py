@@ -12,6 +12,11 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import inlineformset_factory
 
+class CustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['relacao_ufrpe', 'tipo_usuario']  # Apenas os campos editáveis
+
 
 class InformativoForm(forms.ModelForm):
     class Meta:
