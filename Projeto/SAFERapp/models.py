@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractBaseUser, UserManager, Permission
 from django.db import models
 from SAFERapp.beans.Enums import RelacaoUFRPE, TipoUsuario
 
+from django.conf import settings
+
 # Manager para o Custom User
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -112,3 +114,14 @@ def get_or_create_anonymous_user():
                 tipo_usuario="COMUM",
                 is_active=True
             )
+
+from SAFERapp.beans.Ocorrencia import Ocorrencia 
+class Notificacao(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ocorrencia = models.ForeignKey(Ocorrencia, on_delete=models.CASCADE, null=True, blank=True)
+    mensagem = models.CharField(max_length=255)
+    lida = models.BooleanField(default=False)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notificação para {self.usuario} - {self.mensagem}"
