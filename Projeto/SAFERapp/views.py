@@ -212,72 +212,6 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
         form = FormularioForm(instance=ocorrencia)
         return render(request, 'TelaAtualizarDetalhesChamado.html', {'form': form, 'ocorrencia': ocorrencia, 'resgatistas': self.resgatistas})
 
-    def post(self, request, ocorrencia_id):
-        """ Processa a atualização da ocorrência """
-        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
-        form = FormularioForm(request.POST, instance=ocorrencia)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Ocorrência atualizada com sucesso!")
-            return redirect('telaDetalhesChamado', id=ocorrencia.id)
-        
-        messages.error(request, "Erro ao atualizar a ocorrência. Verifique os campos.")
-        return render(request, self.template_name, {'form': form, 'ocorrencia': ocorrencia})
-
-class PerfilView(LoginRequiredMixin, View):
-    def get(self, request, username):
-        if username != request.user.nome:
-            messages.error(request, "Este não é o seu perfil")
-            return redirect('home')
-
-        form = PasswordChangeForm(user=request.user)
-        return render(request, 'TelaPerfil.html', {
-            'user': request.user,
-            'form': form
-        })
-
-    def post(self, request, username):
-        if username != request.user.nome:
-            messages.error(request, "Este não é o seu perfil")
-            return redirect('home')
-
-        form_type = request.POST.get("form_type")
-
-        if form_type == "alterar_senha":
-            form = PasswordChangeForm(user=request.user, data=request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Sua senha foi alterada com sucesso!")
-                return redirect('telaPerfil', username=request.user.nome)
-            else:
-                messages.error(request, "Erro ao alterar senha. Verifique os dados.")
-
-        elif form_type == "excluir_perfil":
-            user = request.user
-            user.delete()
-            messages.success(request, "Sua conta foi excluída com sucesso!")
-            return redirect('home')  # Redireciona para a página inicial após exclusão
-
-        form = PasswordChangeForm(user=request.user)  # Recarrega o formulário se der erro
-        return render(request, 'TelaPerfil.html', {'user': request.user, 'form': form})
-
-class FormularioView(View):
-
-    def get(self, request):
-        initial_data = {}
-        if request.user.is_authenticated:
-            initial_data = {
-                'Nome_Autor': request.user.nome,
-                'Celular_Autor': request.user.telefone,  # Supondo que o celular esteja no perfil
-                'Telefone_Autor': request.user.telefone_fixo,  # Supondo que o telefone esteja no perfil
-                'Relacao_Autor': request.user.relacao_ufrpe,  # Supondo que você tenha este campo
-            }
-        form = FormularioForm(initial=initial_data)
-        formset = ImagemFormSet()
-        return render(request, 'Form.html', {'form': form, 'formset': formset})
-
-
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
@@ -329,6 +263,111 @@ class FormularioView(View):
                     
             # Retorna os erros no contexto
             return JsonResponse({'success': False, 'errors': error_messages})
+
+class PerfilView(LoginRequiredMixin, View):
+    def get(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form = PasswordChangeForm(user=request.user)
+        return render(request, 'TelaPerfil.html', {
+            'user': request.user,
+            'form': form
+        })
+
+    def post(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form_type = request.POST.get("form_type")
+
+        if form_type == "alterar_senha":
+            form = PasswordChangeForm(user=request.user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Sua senha foi alterada com sucesso!")
+                return redirect('telaPerfil', username=request.user.nome)
+            else:
+                messages.error(request, "Erro ao alterar senha. Verifique os dados.")
+
+        elif form_type == "excluir_perfil":
+            user = request.user
+            user.delete()
+            messages.success(request, "Sua conta foi excluída com sucesso!")
+            return redirect('home')  # Redireciona para a página inicial após exclusão
+
+        form = PasswordChangeForm(user=request.user)  # Recarrega o formulário se der erro
+        return render(request, 'TelaPerfil.html', {'user': request.user, 'form': form})
+
+class FormularioView(View):
+
+    def get(self, request):
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data = {
+                'Nome_Autor': request.user.nome,
+                'Celular_Autor': request.user.telefone,
+                'Telefone_Autor': request.user.telefone_fixo,
+                'Relacao_Autor': request.user.relacao_ufrpe,
+            }
+        form = FormularioForm(initial=initial_data)
+        formset = ImagemFormSet()
+        return render(request, 'Form.html', {'form': form, 'formset': formset})
+
+    def post(self, request):
+        form = FormularioForm(request.POST, request.FILES)
+        formset = ImagemFormSet(request.POST, request.FILES)
+
+        # Verifica se é uma requisição AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid() and formset.is_valid():
+                # Acesse form.cleaned_data somente após a validação
+                print("Dados do form:", form.cleaned_data)
+                
+                ocorrencia = form.save(commit=False)
+                if request.user.is_authenticated:
+                    ocorrencia.Autor = request.user
+                else:
+                    ocorrencia.Autor = get_or_create_anonymous_user()
+                ocorrencia.save()
+
+                imagens = formset.save(commit=False)
+                for imagem in imagens:
+                    imagem.IdOcorrencia = ocorrencia
+                    imagem.save()
+
+                # Reseta o formulário após salvar
+                form = FormularioForm()
+                formset = ImagemFormSet()
+
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Formulário enviado com sucesso!', 
+                    'redirect_url': reverse('home')
+                })
+            else:
+                # Caso os formulários sejam inválidos, processa os erros
+                error_messages = []
+
+                # Erros do formulário principal
+                if not form.is_valid():
+                    for field, errors in form.errors.items():
+                        for error in errors:
+                            error_messages.append(f"Erro no campo '{field}': {error}")
+
+                # Erros do formset
+                if not formset.is_valid():
+                    for i, form_errors in enumerate(formset.errors):
+                        for field, errors in form_errors.items():
+                            for error in errors:
+                                error_messages.append(f"Erro no formulário de imagem {i + 1} - campo '{field}': {error}")
+
+                return JsonResponse({'success': False, 'errors': error_messages})
+
+        else:
+            return JsonResponse({'success': False, 'message': 'Requisição inválida'})
         
 
 def logout_view(request):

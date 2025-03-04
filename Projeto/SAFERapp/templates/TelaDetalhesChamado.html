@@ -50,7 +50,7 @@
         </div>
     {% endif %}
 
-    {% if user.tipo_usuario in resgatistas or user == ocorrencia.Autor and ocorrencia.Status == 'ABERTO' %}
+    {% if user.tipo_usuario == 'admin' or ocorrencia.Resgatista == user or user == ocorrencia.Autor and ocorrencia.Status == 'aberto' %}
         <a href="{% url 'telaAtualizarChamado' ocorrencia.id %}" class="btn btn-primary mt-2">Atualizar</a>
     {% endif %}
 
