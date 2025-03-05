@@ -20,7 +20,7 @@ from django.urls import path
 
 from Projeto import settings
 
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, telaPerfil, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, PerfilView, AtualizarOcorrenciaView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
 from django.contrib.auth import views as auth_views
 
 
