@@ -9,7 +9,7 @@ import time
 """
 Faz testes de interface e confere se está redirecionando corretamente 
 """
-class TestSolicitarSenha(LiveServerTestCase):
+class TestInterface(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -44,7 +44,7 @@ class TestSolicitarSenha(LiveServerTestCase):
 
 
 
-class TestEnviarEmailRedefinirSenha(TestCase):
+class TestBackend(TestCase):
     """ 
     Faz testes de requisições de envio de email da redefinição de senha
     """
@@ -54,9 +54,14 @@ class TestEnviarEmailRedefinirSenha(TestCase):
             nome="testuser", email="testuser@example.com", password="testpassword"
         )
         mail.outbox = []
-    def test_redefinir_senha(self):
+    def test_enviar_email_redefinicao_senha(self):
         
         # Envia a solicitação de redefinição de senha
-        response = self.client.post(reverse('password_reset'), {'email': self.user.email})
+        http_response = self.client.post(reverse('password_reset'), {'email': self.user.email})
         # Verifique se o e-mail foi enviado
         self.assertEqual(len(mail.outbox), 1)  # Verifica se um e-mail foi enviado
+
+        # Confirma o destinatário
+        self.assertEqual(mail.outbox[0].to, [self.user.email])
+
+        
