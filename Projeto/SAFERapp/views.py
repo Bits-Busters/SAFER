@@ -10,9 +10,11 @@ from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
+
 
 from SAFERapp.beans.Enums import StatusChamado
-from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet, CustomUserForm
+from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet, CustomUserForm, UserFilterFormRelatorio, OcorrenciaFilterFormRelatorio
 from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
@@ -24,6 +26,88 @@ from SAFERapp.beans.Imagens import Imagens
 
 
 # Create your views here.
+@login_required
+def relatorio_view(request):
+    # Inicializar os formulários com os dados GET
+    user_form = UserFilterFormRelatorio(request.GET or None)
+    ocorrencia_form = OcorrenciaFilterFormRelatorio(request.GET or None)
+
+    # Obter todos os usuários e ocorrências
+    ocorrencias = Ocorrencia.objects.all()
+    usuarios = CustomUser.objects.all()
+
+    # Contar o número total de usuários e ocorrências
+    quantidadeUsuarios = usuarios.count()
+    quantidadeOcorrencias = ocorrencias.count()
+
+    # Filtragem de Ocorrências
+    if ocorrencia_form.is_valid():
+        # Filtrar por Data Inicial
+        data_inicial = ocorrencia_form.cleaned_data.get('DataInicial')
+        if data_inicial:
+            ocorrencias = ocorrencias.filter(DataHora__gte=data_inicial)
+
+        # Filtrar por Data Final
+        data_final = ocorrencia_form.cleaned_data.get('DataFinal')
+        if data_final:
+            ocorrencias = ocorrencias.filter(DataHora__lte=data_final)
+
+        # Filtrar por Tipo de Caso
+        tipo_caso = ocorrencia_form.cleaned_data.get('TipoCaso')
+        if tipo_caso:
+            ocorrencias = ocorrencias.filter(Tipo_Caso=tipo_caso)
+
+    # Filtragem de Usuários
+    if user_form.is_valid():
+        # Filtrar por Relação com a UFRPE
+        relacao_ufrpe = user_form.cleaned_data.get('relacao_ufrpe')
+        if relacao_ufrpe:
+            usuarios = usuarios.filter(relacao_ufrpe=relacao_ufrpe)
+
+        # Filtrar por Tipo de Usuário
+        tipo_usuario = user_form.cleaned_data.get('tipo_usuario')
+        if tipo_usuario:
+            usuarios = usuarios.filter(tipo_usuario=tipo_usuario)
+
+    quantidadeUsuariosFiltrados = usuarios.count()
+    quantidadeOcorrenciasFiltrados = ocorrencias.count()
+
+    # Gerando os dados para gráficos (exemplo)
+    tipo_ocorrencia_count = ocorrencias.values('Tipo_Caso').annotate(total=Count('Tipo_Caso'))
+    status_ocorrencia_count = ocorrencias.values('Status').annotate(total=Count('Status'))
+
+    # Preparando os dados para o gráfico (ocorrências por tipo de caso)
+    tipos = [item['Tipo_Caso'] for item in tipo_ocorrencia_count]
+    tipo_counts = [item['total'] for item in tipo_ocorrencia_count]
+
+    # Preparando os dados para o gráfico (ocorrências por status)
+    status = [item['Status'] for item in status_ocorrencia_count]
+    status_counts = [item['total'] for item in status_ocorrencia_count]
+
+    print(tipos)
+    print("\n")
+    print(tipo_counts)
+    print("\n")
+    print(status)
+    print("\n")
+    print(status_counts)
+
+    # Retornar os resultados para o template
+    return render(request, 'TelaRelatorio.html', {
+        'user_form': user_form,
+        'ocorrencia_form': ocorrencia_form,
+        'ocorrencias': ocorrencias,
+        'usuarios': usuarios,
+        'quantidadeUsuarios': quantidadeUsuarios,
+        'quantidadeOcorrencias': quantidadeOcorrencias,
+        'quantidadeUsuariosFiltrados' : quantidadeUsuariosFiltrados,
+        'quantidadeOcorrenciasFiltrados' : quantidadeOcorrenciasFiltrados,
+        'tipos': tipos,
+        'status_chamado': status,
+        'tipo_counts': tipo_counts,
+        'status_counts': status_counts,
+    })
+
 
 @login_required
 def telaOcorrencias(request, tipoChamado):
@@ -56,11 +140,15 @@ def telaOcorrencias(request, tipoChamado):
 
         tipoCaso = form.cleaned_data.get('TipoCaso')
         if tipoCaso:
-            ocorrencia = ocorrencia.filter(TipoCaso=tipoCaso)
+            ocorrencia = ocorrencia.filter(Tipo_Caso=tipoCaso)
 
-        data = form.cleaned_data.get('Data')  # Aqui você acessa a data corretamente
-        if data:
-            ocorrencia = ocorrencia.filter(DataHora__date=data)  # Filtra apenas pela data, não pelo horário
+        dataIncial = form.cleaned_data.get('DataInicial')  # Aqui você acessa a data corretamente
+        if dataIncial:
+            ocorrencia = ocorrencia.filter(DataHora__gte=dataIncial)  # Filtra apenas pela data, não pelo horário
+
+        dataFinal = form.cleaned_data.get('DataFinal')  # Aqui você acessa a data corretamente
+        if dataFinal:
+            ocorrencia = ocorrencia.filter(DataHora__lte=dataFinal)  # Filtra apenas pela data, não pelo horário
 
         local = form.cleaned_data.get('Local')
         if local:

@@ -1,7 +1,7 @@
 from django.forms import inlineformset_factory
 
 from SAFERapp.beans.Observacoes import Observacoes
-from SAFERapp.beans.Enums import Registro, Local, StatusChamado
+from SAFERapp.beans.Enums import Registro, Local, StatusChamado, TipoUsuario, RelacaoUFRPE
 from SAFERapp.beans.Imagens import Imagens 
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
@@ -16,6 +16,37 @@ class CustomUserForm(forms.ModelForm):
         model = CustomUser
         fields = ['relacao_ufrpe', 'tipo_usuario']  # Apenas os campos editáveis
 
+class UserFilterFormRelatorio(forms.Form):
+    relacao_ufrpe = forms.ChoiceField(
+        required=False,
+        label="Relação com a UFRPE",
+        choices=[('', 'Todos')] + RelacaoUFRPE.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    tipo_usuario = forms.ChoiceField(
+        required=False,
+        label="Tipo de usuário",
+        choices=[('', 'Todos')] + TipoUsuario.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+class OcorrenciaFilterFormRelatorio(forms.Form):
+    DataInicial = forms.DateField(
+        required=False,
+        label="Data Inicial",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    DataFinal = forms.DateField(
+        required=False,
+        label="Data Final",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    TipoCaso = forms.ChoiceField(
+        required=False,
+        label="Tipo de Caso",
+        choices=[('', 'Todos')] + Registro.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 class InformativoForm(forms.ModelForm):
     class Meta:
@@ -139,9 +170,14 @@ class FilterForm(forms.Form):
         label="Animal",
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite o nome do animal'})
     )
-    Data = forms.DateField(
+    DataInicial = forms.DateField(
         required=False,
-        label="Data",
+        label="Data Inicial",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    DataFinal = forms.DateField(
+        required=False,
+        label="Data Final",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     TipoCaso = forms.ChoiceField(

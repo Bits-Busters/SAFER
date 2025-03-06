@@ -117,7 +117,7 @@
                 </li>
                 <li class="nav-item">
                     {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
-                        <a href= "#" class="nav-link" href="#">Gerar Relatório</a>
+                        <a href= "{% url 'tela_relatorios' %}" class="nav-link" href="#">Gerar Relatório</a>
                     {% endif %}
                 </li>
                 {% endif %}
