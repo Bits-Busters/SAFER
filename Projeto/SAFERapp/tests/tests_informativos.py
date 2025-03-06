@@ -35,31 +35,23 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 class TestCriarInformativos():
-    @classmethod
-    def setUpTestData(cls):
-        cls.usuario_admin = CustomUser.objects.create(
-            email='admin@usuario.com',
-            senha='senha1234',
-            nome='Administrador',
-            telefone='1234567890',
-            telefone_fixo='0987654321',
-            relacao_ufrpe=RelacaoUFRPE.DOCENTE,
-            tipo_usuario= TipoUsuario.ADMIN
-        )
-
 
     def setUp(self):
+        self.usuario_admin = CustomUser.objects.create_superuser(
+            email='admin@usuario.com',
+            senha='senha1234',
+            nome='Administrador'
+        )
         # Inicializa o navegador
         self.driver = webdriver.Chrome()
         self.vars = {}
-        self.live_server_url = "http://localhost:8000" # URL do servidor local
         self.login_user_admin()
 
 
     def login_user_admin(self):
         # Step # | name | target | value
         # 1 | open | / |
-        self.driver.get("http://localhost:8000/")
+        self.driver.get(self.live_server_url)
         # 2 | setWindowSize | 1235x816 |
         self.driver.set_window_size(1235, 816)
         # 3 | click | id=login |
@@ -70,10 +62,12 @@ class TestCriarInformativos():
         self.driver.find_element(By.ID, "password").click()
         # 6 | type | id=password |
         self.driver.find_element(By.ID, "password").send_keys("senha1234")
-   
+
+         # Submetendo o formulário
+        self.driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+        time.sleep(1)
+
     def test_criar_informativo_obrigatorios(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(1) > .btnInfo").click()
         self.driver.find_element(By.ID, "id_titulo").click()
@@ -99,16 +93,12 @@ class TestCriarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_criar_informativo_sem_obrigatorios(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(1) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
 
 
     def test_criar_informativo_com_imagem(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(1) > .btnInfo").click()
         self.driver.find_element(By.ID, "id_titulo").click()
@@ -120,8 +110,6 @@ class TestCriarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_criar_informativo_com_imagem_invalida(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(1) > .btnInfo").click()
         self.driver.find_element(By.ID, "id_titulo").click()
@@ -133,8 +121,6 @@ class TestCriarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_criar_informativo_sem_salvar(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(1) > .btnInfo").click()
         self.driver.find_element(By.ID, "id_titulo").click()
@@ -143,9 +129,9 @@ class TestCriarInformativos():
 
 
 class TestAtualizarInformativos():
-    @classmethod
-    def setUpTestData(cls):
-        cls.usuario_admin = CustomUser.objects.create(
+
+    def setUp(self):
+        self.usuario_admin = CustomUser.objects.create_superuser(
             email='admin@usuario.com',
             senha='senha1234',
             nome='Administrador',
@@ -154,13 +140,9 @@ class TestAtualizarInformativos():
             relacao_ufrpe=RelacaoUFRPE.DOCENTE,
             tipo_usuario= TipoUsuario.ADMIN
         )
-
-
-    def setUp(self):
         # Inicializa o navegador
         self.driver = webdriver.Chrome()
         self.vars = {}
-        self.live_server_url = "http://localhost:8000" # URL do servidor local
         self.login_user_admin()
 
 
@@ -176,7 +158,7 @@ class TestAtualizarInformativos():
     def login_user_admin(self):
         # Step # | name | target | value
         # 1 | open | / |
-        self.driver.get("http://localhost:8000/")
+        self.driver.get(self.live_server_url)
         # 2 | setWindowSize | 1235x816 |
         self.driver.set_window_size(1235, 816)
         # 3 | click | id=login |
@@ -188,10 +170,11 @@ class TestAtualizarInformativos():
         # 6 | type | id=password |
         self.driver.find_element(By.ID, "password").send_keys("senha1234")
 
+         # Submetendo o formulário
+        self.driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+        time.sleep(1)
 
     def test_atualizar_informativo(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".card:nth-child(2) > .card-body > .btnInfo").click()
@@ -201,8 +184,6 @@ class TestAtualizarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_atualizar_informativo_excluindo_conteudo(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".card:nth-child(2) > .card-body > .btnInfo").click()
@@ -212,8 +193,6 @@ class TestAtualizarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_atualizar_informativo_com_imagem_invalida(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".card:nth-child(2) > .card-body > .btnInfo").click()
@@ -223,8 +202,6 @@ class TestAtualizarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_atualizar_informativo_sem_alterar(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".card:nth-child(2) > .card-body > .btnInfo").click()
@@ -232,8 +209,6 @@ class TestAtualizarInformativos():
         self.driver.find_element(By.CSS_SELECTOR, ".btnLoggin:nth-child(6)").click()
    
     def test_atualizar_sem_salvar(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.CSS_SELECTOR, ".card:nth-child(2) a").click()
@@ -246,24 +221,16 @@ class TestAtualizarInformativos():
 
 
 class TestExcluirInformativos():
-    @classmethod
-    def setUpTestData(cls):
-        cls.usuario_admin = CustomUser.objects.create(
+
+    def setUp(self):
+        self.usuario_admin = CustomUser.objects.create_superuser(
             email='admin@usuario.com',
             senha='senha1234',
             nome='Administrador',
-            telefone='1234567890',
-            telefone_fixo='0987654321',
-            relacao_ufrpe=RelacaoUFRPE.DOCENTE,
-            tipo_usuario= TipoUsuario.ADMIN
         )
-
-
-    def setUp(self):
         # Inicializa o navegador
         self.driver = webdriver.Chrome()
         self.vars = {}
-        self.live_server_url = "http://localhost:8000" # URL do servidor local
         self.login_user_admin()
         self.cadastro_informativo()
 
@@ -279,10 +246,6 @@ class TestExcluirInformativos():
 
     def login_user_admin(self):
         # Step # | name | target | value
-        # 1 | open | / |
-        self.driver.get("http://localhost:8000/")
-        # 2 | setWindowSize | 1235x816 |
-        self.driver.set_window_size(1235, 816)
         # 3 | click | id=login |
         self.driver.find_element(By.ID, "login").click()
         # 4 | type | id=login |
@@ -294,29 +257,24 @@ class TestExcluirInformativos():
 
 
     def test_excluir_informativo(self):
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
         self.driver.find_element(By.NAME, "id").click()
 
 
 class TestVisualizarInformativos():
-    @classmethod
-    def setUpTestData(cls):
-        cls.usuario_anomino = get_or_create_anonymous_user();
-        cls.usuario_admin = CustomUser.objects.create(
+
+    def setUp(self):
+        self.usuario_admin = CustomUser.objects.create_superuser(
             email='admin@usuario.com',
             senha='senha1234',
             nome='Administrador',
-            telefone='1234567890',
-            telefone_fixo='0987654321',
-            relacao_ufrpe=RelacaoUFRPE.DOCENTE,
-            tipo_usuario= TipoUsuario.ADMIN
         )
-
-
-    def setUp(self):
+        self.usuario_anonimo = CustomUser.objects.create_user(
+                nome="Anônimo Usuário",
+                email='anonimo@example.com',
+                password="senha1234"
+            )
         # Inicializa o navegador
         self.driver = webdriver.Chrome()
         self.vars = {}
@@ -335,7 +293,7 @@ class TestVisualizarInformativos():
     def login_user_admin(self):
         # Step # | name | target | value
         # 1 | open | / |
-        self.driver.get("http://localhost:8000/")
+        self.driver.get(self.live_server_url)
         # 2 | setWindowSize | 1235x816 |
         self.driver.set_window_size(1235, 816)
         # 3 | click | id=login |
@@ -347,27 +305,33 @@ class TestVisualizarInformativos():
         # 6 | type | id=password |
         self.driver.find_element(By.ID, "password").send_keys("senha1234")
 
+         # Submetendo o formulário
+        self.driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+        time.sleep(1)
+
 
     def login_user_anonimo(self):
         # Step # | name | target | value
         # 1 | open | / |
-        self.driver.get("http://localhost:8000/")
+        self.driver.get(self.live_server_url)
         # 2 | setWindowSize | 1235x816 |
         self.driver.set_window_size(1235, 816)
         # 3 | click | id=login |
         self.driver.find_element(By.ID, "login").click()
         # 4 | type | id=login |
-        self.driver.find_element(By.ID, "login").send_keys("anonimo@usuario.com")
+        self.driver.find_element(By.ID, "login").send_keys("anonimo@example.com")
         # 5 | click | id=password |
         self.driver.find_element(By.ID, "password").click()
         # 6 | type | id=password |
-        self.driver.find_element(By.ID, "password").send_keys("senha1234")    
+        self.driver.find_element(By.ID, "password").send_keys("senha1234")
+
+         # Submetendo o formulário
+        self.driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+        time.sleep(1)
    
     def test_visualizar_informativo_gestor_admin(self):
         self.login_user_admin()
         self.cadastro_informativo()
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
    
     def test_visualizar_informativo_sem_conteudo(self):
@@ -385,14 +349,10 @@ class TestVisualizarInformativos():
     def test_visualizar_secao_gerenciar_informativos(self):
         self.login_user_admin()
         self.cadastro_informativo()
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
    
     def test_visualizar_secao_gerenciar_informativos_sem_informativo(self):
         self.login_user_admin()
-        self.driver.get("http://localhost:8000/")
-        self.driver.set_window_size(1236, 816)
         self.driver.find_element(By.LINK_TEXT, "Informativos").click()
         self.driver.find_element(By.CSS_SELECTOR, "a:nth-child(2) > .btnInfo").click()
