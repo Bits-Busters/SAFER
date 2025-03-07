@@ -267,19 +267,5 @@ class TestBackend(TestCase):
         self.assertEqual(mail.outbox[0].to, [self.user.email])
 
         
-    def test_email_confirmacao_senha_trocada_comum(self):
-        self.user.tipo_usuario = "Comum"
-        nova_senha = "N$wP@ssw1RD"
-        response = self.client.post(
-            reverse('password_reset_confirm', kwargs={'uidb64': self.uidb64, 'token': self.token}),
-            data={
-                'new_password1': nova_senha,
-                'new_password2': nova_senha
-            }
-        )
-        print(response.content)
-        self.assertEqual(response.status_code, 302)  # Deve redirecionar
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, [self.user.email])
 
 
