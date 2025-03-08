@@ -20,12 +20,14 @@ class TestInterface(LiveServerTestCase):
 
         cls.driver = webdriver.Chrome()
         cls.driver.implicitly_wait(3)  # Aguarda os elementos carregarem
+
     @classmethod
     def tearDownClass(cls):
         cls.driver.quit()
         super().tearDownClass()
 
     def setUp(self):
+        self.driver.maximize_window()  # Maximiza a janela
         self.user = CustomUser.objects.create_user(
             nome="testuser", email="testuser@example.com", password="testpassword"
         )
@@ -34,7 +36,7 @@ class TestInterface(LiveServerTestCase):
     def test_solicita_redefinicao_senha(self):
         """ Testa se redireciona corretamente para as páginas """
         self.driver.get(self.live_server_url)
-        self.driver.maximize_window()  # Maximiza a janela
+
         
         # Encontra e clica no botão Esqueci a senha
         esqueci_senha_butao = self.driver.find_element(By.ID, "passwordRecover")
