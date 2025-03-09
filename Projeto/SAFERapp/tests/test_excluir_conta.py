@@ -3,13 +3,10 @@ from django.test import TestCase, LiveServerTestCase
 from django.test import LiveServerTestCase, TestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from SAFERapp.models import CustomUser
+from selenium.webdriver.chrome.options import Options
 from django.urls import reverse
-from django.core import mail
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
+
 import time
 
 from selenium.webdriver.common.alert import Alert
@@ -20,7 +17,13 @@ class TestExcluirConta(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.driver = webdriver.Chrome()
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-password-generation")  # Desativa sugestões de senha
+        chrome_options.add_argument("--disable-save-password-bubble")  # Desativa popup de salvar senha
+        chrome_options.add_argument("--disable-popup-blocking")  # Desativa bloqueio de popups
+        chrome_options.add_argument("--disable-notifications")  # Desativa notificações
+        chrome_options.add_argument("--incognito")  # Modo anônimo para evitar sugestões baseadas em histórico
+        cls.driver = webdriver.Chrome(options=chrome_options)
         cls.driver.implicitly_wait(3)
 
     @classmethod
@@ -47,15 +50,19 @@ class TestExcluirConta(LiveServerTestCase):
 
             butao_login = self.driver.find_element(By.XPATH, '//*[@id="hrButton"]/button')
             butao_login.click()
-            time.sleep(0.7)
+            time.sleep(0.5)
+
             self.driver.get(self.live_server_url+reverse('telaPerfil', kwargs={'username': self.user.nome}))
 
-
-            botao_apagar = self.driver.find_element(By.CLASS_NAME, 'btn-danger')
-            botao_apagar.click()
-            Alert(self.driver).accept()
-
             time.sleep(1)
+            botao_apagar = self.driver.find_element(By.XPATH, '/html/body/div/div/form[2]/button')
+            botao_apagar.click()
+
+            Alert(self.driver).accept()
+            time.sleep(0.5)
+            Alert(self.driver).accept()
+            time.sleep(0.8)
+
             self.assertFalse(CustomUser.objects.filter(email="testuser@test.com").exists())
 
     def test_excluir_conta_analista(self):
@@ -71,14 +78,19 @@ class TestExcluirConta(LiveServerTestCase):
 
                 butao_login = self.driver.find_element(By.XPATH, '//*[@id="hrButton"]/button')
                 butao_login.click()
-                time.sleep(0.7)
+                time.sleep(0.5)
                 self.driver.get(self.live_server_url + reverse('telaPerfil', kwargs={'username': self.user.nome}))
 
-                botao_apagar = self.driver.find_element(By.CLASS_NAME, 'btn-danger')
+                time.sleep(1)
+                botao_apagar = self.driver.find_element(By.XPATH, '/html/body/div/div/form[2]/button')
                 botao_apagar.click()
+
+
+                Alert(self.driver).accept()
+                time.sleep(0.9)
                 Alert(self.driver).accept()
 
-                time.sleep(1)
+                time.sleep(0.8)
                 self.assertFalse(CustomUser.objects.filter(email="testuser@test.com").exists())
 
     def test_excluir_conta_gestor(self):
@@ -94,16 +106,21 @@ class TestExcluirConta(LiveServerTestCase):
 
                     butao_login = self.driver.find_element(By.XPATH, '//*[@id="hrButton"]/button')
                     butao_login.click()
+                    time.sleep(0.5)
 
                     self.driver.get(self.live_server_url + reverse('telaPerfil', kwargs={'username': self.user.nome}))
 
 
                     time.sleep(1)
-                    botao_apagar = self.driver.find_element(By.CLASS_NAME, 'btn-danger')
+                    botao_apagar = self.driver.find_element(By.XPATH, '/html/body/div/div/form[2]/button')
                     botao_apagar.click()
+
+
+                    Alert(self.driver).accept()
+                    time.sleep(0.9)
                     Alert(self.driver).accept()
 
-                    time.sleep(1)
+                    time.sleep(0.5)
                     self.assertFalse(CustomUser.objects.filter(email="testuser@test.com").exists())
 
     def test_excluir_conta_administrador(self):
@@ -119,15 +136,17 @@ class TestExcluirConta(LiveServerTestCase):
 
                         butao_login = self.driver.find_element(By.XPATH, '//*[@id="hrButton"]/button')
                         butao_login.click()
-
-                        time.sleep(0.7)
+                        time.sleep(0.5)
                         self.driver.get(
                             self.live_server_url + reverse('telaPerfil', kwargs={'username': self.user.nome}))
 
-                        botao_apagar = self.driver.find_element(By.CLASS_NAME, 'btn-danger')
+                        time.sleep(1)
+                        botao_apagar = self.driver.find_element(By.XPATH, '/html/body/div/div/form[2]/button')
                         botao_apagar.click()
+                        time.sleep(1)
+                        Alert(self.driver).accept()
+                        time.sleep(0.9)
                         Alert(self.driver).accept()
 
-                        time.sleep(1)
                         self.assertFalse(CustomUser.objects.filter(email="testuser@test.com").exists())
 
