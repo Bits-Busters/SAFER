@@ -226,6 +226,16 @@ class TestBackend(TestCase):
         self.assertEqual(mail.outbox[0].to, [self.user.email])
         self.assertIn("redefinir", mail.outbox[0].body)
 
+    def test_enviar_email_redefinicao_senha_conta_inexistente(self):
+
+        """
+        Faz teste para conta inexistente
+        """
+        # Envia a solicitação de redefinição de senha
+        self.client.post(reverse('password_reset'), {'email': "conta@inexistente.com"})
+        # Verifique se nenhum e-mail foi enviado
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_enviar_email_redefinicao_senha_analista(self):
 
         """
