@@ -19,7 +19,8 @@ from django.contrib import admin
 from django.urls import path
 
 from Projeto import settings
-from SAFERapp.views import HomeView, FormularioView, CadastroView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, AtualizarOcorrenciaView
+
+from SAFERapp.views import HomeView, FormularioView, CadastroView, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
 from django.contrib.auth import views as auth_views
 
 
@@ -54,14 +55,26 @@ urlpatterns = [
     #URL da página de gerenciamento de Informativos
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
     
+    # Noticicações
+    path('staff/notificacoes', notificacoes_view, name="staffNotificacoes" ),
+    path('staff/notificacaolida', notificacao_lida, name='notificacaolida'),
+
+
     # Página para reiniciar a senha
-    path('senha-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('senha-reset/', auth_views.PasswordResetView.as_view(template_name='reset_password_templates/password_reset_form.html'), name='password_reset'),
     # Página de notificação de sucesso após o envio do email
-    path('senha-reset-feito/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('senha-reset-feito/', auth_views.PasswordResetDoneView.as_view(template_name='reset_password_templates/password_reset_done.html'), name='password_reset_done'),
     # Página de redefinição de senha com o token (enviado por email)
-    path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('redefinir/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='reset_password_templates/password_reset_confirm.html'), name='password_reset_confirm'),
     # Sucesso após redefinição da senha
-    path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(template_name='reset_password_templates/password_reset_complete.html'), name='password_reset_complete'),
+
+    # Lista os usuários
+    path('usuarios/gerenciar', telaGerenciarUsuarios, name='gerenciarUsuarios'),
+    path('editar_usuario/<str:usuario_email>/', editar_usuario, name='editar_usuario'),
+    path('deletar_usuario/<str:usuario_email>/', deletar_usuario, name='deletar_usuario'),
+
+    path('relatorios/', relatorio_view, name = 'tela_relatorios'),
 ]
 
 if settings.DEBUG:

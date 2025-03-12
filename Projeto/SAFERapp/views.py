@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -9,19 +10,104 @@ from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
+
 
 from SAFERapp.beans.Enums import StatusChamado
-from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet
+from SAFERapp.beans.Forms import FormularioForm, FilterForm, ImagemFormSet, CustomUserForm, UserFilterFormRelatorio, OcorrenciaFilterFormRelatorio
 from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
 from SAFERapp.beans.Observacoes import Observacoes
+from SAFERapp.models import Notificacao
 from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
 
 
 # Create your views here.
+@login_required
+def relatorio_view(request):
+    # Inicializar os formulários com os dados GET
+    user_form = UserFilterFormRelatorio(request.GET or None)
+    ocorrencia_form = OcorrenciaFilterFormRelatorio(request.GET or None)
+
+    # Obter todos os usuários e ocorrências
+    ocorrencias = Ocorrencia.objects.all()
+    usuarios = CustomUser.objects.all()
+
+    # Contar o número total de usuários e ocorrências
+    quantidadeUsuarios = usuarios.count()
+    quantidadeOcorrencias = ocorrencias.count()
+
+    # Filtragem de Ocorrências
+    if ocorrencia_form.is_valid():
+        # Filtrar por Data Inicial
+        data_inicial = ocorrencia_form.cleaned_data.get('DataInicial')
+        if data_inicial:
+            ocorrencias = ocorrencias.filter(DataHora__gte=data_inicial)
+
+        # Filtrar por Data Final
+        data_final = ocorrencia_form.cleaned_data.get('DataFinal')
+        if data_final:
+            ocorrencias = ocorrencias.filter(DataHora__lte=data_final)
+
+        # Filtrar por Tipo de Caso
+        tipo_caso = ocorrencia_form.cleaned_data.get('TipoCaso')
+        if tipo_caso:
+            ocorrencias = ocorrencias.filter(Tipo_Caso=tipo_caso)
+
+    # Filtragem de Usuários
+    if user_form.is_valid():
+        # Filtrar por Relação com a UFRPE
+        relacao_ufrpe = user_form.cleaned_data.get('relacao_ufrpe')
+        if relacao_ufrpe:
+            usuarios = usuarios.filter(relacao_ufrpe=relacao_ufrpe)
+
+        # Filtrar por Tipo de Usuário
+        tipo_usuario = user_form.cleaned_data.get('tipo_usuario')
+        if tipo_usuario:
+            usuarios = usuarios.filter(tipo_usuario=tipo_usuario)
+
+    quantidadeUsuariosFiltrados = usuarios.count()
+    quantidadeOcorrenciasFiltrados = ocorrencias.count()
+
+    # Gerando os dados para gráficos (exemplo)
+    tipo_ocorrencia_count = ocorrencias.values('Tipo_Caso').annotate(total=Count('Tipo_Caso'))
+    status_ocorrencia_count = ocorrencias.values('Status').annotate(total=Count('Status'))
+
+    # Preparando os dados para o gráfico (ocorrências por tipo de caso)
+    tipos = [item['Tipo_Caso'] for item in tipo_ocorrencia_count]
+    tipo_counts = [item['total'] for item in tipo_ocorrencia_count]
+
+    # Preparando os dados para o gráfico (ocorrências por status)
+    status = [item['Status'] for item in status_ocorrencia_count]
+    status_counts = [item['total'] for item in status_ocorrencia_count]
+
+    print(tipos)
+    print("\n")
+    print(tipo_counts)
+    print("\n")
+    print(status)
+    print("\n")
+    print(status_counts)
+
+    # Retornar os resultados para o template
+    return render(request, 'TelaRelatorio.html', {
+        'user_form': user_form,
+        'ocorrencia_form': ocorrencia_form,
+        'ocorrencias': ocorrencias,
+        'usuarios': usuarios,
+        'quantidadeUsuarios': quantidadeUsuarios,
+        'quantidadeOcorrencias': quantidadeOcorrencias,
+        'quantidadeUsuariosFiltrados' : quantidadeUsuariosFiltrados,
+        'quantidadeOcorrenciasFiltrados' : quantidadeOcorrenciasFiltrados,
+        'tipos': tipos,
+        'status_chamado': status,
+        'tipo_counts': tipo_counts,
+        'status_counts': status_counts,
+    })
+
 
 @login_required
 def telaOcorrencias(request, tipoChamado):
@@ -54,11 +140,15 @@ def telaOcorrencias(request, tipoChamado):
 
         tipoCaso = form.cleaned_data.get('TipoCaso')
         if tipoCaso:
-            ocorrencia = ocorrencia.filter(TipoCaso=tipoCaso)
+            ocorrencia = ocorrencia.filter(Tipo_Caso=tipoCaso)
 
-        data = form.cleaned_data.get('Data')  # Aqui você acessa a data corretamente
-        if data:
-            ocorrencia = ocorrencia.filter(DataHora__date=data)  # Filtra apenas pela data, não pelo horário
+        dataIncial = form.cleaned_data.get('DataInicial')  # Aqui você acessa a data corretamente
+        if dataIncial:
+            ocorrencia = ocorrencia.filter(DataHora__gte=dataIncial)  # Filtra apenas pela data, não pelo horário
+
+        dataFinal = form.cleaned_data.get('DataFinal')  # Aqui você acessa a data corretamente
+        if dataFinal:
+            ocorrencia = ocorrencia.filter(DataHora__lte=dataFinal)  # Filtra apenas pela data, não pelo horário
 
         local = form.cleaned_data.get('Local')
         if local:
@@ -73,6 +163,44 @@ def telaOcorrencias(request, tipoChamado):
 
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
+
+@login_required
+def editar_usuario(request, usuario_email):
+    usuario = get_object_or_404(CustomUser, email=usuario_email)
+
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            return redirect('gerenciarUsuarios')  # Redireciona de volta para a lista de usuários
+    else:
+        form = CustomUserForm(instance=usuario)
+
+    return render(request, 'DetalhesUsuario.html', {'form': form, 'usuario': usuario})
+
+@login_required
+def deletar_usuario(request, usuario_email):
+    usuario = get_object_or_404(CustomUser, email=usuario_email)
+    
+    # Verifica se o usuário que está tentando excluir não é ele mesmo
+    if usuario == request.user:
+        return redirect('gerenciarUsuarios')
+
+    usuario.delete()
+    return redirect('gerenciarUsuarios')
+
+@login_required
+def telaGerenciarUsuarios(request):
+    usuarios = CustomUser.objects.all().order_by('nome')
+    # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
+    paginator = Paginator(usuarios, 5)  # 5 ocorrências por página
+
+    # Obtém o número da página atual
+    page_number = request.GET.get('page')  # Pode vir da URL (por exemplo: ?page=2)
+    page_obj = paginator.get_page(page_number)
+
+    # Renderiza a página com as ocorrências paginadas
+    return render(request, 'TelaGerenciarUsuarios.html', {'page_obj': page_obj})
 
 def telaUsuario(request, username):
     if username != request.user.nome:
@@ -172,72 +300,6 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
         form = FormularioForm(instance=ocorrencia)
         return render(request, 'TelaAtualizarDetalhesChamado.html', {'form': form, 'ocorrencia': ocorrencia, 'resgatistas': self.resgatistas})
 
-    def post(self, request, ocorrencia_id):
-        """ Processa a atualização da ocorrência """
-        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
-        form = FormularioForm(request.POST, instance=ocorrencia)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Ocorrência atualizada com sucesso!")
-            return redirect('telaDetalhesChamado', id=ocorrencia.id)
-        
-        messages.error(request, "Erro ao atualizar a ocorrência. Verifique os campos.")
-        return render(request, self.template_name, {'form': form, 'ocorrencia': ocorrencia})
-
-class PerfilView(LoginRequiredMixin, View):
-    def get(self, request, username):
-        if username != request.user.nome:
-            messages.error(request, "Este não é o seu perfil")
-            return redirect('home')
-
-        form = PasswordChangeForm(user=request.user)
-        return render(request, 'TelaPerfil.html', {
-            'user': request.user,
-            'form': form
-        })
-
-    def post(self, request, username):
-        if username != request.user.nome:
-            messages.error(request, "Este não é o seu perfil")
-            return redirect('home')
-
-        form_type = request.POST.get("form_type")
-
-        if form_type == "alterar_senha":
-            form = PasswordChangeForm(user=request.user, data=request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Sua senha foi alterada com sucesso!")
-                return redirect('telaPerfil', username=request.user.nome)
-            else:
-                messages.error(request, "Erro ao alterar senha. Verifique os dados.")
-
-        elif form_type == "excluir_perfil":
-            user = request.user
-            user.delete()
-            messages.success(request, "Sua conta foi excluída com sucesso!")
-            return redirect('home')  # Redireciona para a página inicial após exclusão
-
-        form = PasswordChangeForm(user=request.user)  # Recarrega o formulário se der erro
-        return render(request, 'TelaPerfil.html', {'user': request.user, 'form': form})
-
-class FormularioView(View):
-
-    def get(self, request):
-        initial_data = {}
-        if request.user.is_authenticated:
-            initial_data = {
-                'Nome_Autor': request.user.nome,
-                'Celular_Autor': request.user.telefone,  # Supondo que o celular esteja no perfil
-                'Telefone_Autor': request.user.telefone_fixo,  # Supondo que o telefone esteja no perfil
-                'Relacao_Autor': request.user.relacao_ufrpe,  # Supondo que você tenha este campo
-            }
-        form = FormularioForm(initial=initial_data)
-        formset = ImagemFormSet()
-        return render(request, 'Form.html', {'form': form, 'formset': formset})
-
-
     def post(self, request):
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
@@ -289,6 +351,111 @@ class FormularioView(View):
                     
             # Retorna os erros no contexto
             return JsonResponse({'success': False, 'errors': error_messages})
+
+class PerfilView(LoginRequiredMixin, View):
+    def get(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form = PasswordChangeForm(user=request.user)
+        return render(request, 'TelaPerfil.html', {
+            'user': request.user,
+            'form': form
+        })
+
+    def post(self, request, username):
+        if username != request.user.nome:
+            messages.error(request, "Este não é o seu perfil")
+            return redirect('home')
+
+        form_type = request.POST.get("form_type")
+
+        if form_type == "alterar_senha":
+            form = PasswordChangeForm(user=request.user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Sua senha foi alterada com sucesso!")
+                return redirect('telaPerfil', username=request.user.nome)
+            else:
+                messages.error(request, "Erro ao alterar senha. Verifique os dados.")
+
+        elif form_type == "excluir_perfil":
+            user = request.user
+            user.delete()
+            messages.success(request, "Sua conta foi excluída com sucesso!")
+            return redirect('home')  # Redireciona para a página inicial após exclusão
+
+        form = PasswordChangeForm(user=request.user)  # Recarrega o formulário se der erro
+        return render(request, 'TelaPerfil.html', {'user': request.user, 'form': form})
+
+class FormularioView(View):
+
+    def get(self, request):
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data = {
+                'Nome_Autor': request.user.nome,
+                'Celular_Autor': request.user.telefone,
+                'Telefone_Autor': request.user.telefone_fixo,
+                'Relacao_Autor': request.user.relacao_ufrpe,
+            }
+        form = FormularioForm(initial=initial_data)
+        formset = ImagemFormSet()
+        return render(request, 'Form.html', {'form': form, 'formset': formset})
+
+    def post(self, request):
+        form = FormularioForm(request.POST, request.FILES)
+        formset = ImagemFormSet(request.POST, request.FILES)
+
+        # Verifica se é uma requisição AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid() and formset.is_valid():
+                # Acesse form.cleaned_data somente após a validação
+                print("Dados do form:", form.cleaned_data)
+                
+                ocorrencia = form.save(commit=False)
+                if request.user.is_authenticated:
+                    ocorrencia.Autor = request.user
+                else:
+                    ocorrencia.Autor = get_or_create_anonymous_user()
+                ocorrencia.save()
+
+                imagens = formset.save(commit=False)
+                for imagem in imagens:
+                    imagem.IdOcorrencia = ocorrencia
+                    imagem.save()
+
+                # Reseta o formulário após salvar
+                form = FormularioForm()
+                formset = ImagemFormSet()
+
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Formulário enviado com sucesso!', 
+                    'redirect_url': reverse('home')
+                })
+            else:
+                # Caso os formulários sejam inválidos, processa os erros
+                error_messages = []
+
+                # Erros do formulário principal
+                if not form.is_valid():
+                    for field, errors in form.errors.items():
+                        for error in errors:
+                            error_messages.append(f"Erro no campo '{field}': {error}")
+
+                # Erros do formset
+                if not formset.is_valid():
+                    for i, form_errors in enumerate(formset.errors):
+                        for field, errors in form_errors.items():
+                            for error in errors:
+                                error_messages.append(f"Erro no formulário de imagem {i + 1} - campo '{field}': {error}")
+
+                return JsonResponse({'success': False, 'errors': error_messages})
+
+        else:
+            return JsonResponse({'success': False, 'message': 'Requisição inválida'})
         
 
 def logout_view(request):
@@ -384,4 +551,32 @@ class GerenciarInformativosView(View):
         informativo = Informativo.objects.get(id=id)
         informativo.excluir_informativo()
         return redirect('gerenciarInformativos')
+
+def staff(user):
+    return user.is_staff
+# View que notifica um staff oua acima de um novo chamado
+@login_required # precisa esta logado
+@user_passes_test(staff) # precisa ser staff
+def notificacoes_view(request): # envia um JSON para página para criacao do popup de notificao
+    notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False)
+    dados = [{
+        'id': notificacao.id,
+        'mensagem': notificacao.mensagem,
+        'lida': notificacao.lida
+    } for notificacao in notificacoes]
+    return JsonResponse({'notificacoes': dados})
+
+# View que atualiaza uma notificacao para lida
+@login_required
+@require_POST
+def notificacao_lida(request):
+    notification_id = request.POST.get("notification_id")
+    if not notification_id: # Verifica o ID da notificao
+        return JsonResponse({"success": False, "error": "ID não fornecido."}, status=400)
     
+    try:
+        notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True) # marca todas as notificacoes do usuario como lidas
+        Notification.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
+        return JsonResponse({"success": True, "notificacoes_lidas": notificacoes}) # envia resposta JSON a pagina
+    except Notificacao.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Notificação não encontrada."}, status=404)

@@ -1,8 +1,7 @@
-
 from django.forms import inlineformset_factory
 
 from SAFERapp.beans.Observacoes import Observacoes
-from SAFERapp.beans.Enums import Registro, Local
+from SAFERapp.beans.Enums import Registro, Local, StatusChamado, TipoUsuario, RelacaoUFRPE
 from SAFERapp.beans.Imagens import Imagens 
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
@@ -12,6 +11,42 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import inlineformset_factory
 
+class CustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['relacao_ufrpe', 'tipo_usuario']  # Apenas os campos editáveis
+
+class UserFilterFormRelatorio(forms.Form):
+    relacao_ufrpe = forms.ChoiceField(
+        required=False,
+        label="Relação com a UFRPE",
+        choices=[('', 'Todos')] + RelacaoUFRPE.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    tipo_usuario = forms.ChoiceField(
+        required=False,
+        label="Tipo de usuário",
+        choices=[('', 'Todos')] + TipoUsuario.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+class OcorrenciaFilterFormRelatorio(forms.Form):
+    DataInicial = forms.DateField(
+        required=False,
+        label="Data Inicial",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    DataFinal = forms.DateField(
+        required=False,
+        label="Data Final",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    TipoCaso = forms.ChoiceField(
+        required=False,
+        label="Tipo de Caso",
+        choices=[('', 'Todos')] + Registro.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 class InformativoForm(forms.ModelForm):
     class Meta:
@@ -42,10 +77,12 @@ class InformativoForm(forms.ModelForm):
         return informativo
 
 class FormularioForm(forms.ModelForm):
-
     class Meta:
         model = Ocorrencia
-        fields = ['Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor', 'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao', 'Status']
+        fields = [
+            'Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor',
+            'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao', 'Status'
+        ]
         widgets = {
             'Descricao': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
         }
@@ -53,40 +90,43 @@ class FormularioForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormularioForm, self).__init__(*args, **kwargs)
 
-        # Configurando os campos obrigatórios
         required_fields = [
-            'Nome_Autor', 
-            'Celular_Autor', 
-            'Relacao_Autor', 
-            'Nome_Animal', 
-            'Local', 
-            'Referencia', 
-            'Tipo_Caso', 
-            'Descricao',
-            'Status'
+            'Nome_Autor', 'Celular_Autor', 'Relacao_Autor', 
+            'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 
+            'Descricao'
         ]
-
+        
         for field in required_fields:
             self.fields[field].required = True
 
-        # Configurando 'Telefone_Autor' como opcional
-        self.fields['Telefone_Autor'].required = False
-
-        # Adicionando classes CSS aos campos
+        non_required_fields = ['Telefone_Autor', 'Status']
+        for field in non_required_fields:
+            self.fields[field].required = False
+        
+        # Se for uma nova ocorrência, defina o status automaticamente como "aberto"
+        if not self.instance.pk:  # Verifica se é uma nova ocorrência (sem PK)
+            self.fields['Status'].initial = StatusChamado.ABERTO
+        
         for field_name in self.fields:
-            field = self.fields[field_name]  # Acessa o campo pelo nome
-            field.widget.attrs.update({'class': 'form-control'})
-            if field_name in self.errors:
-                field.widget.attrs.update({'class': 'form-control is-invalid'})
+            self.fields[field_name].widget.attrs.update({'class': 'form-control'})
 
-
-        # Configurações do Crispy Forms (se necessário)
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.form_class = 'form-horizontal'
-        self.helper.form_tag = True  # Não renderizar a tag <form> automaticamente
+        self.helper.form_tag = True
         self.helper.add_input(Submit('submit', 'Enviar'))
 
+    def save(self, commit=True):
+        instancia = super().save(commit=False)
+        
+        # Se a ocorrência for nova, defina o status como "aberto"
+        if not self.instance.pk:
+            instancia.Status = StatusChamado.ABERTO
+        
+        if commit:
+            instancia.save()
+        
+        return instancia
 
 class CadastroForm(forms.ModelForm):
     senha = forms.CharField(widget=forms.PasswordInput, label='Senha', min_length=8)
@@ -110,9 +150,8 @@ class CadastroForm(forms.ModelForm):
         senha = cleaned_data.get('senha')
         confirmar_senha = cleaned_data.get('confirmar_senha')
 
-        if senha and confirmar_senha:
-                if senha != confirmar_senha:
-                    raise forms.ValidationError('As senhas não coincidem.')
+        if senha and confirmar_senha and senha != confirmar_senha:
+            raise forms.ValidationError('As senhas não coincidem.')
 
         return cleaned_data
 
@@ -131,9 +170,14 @@ class FilterForm(forms.Form):
         label="Animal",
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite o nome do animal'})
     )
-    Data = forms.DateField(
+    DataInicial = forms.DateField(
         required=False,
-        label="Data",
+        label="Data Inicial",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    DataFinal = forms.DateField(
+        required=False,
+        label="Data Final",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     TipoCaso = forms.ChoiceField(

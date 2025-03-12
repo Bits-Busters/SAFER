@@ -1,0 +1,108 @@
+{% extends 'TopTemplate.html' %}
+
+{% block extra_css %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+{% endblock %}
+
+{% block title %}Relatório de Ocorrências{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Relatório de Ocorrências</h1>
+
+        <!-- Formulários de Filtros -->
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Filtros de Usuários</h4>
+                <form method="get">
+                    {{ user_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Filtrar Usuários</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h4>Filtros de Ocorrências</h4>
+                <form method="get">
+                    {{ ocorrencia_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Filtrar Ocorrências</button>
+                </form>
+            </div>
+        </div>
+
+        <hr>
+
+        <h3>Relatório de Ocorrências</h3>
+        <p><strong>Total de Ocorrências:</strong> {{ quantidadeOcorrencias }} | <strong>Total de Usuários:</strong> {{ quantidadeUsuarios }}</p>
+        <p><strong>Ocorrências Filtradas:</strong> {{ quantidadeOcorrenciasFiltrados }} | <strong>Usuários Filtrados:</strong> {{ quantidadeUsuariosFiltrados }}</p>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4>Gráfico de Ocorrências por Tipo de Caso</h4>
+                <canvas id="tipoOcorrenciaChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h4>Gráfico de Ocorrências por Status</h4>
+                <canvas id="statusOcorrenciaChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Certifique-se de que os dados estão sendo passados corretamente como listas
+        var status_dos_chamados = {{ status_chamado|safe }};
+        var tipos = {{ tipos|safe }};
+        var tipo_counts = {{ tipo_counts|safe }};
+
+        // Gráfico de status de ocorrência
+        var status_counts = {{ status_counts|safe }};
+        
+        console.log("Status: ", status_dos_chamados);
+        console.log("Status valores: ",status_counts);
+
+        // Garantir que 'tipos' é um array de strings e 'tipo_counts' é um array de números
+        console.log("Tipos: ", tipos);
+        console.log("Tipos valores: ",tipo_counts);
+    
+        var ctxTipo = document.getElementById('tipoOcorrenciaChart').getContext('2d');
+        var tipoOcorrenciaChart = new Chart(ctxTipo, {
+            type: 'bar',
+            data: {
+                labels: tipos,  // Certifique-se de que 'tipos' é um array de strings
+                datasets: [{
+                    label: 'Ocorrências por Tipo de Caso',
+                    data: tipo_counts,  // Certifique-se de que 'tipo_counts' é um array de números
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        
+    
+        var ctxStatus = document.getElementById('statusOcorrenciaChart').getContext('2d');
+        var statusOcorrenciaChart = new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: status_dos_chamados,  // Certifique-se de que 'status' é um array de strings
+                datasets: [{
+                    label: 'Ocorrências por Status',
+                    data: status_counts,  // Certifique-se de que 'status_counts' é um array de números
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 159, 64, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>    
+{% endblock %}
