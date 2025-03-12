@@ -33,8 +33,10 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.support import expected_conditions as EC
 from django.test import Client
 from django.contrib.auth import authenticate, login
+import re
 
 # Create your tests here.
 
@@ -108,24 +110,39 @@ class TesteOcorrencias(StaticLiveServerTestCase):
    
     def test_visualizar_ocorrencias_inexistente(self):
         self.driver.find_element(By.LINK_TEXT, "Meus Chamados").click()
-   
+        chamados = self.driver.find_elements(By.CSS_SELECTOR, ".list-group-item")
+        assert len(chamados) == 0, "Deveria não haver ocorrências listadas, mas há elementos na lista."
+
     def test_visualizar_ocorrenciar_existentes(self):
         self.criar_ocorrencia_teste()
         self.driver.find_element(By.LINK_TEXT, "Meus Chamados").click()
+        chamados = self.driver.find_elements(By.CSS_SELECTOR, ".list-group-item")
+        assert len(chamados) > 0, "Deveria haver pelo menos uma ocorrência listada, mas a lista está vazia."
+
         self.vars["window_handles"] = self.driver.window_handles
         self.driver.find_element(By.CSS_SELECTOR, ".list-group-item > button").click()
         self.vars["win8450"] = self.wait_for_window(2000)
         self.driver.switch_to.window(self.vars["win8450"])
 
+        url_atual = self.driver.current_url
+        assert re.search(r"/chamado/\d+$", url_atual), f"URL inesperada: {url_atual}"
 
     def test_visualizar_ocorrencia_atualizada(self):
         self.criar_ocorrencia_teste()
         self.atualizar_ocorrencia_teste()
         self.driver.find_element(By.LINK_TEXT, "Meus Chamados").click()
+
+        chamados = self.driver.find_elements(By.CSS_SELECTOR, ".list-group-item")
+        assert len(chamados) > 0, "Deveria haver pelo menos uma ocorrência listada após a atualização."
+
         self.vars["window_handles"] = self.driver.window_handles
         self.driver.find_element(By.CSS_SELECTOR, ".list-group-item > button").click()
         self.vars["win8450"] = self.wait_for_window(2000)
         self.driver.switch_to.window(self.vars["win8450"])
+
+        url_atual = self.driver.current_url
+        assert re.search(r"/chamado/\d+$", url_atual), f"URL inesperada: {url_atual}"
+        
     """
     Fim de Testes de visualização de ocorrências
     """
