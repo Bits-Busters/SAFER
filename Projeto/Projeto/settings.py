@@ -155,16 +155,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # configuração de email
 
 # backend no caso de só imprimir email no console sem enviar
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Backend padrão (com console)
-#EMAIL_HOST = 'smtp.example.com'  # Servidor SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Backend padrão (com console)
+EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP
 
 # No caso de querer salvar o conteúdo em arquivo
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH = '/tmp/emails'  # Certifique-se de que este diretório existe
 
 
-#EMAIL_PORT = 587  # Porta do servidor SMTP
-#EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
-#EMAIL_HOST_USER = 'seu-email@example.com'  # Usuário do email
-#EMAIL_HOST_PASSWORD = 'sua-senha'  # Senha do email
+EMAIL_PORT = 587  # Porta do servidor SMTP
+EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
+EMAIL_HOST_USER = 'safer.teamapp@gmail.com'  # Usuário do email
+EMAIL_HOST_PASSWORD = 'gqen reee xqtv weol'  # Senha do email
 #DEFAULT_FROM_EMAIL = 'seu-email@example.com'  # Email padrão para envio
