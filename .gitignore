@@ -1,10 +1,14 @@
-SAFER/
+
 venv/
 
 Projeto/media/
 
 .idea/
 Projeto/.idea/
+
+
+# selenium
+chromedriver.exe
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -310,6 +310,7 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
             if form.is_valid() and formset.is_valid():
                 ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
                 ocorrencia = form.save(commit=False)
+                ocorrencia.id = ocorrencia_id  # Ensure we use the correct occurrence ID
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user
                 else:
@@ -329,7 +330,6 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
 
 
         else:
-
             # Caso os formulários sejam inválidos, processa os erros
             error_messages = []
 
@@ -353,6 +353,7 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
                     
             # Retorna os erros no contexto
             return JsonResponse({'success': False, 'errors': error_messages})
+
 
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request, username):
