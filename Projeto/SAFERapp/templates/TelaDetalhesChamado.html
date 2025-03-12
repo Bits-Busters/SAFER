@@ -52,6 +52,12 @@
 
     {% if user.tipo_usuario == 'admin' or ocorrencia.Resgatista == user or user == ocorrencia.Autor and ocorrencia.Status == 'aberto' %}
         <a href="{% url 'telaAtualizarChamado' ocorrencia.id %}" class="btn btn-primary mt-2">Atualizar</a>
+            <!-- Botão para deletar a ocorrência -->
+        <form method="POST" action="{% url 'deletar_chamado' ocorrencia.id %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="deletar_ocorrencia">
+            <button type="submit" class="btn btn-danger mt-2">Deletar Ocorrência</button>
+        </form>
     {% endif %}
 
     {% if observacoes %}
