@@ -8,7 +8,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
-    libmariadb-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala o Poetry globalmente
@@ -31,16 +30,13 @@ FROM python:3.12-slim AS prod
 
 WORKDIR /app
 
+COPY ./packages-microsoft-prod.deb /packages-microsoft-prod.deb
 
-# Download the package to configure the Microsoft repo
-RUN curl -sSL -O https://packages.microsoft.com/config/ubuntu/$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2)/packages-microsoft-prod.deb
-# Install the package
-RUN sudo dpkg -i packages-microsoft-prod.deb
-# Delete the file
-RUN rm packages-microsoft-prod.deb
+RUN dpkg -i /packages-microsoft-prod.deb
+
+RUN rm /packages-microsoft-prod.deb
 
 RUN  apt-get update && ACCEPT_EULA=Y apt-get install -y \
-    libmariadb-dev \
      msodbcsql18 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -52,11 +48,12 @@ RUN pip install --no-index --find-links=/wheels -r /wheels/requirements.txt
 
 # Copia todo o código do projeto para dentro do container
 COPY ./Projeto ./Projeto
-
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 # Porta usada pelo container
 EXPOSE 8000
 RUN python Projeto/manage.py collectstatic --noinput
 
-
+ENV PYTHONPATH="/app/Projeto"
 # Comando de inicialização do Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "Projeto.wsgi:application"]
+CMD ["/entrypoint.sh"]
