@@ -20,7 +20,7 @@ from django.urls import path
 
 from Projeto import settings
 
-from SAFERapp.views import HomeView, FormularioView, CadastroView, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+from SAFERapp.views import HomeView, FormularioView, CadastroView, deletar_ocorrencia, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
 from django.contrib.auth import views as auth_views
 
 
@@ -73,8 +73,10 @@ urlpatterns = [
     path('usuarios/gerenciar', telaGerenciarUsuarios, name='gerenciarUsuarios'),
     path('editar_usuario/<str:usuario_email>/', editar_usuario, name='editar_usuario'),
     path('deletar_usuario/<str:usuario_email>/', deletar_usuario, name='deletar_usuario'),
-
+    #Gerar relatorio
     path('relatorios/', relatorio_view, name = 'tela_relatorios'),
+    #Deletar ocorrência
+    path('chamado/<int:id>/deletar', deletar_ocorrencia, name = 'deletar_chamado'),
 ]
 
 if settings.DEBUG:

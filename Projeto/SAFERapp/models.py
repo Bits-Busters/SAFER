@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
 from django.db import models
 from SAFERapp.beans.Enums import RelacaoUFRPE, TipoUsuario
-
+from django.db import transaction
 from django.conf import settings
 
 # Manager para o Custom User
@@ -13,17 +13,26 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_active", True)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save(using=self._db)
+        
+        # Aqui é onde salvamos a senha no histórico
+        with transaction.atomic():  # Usamos transação para garantir que ambos os registros sejam salvos juntos
+            user.save(using=self._db)  # Salva o usuário
+            # Agora salvamos a senha no histórico
+            self.save_password_to_history(user, password)
+        
         return user
 
+    def save_password_to_history(self, user, password):
+        from .models import PasswordHistory  # Importar o modelo PasswordHistory aqui
+        password_hash = user.password  # O Django já hasha a senha, podemos pegar o hash
+        PasswordHistory.objects.create(user=user, password_hash=password_hash)
+
     def create_user(self, email, password=None, **extra_fields):
-        # Definir valores padrão para campos de usuário normal
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password=None, **extra_fields):
-        # Definir valores padrão para campos de superusuário
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 

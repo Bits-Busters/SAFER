@@ -131,6 +131,18 @@ class OcorrenciaFilterFormRelatorio(forms.Form):
         choices=[('', 'Todos')] + Registro.choices,  # Adiciona a opção "Todos"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    StatusCaso = forms.ChoiceField(
+        required=False,
+        label="Status do Caso",
+        choices=[('', 'Todos')] + StatusChamado.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    LocalCaso = forms.ChoiceField(
+        required=False,
+        label="Local do Caso",
+        choices=[('', 'Todos')] + Local.choices,  # Adiciona a opção "Todos"
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 class InformativoForm(forms.ModelForm):
     class Meta:

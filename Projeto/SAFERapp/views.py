@@ -300,15 +300,17 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
         form = FormularioForm(instance=ocorrencia)
         return render(request, 'TelaAtualizarDetalhesChamado.html', {'form': form, 'ocorrencia': ocorrencia, 'resgatistas': self.resgatistas})
 
-    def post(self, request):
+    def post(self, request, ocorrencia_id):
+        """ Processa os dados do formulário """
         form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
         formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
 
         # Verifica se é uma requisição AJAX
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             if form.is_valid() and formset.is_valid():
-                
+                ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
                 ocorrencia = form.save(commit=False)
+                ocorrencia.id = ocorrencia_id  # Ensure we use the correct occurrence ID
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user
                 else:
@@ -326,8 +328,8 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
 
             return JsonResponse({'success': True, 'message': 'Formulário enviado com sucesso!', 'redirect_url': reverse('home')})
 
-        else:
 
+        else:
             # Caso os formulários sejam inválidos, processa os erros
             error_messages = []
 
@@ -351,6 +353,7 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
                     
             # Retorna os erros no contexto
             return JsonResponse({'success': False, 'errors': error_messages})
+
 
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request, username):
@@ -391,6 +394,17 @@ class PerfilView(LoginRequiredMixin, View):
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
 
+def deletar_ocorrencia(request, id):
+    if request.method == 'POST':
+        ocorrencia = get_object_or_404(Ocorrencia, id=id)
+        
+        # Verifique se o usuário tem permissão para deletar
+        if request.user.tipo_usuario == 'admin' or ocorrencia.Resgatista == request.user or ocorrencia.Autor == request.user:
+            ocorrencia.delete()
+            # Redirecione para uma página de sucesso ou listagem de ocorrências
+            return redirect('home')  # Altere para a URL desejada
+    
+    return redirect('home')  # Redirecione se não for uma requisição POST ou se o usuário não tiver permissão
 
 class FormularioView(View):
 
