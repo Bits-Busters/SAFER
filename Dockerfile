@@ -51,7 +51,7 @@ COPY ./Projeto ./Projeto
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 # Porta usada pelo container
-EXPOSE 8000
+EXPOSE 80
 RUN python Projeto/manage.py collectstatic --noinput
 
 ENV PYTHONPATH="/app/Projeto"
