@@ -213,7 +213,7 @@ class TelaDetalhesChamadoView(View):
 
     def get(self, request, id):
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
-        ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia).first()
+        ocorrenciaImagem = Imagens.objects.filter(IdOcorrencia=ocorrencia)
         observacoes_ocorrencia = Observacoes.objects.filter(ocorrencia=ocorrencia).order_by('-dataHora')
         form = ObservacaoForm()  # Formulário de observação vazio
         
@@ -297,42 +297,54 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
     resgatistas = ['admin', 'gestor', 'analista']
 
     def get(self, request, ocorrencia_id):
-        """ Exibe o formulário preenchido com os dados da ocorrência """
+        # Recupera a ocorrência existente
         ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        
+        # Preenche o formulário com os dados da ocorrência
         form = FormularioForm(instance=ocorrencia)
-        return render(request, 'TelaAtualizarDetalhesChamado.html', {'form': form, 'ocorrencia': ocorrencia, 'resgatistas': self.resgatistas})
-
+    
+        # Obtém as imagens associadas à ocorrência
+        imagens = Imagens.objects.filter(IdOcorrencia=ocorrencia)
+        
+        # Cria o formset para as imagens, passando as imagens já associadas
+        formset = ImagemFormSet(queryset=imagens)
+    
+        return render(request, 'TelaAtualizarDetalhesChamado.html', {
+            'form': form,
+            'formset': formset,  # Passa o formset para o template
+            'ocorrencia': ocorrencia,
+            'resgatistas': self.resgatistas
+        })
+    
     def post(self, request, ocorrencia_id):
         """ Processa os dados do formulário """
-        form = FormularioForm(request.POST, request.FILES)  # Processa os dados do formulário
-        formset = ImagemFormSet(request.POST, request.FILES)  # Inclui arquivos enviados
+        # Recupera a ocorrência existente
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+        
+        # Cria ou atualiza os formulários com os dados POST
+        form = FormularioForm(request.POST, request.FILES, instance=ocorrencia)  # Associando a ocorrência para atualização
+        formset = ImagemFormSet(request.POST, request.FILES, queryset=Imagens.objects.filter(IdOcorrencia=ocorrencia))  # Passa o queryset das imagens já existentes
+        
+        if form.is_valid() and formset.is_valid():
+            # Salva ou atualiza a ocorrência
+            ocorrencia = form.save(commit=False)
+            if request.user.is_authenticated:
+                ocorrencia.Autor = request.user
+            else:
+                ocorrencia.Autor = get_or_create_anonymous_user()
+            ocorrencia.save()  # Salva a ocorrência (atualização)
 
-        # Verifica se é uma requisição AJAX
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            if form.is_valid() and formset.is_valid():
-                ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
-                ocorrencia = form.save(commit=False)
-                if request.user.is_authenticated:
-                    ocorrencia.Autor = request.user
-                else:
-                    ocorrencia.Autor = get_or_create_anonymous_user()
-                ocorrencia.save()
+            # Atualiza as imagens
+            imagens = formset.save(commit=False)
+            for imagem in imagens:
+                imagem.IdOcorrencia = ocorrencia  # Atribui a imagem à ocorrência correta
+                imagem.save()  # Salva ou atualiza as imagens
 
-                imagens = formset.save(commit=False)
-                for imagem in imagens:
-                    imagem.IdOcorrencia = ocorrencia
-                    imagem.save()
-
-            # Redireciona ou limpa o formulário após salvar com sucesso
-            form = FormularioForm()  # Reseta o formulário
-            formset = ImagemFormSet()  # Reseta o formset
-
+            # Retorna uma resposta de sucesso
             return JsonResponse({'success': True, 'message': 'Formulário enviado com sucesso!', 'redirect_url': reverse('home')})
 
-
         else:
-
-            # Caso os formulários sejam inválidos, processa os erros
+            # Se o formulário ou o formset estiverem inválidos, coleta os erros
             error_messages = []
 
             # Erros do formulário principal
@@ -355,6 +367,7 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
                     
             # Retorna os erros no contexto
             return JsonResponse({'success': False, 'errors': error_messages})
+
 
 class PerfilView(LoginRequiredMixin, View):
     def get(self, request, username):

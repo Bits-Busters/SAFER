@@ -16,7 +16,7 @@
     <div class="container mt-4">
         <h3>Atualizar Ocorrência</h3>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="row">
@@ -79,7 +79,7 @@
                         <label for="id_Descricao">Descrição:</label>
                         {{ form.Descricao }}
                     </div>
-                    
+
                     {% if user.tipo_usuario in resgatistas %}
                         <div class="form-group">
                             <label for="id_Status">Status do Chamado:</label>
@@ -89,6 +89,21 @@
                 </div>
             </div>
 
+            <!-- Formset de imagens -->
+            <div class="form-group">
+                <label>Imagens:</label>
+                {{ formset.management_form }}  <!-- Campos de gerenciamento do formset -->
+                <div id="image-formset">
+                    {% for form in formset %}
+                        <div class="formset-item">
+                            <div class="form-group">
+                                {{ form.as_p }}  <!-- Campos do formset para imagens -->
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        
             <button type="submit" class="btn btn-success">Atualizar</button>
             <a href="{% url 'telaDetalhesChamado' ocorrencia.id %}" class="btn btn-secondary">Cancelar</a>
         </form>

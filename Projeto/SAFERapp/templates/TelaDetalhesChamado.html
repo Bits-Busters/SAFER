@@ -33,11 +33,13 @@
         </div>
         <div class="col-md-4">
             {% if imagem %}
-                <p><img src="{{ imagem.Image.url }}" alt="Ocorrência" style="max-width: 200px; height: auto;"></p>
+                {% for img in imagem %}
+                    <p><img src="{{ img.Image.url }}" alt="Ocorrência" style="max-width: 200px; height: auto; margin-bottom: 10px;"></p>
+                {% endfor %}
             {% else %}
-                <p><em>Sem imagem disponível</em></p>
+                <p><em>Sem imagens disponíveis</em></p>
             {% endif %}
-        </div>
+        </div>        
     </div>
 
     {% if user.tipo_usuario in resgatistas and ocorrencia.Status == 'aberto' %}

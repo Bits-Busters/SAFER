@@ -305,7 +305,7 @@ ImagemFormSet = inlineformset_factory(
     Ocorrencia,  # Modelo pai
     Imagens,      # Modelo filho
     form=ImagemForm,  # Campos do modelo Imagem
-    extra=5,  # Quantidade de campos extras para imagens
+    extra=1,  # Quantidade de campos extras para imagens
     can_delete=True  # Permite deletar imagens existentes
 )
 
