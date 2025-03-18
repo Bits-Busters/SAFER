@@ -141,53 +141,26 @@
                 </div>                
             </div>
         </div>
-        <div class="col-md-4">
-            <p><strong>Nome do Animal:</strong> {{ ocorrencia.Nome_Animal }}</p>
-            <p><strong>Local:</strong> {{ ocorrencia.Local }}</p>
-            <p><strong>Referência:</strong> {{ ocorrencia.Referencia }}</p>
-            <p><strong>Data e Hora:</strong> {{ ocorrencia.DataHora|date:"d/m/Y H:i" }}</p>
-            <p><strong>Status:</strong> {{ ocorrencia.Status }}</p>
-        </div>
-        <div class="col-md-4">
-            {% if imagem %}
-                {% for img in imagem %}
-                    <p><img src="{{ img.Image.url }}" alt="Ocorrência" style="max-width: 200px; height: auto; margin-bottom: 10px;"></p>
-                {% endfor %}
-            {% else %}
-                <p><em>Sem imagens disponíveis</em></p>
-            {% endif %}
-        </div>
     </div>
-
-    {% if user.tipo_usuario in resgatistas and ocorrencia.Status == 'aberto' %}
-        <div class="col-12 mt-3">
-            <form method="POST" action="{% url 'telaDetalhesChamado' ocorrencia.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="aceitar_chamado">
-                <button type="submit" class="btn btn-success">Gerar Resgate</button>
-            </form>
-        </div>
-    {% endif %}
-
-    {% if user.tipo_usuario == 'admin' or ocorrencia.Resgatista == user or user == ocorrencia.Autor and ocorrencia.Status == 'aberto' %}
-        <a href="{% url 'telaAtualizarChamado' ocorrencia.id %}" class="btn btn-primary mt-2">Atualizar</a>
-            <!-- Botão para deletar a ocorrência -->
-        <form method="POST" action="{% url 'deletar_chamado' ocorrencia.id %}" onsubmit="return confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita!');" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="deletar_ocorrencia">
-            <button type="submit" class="btn btn-danger mt-2">Deletar Ocorrência</button>
-        </form>
-    {% endif %}
-
-    {% if observacoes %}
-        <h3 class="mt-4">Observações</h3>
-        <div class="list-group">
-            {% for obs in observacoes %}
-                <div class="list-group-item">
-                    <p><strong>{{ obs.autor.nome }}</strong> - <em>{{ obs.dataHora|date:"d/m/Y H:i" }}</em></p>
-                    <p id="obs-texto-{{ obs.id }}">{{ obs.corpo }}</p>
-
+    <div class="row">
+        <div class="col lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <strong class="col md3">Observações:</strong>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col md3">
+                            {% if observacoes %}
+                                <div class="list-group">
+                                    {% for obs in observacoes %}
+                                        <div class="list-group-item">
+                                            <p><strong>{{ obs.autor.nome }}</strong> - <em>{{ obs.dataHora|date:"d/m/Y H:i" }}</em></p>
+                                            <p id="obs-texto-{{ obs.id }}">{{ obs.corpo }}</p>
+                                            
                                             {% if obs.autor == user %}
+
                                                 <!-- Botão de Editar -->
                                                 <button type="button" class="btn btn-warning btn-sm" 
                                                     onclick="editarObservacao('{{ obs.id }}', '{{ obs.corpo|escapejs }}')">
@@ -204,40 +177,39 @@
                                             {% endif %}
                                         </div>
                                     {% endfor %}
+                                </div>   
                             {% else %}
                                 <p class="mt-4"><em>Não há observações registradas para esta ocorrência.</em></p>
                             {% endif %}
-                        </div>                        
-                    </div>    
+                        </div>                       
+                    </div>
                     <div class="row">
                         <div class="col lg3">
-                            <button id="btnMostrar" class="btn btn-primary" onclick="mostrarAtualizacao()">Atualizar</button>
+                            <button id="btnMostrar" class="btn btn-info" onclick="mostrarAtualizacao()">Adcionar</button>
 
                             <!-- Div oculta que será exibida -->
                             <div id="divAtualizacao" class="mt-3 p-3 border rounded bg-light" style="display: none;">
                                 <strong class="lg-3">Adicionar Observação</strong>
                                 <hr>
-
+                
                                 <form method="POST" action="{% url 'telaDetalhesChamado' ocorrencia.id %}" class="mt-3">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="form_type" id="form_type" value="adicionar_observacao">
-                                    <input type="hidden" name="observacao_id" id="observacao_id">
-
-                                    <div class="form-group">
-                                        <label for="{{ form.corpo.id_for_label }}"></label>
-                                        {{ form.corpo }}
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary" id="botao-form">Salvar</button>
-                                     <!-- Botão para esconder a div -->  
-                                    <button class="btn btn-secondary" onclick="fecharAtualizacao()">Fechar</button>
-                                </form>
-
-                               
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" id="form_type" value="adicionar_observacao">
+                                <input type="hidden" name="observacao_id" id="observacao_id">
+            
+                                <div class="form-group">
+                                    <label for="{{ form.corpo.id_for_label }}"></label>
+                                    {{ form.corpo }}
+                                </div>
+            
+                                <button type="submit" class="btn btn-primary" id="botao-form">Salvar</button>
+                                    <!-- Botão para esconder a div -->  
+                                <button class="btn btn-secondary" onclick="fecharAtualizacao()">Fechar</button>
+                                </form>            
                             </div>
                         </div>                        
-                    </div>                
-                </div>
+                    </div> 
+                </div>                
             </div>
         </div>
     </div>
@@ -263,7 +235,7 @@
             {% endif %}
         </div>
     </div>
-    
+                   
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js">
