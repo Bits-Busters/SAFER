@@ -4,8 +4,11 @@ header {
     min-width: 100%;
 }
 
-body {
+body{
     margin: 0;
+    color: #1a202c;
+    text-align: left;
+    background-color: #e2e8f0;    
 }
 
 .navbar .navbar-nav .nav-link {

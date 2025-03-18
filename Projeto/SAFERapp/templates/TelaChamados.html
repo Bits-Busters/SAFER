@@ -1,127 +1,136 @@
 {% extends 'TopTemplate.html' %}
 
+{% load static %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<style>
-.btnOcorrencia {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background-color: #70C296; /* Cor do botão */
-    color: white; /* Cor do texto */
-    border: none;
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btnOcorrencia:hover {
-    background-color: #5fa87f; /* Cor ao passar o mouse */
-}
-</style>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/perfil.css' %}">
 {% endblock %}
 
-{% block title %}{{nome}}{% endblock %}
-
 {% block content %}
+
+<!--Sistema de filtragem-->
 <div class="container mt-5">
-        <h1>{{nome}}</h1>
-
-        <!-- Botão Criar Ocorrência 
-        <div class="mb-4">
-            <a href="{% url 'formulario' %}" class="btn btn-primary">Criar Ocorrência</a>
-        </div>
-        -->
-        
-        <form method="get" class="form-inline mb-3">
-            <div class="form-row">
-                <div class="form-group col-md-3 mb-2">
-                    {{ form.Animal.label_tag }}
-                    {{ form.Animal }}
-                </div>
-                <div class="form-group col-md-3 mb-2">
-                    {{ form.DataInicial.label_tag }}
-                    {{ form.DataInicial }}
-                </div>
-                <div class="form-group col-md-3 mb-2">
-                    {{ form.DataFinal.label_tag }}
-                    {{ form.DataFinal }}
-                </div>
-                <div class="form-group col-md-3 mb-2">
-                    {{ form.TipoCaso.label_tag }}
-                    {{ form.TipoCaso }}
-                </div>
-                <div class="form-group col-md-3 mb-2">
-                    {{ form.Local.label_tag }}
-                    {{ form.Local }}
-                </div>
+    <h1>{{ nome }}</h1>
+    <hr>
+    <form method="get" class="mb-3">
+        <div class="row">
+            <div class="form-group col-md-2">
+                {{ form.Animal.label_tag }}
+                {{ form.Animal }}
             </div>
-            <div class="form-row">
+            <div class="form-group col-md-2">
+                {{ form.DataInicial.label_tag }}
+                {{ form.DataInicial }}
+            </div>
+            <div class="form-group col-md-2">
+                {{ form.DataFinal.label_tag }}
+                {{ form.DataFinal }}
+            </div>
+            <div class="form-group col-md-2">
+                {{ form.TipoCaso.label_tag }}
+                {{ form.TipoCaso }}
+            </div>
+            <div class="form-group col-md-2">
+                {{ form.Local.label_tag }}
+                {{ form.Local }}
+            </div>
+            <div class="form-group col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-success">Filtrar</button>
-                <a href="{% url 'telaChamados' tipoChamado=nome %}" class="btn btn-secondary ml-2">Limpar Filtros</a>
+                <a href="{% url 'telaChamados' tipoChamado=nome %}" class="btn btnPadrao ml-2">Limpar Filtros</a>
             </div>
-        </form>
-
-
-        <!-- Exibe a lista de ocorrências -->
-        <ul class="list-group">
-            {% for ocorrencia in page_obj %}
-                <li class="list-group-item">
-                    <button onclick="window.open('/chamado/{{ ocorrencia.id }}', '_blank')"
-                    style="width: 100%; height: 100%; border: none; background-color: #70C296; color: white; font-size: 16px; cursor: pointer;"
-                    >
-                        <strong>Local: {{ ocorrencia.Local }} | Animal: {{ ocorrencia.Nome_Animal }}</strong><br>
-                        Descrição: {{ ocorrencia.Descricao }}<br>
-                        <small>Data: {{ ocorrencia.DataHora|date:"d/m/Y H:i" }}</small>
-                    </button>
-                </li>
-            {% endfor %}
-        </ul>
-
-        <!-- Navegação de Paginação -->
-        <div class="mt-3">
-            <nav aria-label="Página de ocorrências">
-                <ul class="pagination">
+        </div>
+    </form>
+</div>
+   
+    
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="main-box clearfix">
+                <div class="table-responsive">
+                    <table class="table user-list">
+                        <!-- Exibe a lista de ocorrências -->
+                        <thead>
+                            <tr>
+                                <th><span>Descrição</span></th>
+                                <th><span>Criado</span></th>
+                                <th><span>Status</span></th>
+                                <th><span>Animal</span></th>
+                                <th><span>Local</span></th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        {% for ocorrencia in page_obj %}
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="user-subhead">{{ ocorrencia.Descricao }}</span>
+                                </td>
+                                <td class="user-subhead">
+                                    <span class="user-subhead">{{ ocorrencia.DataHora|date:"d/m/Y H:i" }}</span>
+                                </td>
+                                <td class="user-subhead">
+                                    <span class="user-subhead">{{ ocorrencia.Status }}</span>
+                                </td>
+                                <td class="user-subhead">
+                                    <span class="user-subhead">{{ ocorrencia.Nome_Animal }}</span>
+                                </td>
+                                <td>
+                                    <span class="user-subhead">{{ ocorrencia.Local }}</span>
+                                </td>
+                                <td style="width: 20%;">
+                                    <a onclick="window.open('/chamado/{{ ocorrencia.id }}', '_blank')" class="table-link" style="color: royalblue;">
+                                        <span class="fa-stack">
+                                            <i class="fa fa-square fa-stack-2x"></i>
+                                            <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+                <ul class="pagination pull-right">
+                    <!--Exibe o sistema de páginas-->
                     {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1" aria-label="Primeira página">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
+                        <li>
+                            <a href="?page={{ page_obj.previous_page_number }}">
+                                <i class="fa fa-chevron-left"></i>
                             </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Página anterior">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
+                    {% else %}
+                        <li class="disabled">
+                            <span><i class="fa fa-chevron-left"></i></span>
                         </li>
                     {% endif %}
-
-                    <li class="page-item disabled">
-                        <span class="page-link">
-                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                        </span>
-                    </li>
-
+                
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="active"><span>{{ num }}</span></li>
+                        {% else %}
+                            <li><a href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                
                     {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Próxima página">
-                                <span aria-hidden="true">&raquo;</span>
+                        <li>
+                            <a href="?page={{ page_obj.next_page_number }}" >
+                                <i class="fa fa-chevron-right"></i>
                             </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Última página">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
+                    {% else %}
+                        <li class="disabled" >
+                            <span><i class="fa fa-chevron-right"></i></span>
                         </li>
                     {% endif %}
                 </ul>
-            </nav>
+            </div>
         </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 {% endblock %}
