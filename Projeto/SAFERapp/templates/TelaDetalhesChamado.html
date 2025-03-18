@@ -143,6 +143,25 @@
         </div>
     </div>
     <div class="row">
+        <div class="col lg-6">
+            <div class="card lg-6">
+                <div class="card-body">
+                    <div class="row">
+                        <strong class="col md3">Imagens:</strong>
+                    </div>
+                    <hr>
+                    {% if imagem %}
+                        {% for img in imagem %}
+                            <p><img src="{{ img.Image.url }}" alt="Ocorrência" style="max-width: 200px; height: auto; margin-bottom: 10px;"></p>
+                        {% endfor %}
+                    {% else %}
+                        <p><em>Sem imagens disponíveis</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col lg-12">
             <div class="card">
                 <div class="card-body">
