@@ -1,5 +1,7 @@
 services:
   web:
+    volume:
+      - ./Projeto: ./Projeto
     pull_policy: never
     image: safer-backend
     build: 
