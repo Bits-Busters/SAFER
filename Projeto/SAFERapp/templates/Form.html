@@ -315,44 +315,44 @@
 
         if (addButton) {
             addButton.addEventListener('click', function() {
-                console.log('Add image form clicked');  // Debugging log
+                console.log('Add image form clicked');  // Log para debugging
 
-                // Check if managementForm exists and has a valid value
+                // Verificar se o TOTAL_FORMS está presente
                 if (!managementForm) {
                     console.error('Formset TOTAL_FORMS element not found');
                     return;
                 }
 
-                const totalForms = parseInt(managementForm.value);
-                const newFormId = totalForms;
+                const totalForms = parseInt(managementForm.value);  // Pega o número total de formulários
+                const newFormId = totalForms;  // O novo ID do formulário será igual ao número total de formulários
 
-                // Check if there are any image forms initially
+                // Verificar se há formulários de imagem para clonar
                 const imageForms = formsetContainer.querySelectorAll('.image-form');
                 if (imageForms.length === 0) {
                     console.error('No image forms to clone');
                     return;
                 }
 
-                // Clone the first image form
+                // Clonar o primeiro formulário de imagem
                 const newForm = imageForms[0].cloneNode(true);
-                newForm.setAttribute('data-form-id', newFormId);
+                newForm.setAttribute('data-form-id', newFormId);  // Atribui um novo ID ao formulário clonado
 
-                // Reset the file input field
+                // Resetar o campo de entrada de imagem
                 const imageInput = newForm.querySelector('input[type="file"]');
-                imageInput.value = ''; // Reset file input value
+                imageInput.value = '';  // Reseta o valor do campo de entrada de arquivo
 
-                // Update the 'name' attributes for the cloned form
+                // Atualizar o atributo 'name' para que ele siga a estrutura do formset
                 newForm.querySelector('input[type="file"]').name = `formset-${newFormId}-Image`;
 
-                // Add the new form to the formset container
+                // Adicionar o novo formulário à lista
                 formsetContainer.appendChild(newForm);
 
-                // Add event listener to remove button in the cloned form
+                // Adicionar evento de remoção ao novo formulário
                 newForm.querySelector('.remove-image-form').addEventListener('click', function() {
                     removeImageForm(newFormId);
                 });
 
-                // Update the TOTAL_FORMS field
+                // Atualizar o campo TOTAL_FORMS para refletir o novo número total de formulários
                 managementForm.value = totalForms + 1;
             });
         } else {
@@ -363,14 +363,14 @@
             const formToRemove = formsetContainer.querySelector(`.image-form[data-form-id="${formId}"]`);
             if (formToRemove) {
                 formsetContainer.removeChild(formToRemove);
-                updateManagementForm();
+                updateManagementForm();  // Atualizar o número total de formulários
             }
         }
 
         function updateManagementForm() {
             const forms = formsetContainer.querySelectorAll('.image-form');
             if (managementForm) {
-                managementForm.value = forms.length;
+                managementForm.value = forms.length;  // Atualiza o valor de TOTAL_FORMS
             } else {
                 console.error('Formset TOTAL_FORMS element not found when updating');
             }

@@ -444,7 +444,6 @@ class FormularioView(View):
             if form.is_valid() and formset.is_valid():
                 # Acesse form.cleaned_data somente após a validação
                 print("Dados do form:", form.cleaned_data)
-                
                 ocorrencia = form.save(commit=False)
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user
