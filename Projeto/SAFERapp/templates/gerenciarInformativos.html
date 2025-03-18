@@ -35,6 +35,13 @@
 {% block title %}Informativos{% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <script>alert("{{ message }}");</script>
+    {% endfor %}
+{% endif %}
+
 <div class="container mt-4">
 
     <!-- Lista de informativos -->
@@ -79,7 +86,7 @@
                     <button class="btnInfo" style="background-color: #70C296; color: white;">
                         <a href="{% url 'criarInformativo' informativo.id %}" style="color: white;">Editar</a>
                     </button>
-                    <form action="{% url 'gerenciarInformativos' %}" method="post" style="display: inline;">
+                    <form action="{% url 'gerenciarInformativos' %}" method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este informativo? Esta ação não pode ser desfeita!');">
                         {% csrf_token %}
                         <button class="btnInfo" name="id" value="{{informativo.id}}" style="background-color: #D2A68D; color: white;">Deletar</button>
                     </form>

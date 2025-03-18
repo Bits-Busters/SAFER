@@ -32,4 +32,12 @@
                 </a>
             </div>
         </div>
+        <!-- Mensagem de sucesso ou erro -->
+        {% if messages %}
+        {% for message in messages %}
+            <script>
+                alert("{{ message }}");  <!-- Exibe a mensagem de alerta -->
+            </script>
+        {% endfor %}
+    '   {% endif %}
 {% endblock %}
