@@ -42,7 +42,8 @@
 
     {% if user.tipo_usuario in resgatistas and ocorrencia.Status == 'aberto' %}
         <div class="col-12 mt-3">
-            <form method="POST" action="{% url 'telaDetalhesChamado' ocorrencia.id %}">
+            <form method="POST" action="{% url 'telaDetalhesChamado' ocorrencia.id %}" 
+            onsubmit="return confirm('Deseja se tornar resgatista dessa ocorrência?');">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="aceitar_chamado">
                 <button type="submit" class="btn btn-success">Gerar Resgate</button>
@@ -53,12 +54,15 @@
     {% if user.tipo_usuario == 'admin' or ocorrencia.Resgatista == user or user == ocorrencia.Autor and ocorrencia.Status == 'aberto' %}
         <a href="{% url 'telaAtualizarChamado' ocorrencia.id %}" class="btn btn-primary mt-2">Atualizar</a>
             <!-- Botão para deletar a ocorrência -->
-        <form method="POST" action="{% url 'deletar_chamado' ocorrencia.id %}" style="display:inline;">
+        <form method="POST" action="{% url 'telaDetalhesChamado' ocorrencia.id %}" 
+            onsubmit="return confirm('Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita!');" 
+            style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="deletar_ocorrencia">
             <button type="submit" class="btn btn-danger mt-2">Deletar Ocorrência</button>
         </form>
     {% endif %}
+
 
     {% if observacoes %}
         <h3 class="mt-4">Observações</h3>

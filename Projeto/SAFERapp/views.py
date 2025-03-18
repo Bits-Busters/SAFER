@@ -233,7 +233,8 @@ class TelaDetalhesChamadoView(View):
             ocorrencia.Resgatista = request.user
             ocorrencia.Status = StatusChamado.EM_ANALISE
             ocorrencia.save()
-            return redirect('home')
+            messages.success(request, "Chamado aceito com sucesso!")
+            return redirect('telaDetalhesChamado', ocorrencia.id)
 
         elif form_type == "adicionar_observacao":
             form = ObservacaoForm(request.POST)
@@ -258,13 +259,14 @@ class TelaDetalhesChamadoView(View):
                 else:
                     messages.error(request, "Erro ao atualizar a observação. Verifique os dados.")
 
-        elif form_type == "excluir_observacao":
-            observacao_id = request.POST.get("observacao_id")
-            observacao = get_object_or_404(Observacoes, id=observacao_id, ocorrencia=ocorrencia)
-
-            if observacao.autor == request.user:  # Garante que o usuário só exclua suas próprias observações
-                observacao.delete()
-                messages.success(request, "Observação excluída com sucesso!")
+        elif form_type == "deletar_ocorrencia":
+            print(f"Usuário: {request.user}, Autor da Ocorrência: {ocorrencia.Autor}")
+            if request.user == ocorrencia.Autor or request.user.tipo_usuario == 'admin':
+                ocorrencia.delete()
+                messages.success(request, "Ocorrência excluída com sucesso!")
+                return redirect('home')
+            else:
+                messages.error(request, "Você não tem permissão para excluir esta ocorrência.")
 
         form = ObservacaoForm()  # Formulário de observação vazio
 
@@ -504,11 +506,13 @@ class HomeView(View):
 
         if user is not None:
             login(request, user)
-            return render(request, 'home.html', {})
+            messages.success(request, "Login efetuado com sucesso!")
+            return render(request, 'home.html')
         else:
             print("Email ou senha errados")
             print(user)
-            return render(request, 'home.html', {'error': 'E-mail ou senha inválidos.'})
+            messages.error(request, "E-mail ou senha inválidos.")
+            return render(request, 'home.html')
 
 class InformativosView(View):
     def get(self, request):
@@ -544,11 +548,17 @@ class CriarInformativoView(View):
 
         if form.is_valid():
             informativo = form.save()  # Salva o informativo
-            # imagens = request.FILES.getlist('imagens')
-            return redirect('gerenciarInformativos')
-        else:
-            return render(request, 'criarInformativos.html', {'form': form})
+            # Mensagem de sucesso: criação ou atualização
+            if id is None:
+                messages.success(request, "Informativo criado com sucesso!")
+            else:
+                messages.success(request, "Informativo atualizado com sucesso!")
 
+            return redirect('gerenciarInformativos')  # Redireciona para a lista de informativos
+        else:
+            # Mensagem de erro: formulário inválido
+            messages.error(request, "Erro ao criar o informativo. Verifique os dados.")
+            return render(request, 'criarInformativos.html', {'form': form})
     
 class GerenciarInformativosView(View):
     def get(self, request):
@@ -563,9 +573,17 @@ class GerenciarInformativosView(View):
         return render(request, 'gerenciarInformativos.html', contexto)
     
     def post(self, request):
-        id = request.POST['id']
-        informativo = Informativo.objects.get(id=id)
-        informativo.excluir_informativo()
+        # Verifica se o usuário tem permissão para excluir
+        informativo_id = request.POST['id']
+        informativo = Informativo.objects.get(id=informativo_id)
+        
+        # Permissões: Só pode excluir se for o autor ou um administrador
+        if request.user == informativo.id_Autor or request.user.tipo_usuario == 'admin':
+            informativo.delete()
+            messages.success(request, "Informativo excluído com sucesso!")
+        else:
+            messages.error(request, "Você não tem permissão para excluir este informativo.")
+
         return redirect('gerenciarInformativos')
 
 def staff(user):
