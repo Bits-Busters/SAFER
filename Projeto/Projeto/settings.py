@@ -93,12 +93,12 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # SQlite DB
-#DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.sqlite3',
-#          'NAME': BASE_DIR / 'db.sqlite3',
-#      }
-#  }
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': BASE_DIR / 'db.sqlite3',
+     }
+ }
 
 # ## Mysql DB
 # DATABASES = {
@@ -110,21 +110,21 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 #        'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
 #        'PORT': os.getenv('DB_PORT', '3306'),
 #    }
-# }
-## MS SQL DB
-DATABASES = {
-        'default': {
-            'ENGINE': 'mssql',
-            'NAME': 'safer-db',
-            'USER': 'safer-admin@safer-server',
-            'PASSWORD': '$af&r2o25',
-            'HOST': 'safer-server.database.windows.net',
-
-            'OPTIONS': {
-                'driver': 'ODBC Driver 18 for SQL Server',
-            },
-        },
-    }
+# # }
+# ## MS SQL DB
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'mssql',
+#             'NAME': 'safer-db',
+#             'USER': 'safer-admin@safer-server',
+#             'PASSWORD': '$af&r2o25',
+#             'HOST': 'safer-server.database.windows.net',
+#
+#             'OPTIONS': {
+#                 'driver': 'ODBC Driver 18 for SQL Server',
+#             },
+#         },
+#     }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

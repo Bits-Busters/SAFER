@@ -20,7 +20,7 @@ from django.urls import path
 
 from Projeto import settings
 
-from SAFERapp.views import HomeView, FormularioView, CadastroView, deletar_ocorrencia, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+import SAFERapp.views as safv
 from django.contrib.auth import views as auth_views
 
 
@@ -28,36 +28,36 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # URL da página inicial
-    path('', HomeView.as_view(), name='home'),
+    path('', safv.HomeView.as_view(), name='home'),
     # URL da página de formulario
-    path('formulario/', FormularioView.as_view(), name='formulario'),
+    path('formulario/', safv.FormularioView.as_view(), name='formulario'),
     # URL da página de cadastro
-    path('cadastro/', CadastroView.as_view(), name='cadastro'),
+    path('cadastro/', safv.CadastroView.as_view(), name='cadastro'),
     # URL da página de usuario
-    path('Dashboard/<str:username>', telaUsuario, name ='telaUsuario'),
+    path('Dashboard/<str:username>', safv.telaUsuario, name ='telaUsuario'),
     #URL para deslogar o usuario
-    path('logout/', logout_view, name='logout'),
+    path('logout/', safv.logout_view, name='logout'),
     # URL da página de ocorrencias
-    path('chamados/<str:tipoChamado>', telaOcorrencias, name ='telaChamados'),
+    path('chamados/<str:tipoChamado>', safv.telaOcorrencias, name ='telaChamados'),
     #URL da página de perfil
-    path('meu-perfil/<str:username>', PerfilView.as_view(), name ='telaPerfil'),
+    path('meu-perfil/<str:username>', safv.PerfilView.as_view(), name ='telaPerfil'),
     #URL da página de detalhamento de chamado
-    path('chamado/<int:id>',TelaDetalhesChamadoView.as_view(), name ='telaDetalhesChamado'),
+    path('chamado/<int:id>',safv.TelaDetalhesChamadoView.as_view(), name ='telaDetalhesChamado'),
     # URL da página de atualização de chamado
-    path('chamado/<int:ocorrencia_id>/atualizar', AtualizarOcorrenciaView.as_view(), name='telaAtualizarChamado'),
+    path('chamado/<int:ocorrencia_id>/atualizar', safv.AtualizarOcorrenciaView.as_view(), name='telaAtualizarChamado'),
 
     #URL da página de Informativos
-    path('informativos/', InformativosView.as_view(), name ='telaInformativos'),
+    path('informativos/', safv.InformativosView.as_view(), name ='telaInformativos'),
     #URL da página de atualização de Informativos
-    path('informativos/criar/<int:id>', CriarInformativoView.as_view(), name ='criarInformativo'),
+    path('informativos/criar/<int:id>', safv.CriarInformativoView.as_view(), name ='criarInformativo'),
     #URL da página de criação de Informativos
-    path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
+    path('informativos/criar/', safv.CriarInformativoView.as_view(), name ='criarInformativoNovo'),
     #URL da página de gerenciamento de Informativos
-    path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
+    path('informativos/gerenciar/', safv.GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
     
     # Noticicações
-    path('staff/notificacoes', notificacoes_view, name="staffNotificacoes" ),
-    path('staff/notificacaolida', notificacao_lida, name='notificacaolida'),
+    path('staff/notificacoes', safv.notificacoes_view, name="staffNotificacoes" ),
+    path('staff/notificacaolida', safv.notificacao_lida, name='notificacaolida'),
 
 
     # Página para reiniciar a senha
@@ -70,14 +70,14 @@ urlpatterns = [
     path('senha-reset-completa/', auth_views.PasswordResetCompleteView.as_view(template_name='reset_password_templates/password_reset_complete.html'), name='password_reset_complete'),
 
     # Lista os usuários
-    path('usuarios/gerenciar', telaGerenciarUsuarios, name='gerenciarUsuarios'),
-    path('editar_usuario/<str:usuario_email>/', editar_usuario, name='editar_usuario'),
-    path('deletar_usuario/<str:usuario_email>/', deletar_usuario, name='deletar_usuario'),
+    path('usuarios/gerenciar', safv.telaGerenciarUsuarios, name='gerenciarUsuarios'),
+    path('editar_usuario/<str:usuario_email>/', safv.editar_usuario, name='editar_usuario'),
+    path('deletar_usuario/<str:usuario_email>/', safv.deletar_usuario, name='deletar_usuario'),
     #Gerar relatorio
-    path('relatorios/', relatorio_view, name = 'tela_relatorios'),
+    path('relatorios/', safv.relatorio_view, name = 'tela_relatorios'),
     #Deletar ocorrência
-    path('chamado/<int:id>/deletar', deletar_ocorrencia, name = 'deletar_chamado'),
-]
+    path('chamado/<int:id>/deletar', safv.deletar_ocorrencia, name = 'deletar_chamado'),
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

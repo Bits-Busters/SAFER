@@ -444,6 +444,8 @@ class FormularioView(View):
             if form.is_valid() and formset.is_valid():
                 # Acesse form.cleaned_data somente após a validação
                 print("Dados do form:", form.cleaned_data)
+                form.instance.Localizacao_x = int(request.POST.get("Localizacao_x", 0))
+                form.instance.Localizacao_y = int(request.POST.get("Localizacao_y", 0))
                 ocorrencia = form.save(commit=False)
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user
@@ -622,7 +624,15 @@ def notificacao_lida(request):
     
     try:
         notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True) # marca todas as notificacoes do usuario como lidas
-        Notification.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
+        Notificacao.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
         return JsonResponse({"success": True, "notificacoes_lidas": notificacoes}) # envia resposta JSON a pagina
     except Notificacao.DoesNotExist:
         return JsonResponse({"success": False, "error": "Notificação não encontrada."}, status=404)
+
+
+
+def mapa_view(request):
+    return render(request, 'mapa/mapa.html')
+
+
+

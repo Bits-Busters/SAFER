@@ -1,5 +1,5 @@
 {% extends 'TopTemplate.html' %}
-
+{% load static %}
 {% block extra_css %}
     <style>
         .page {
@@ -74,9 +74,30 @@
         .step:last-child::after {
             width: 0;
         }
+        #mapa {
+    position: relative;
+    background-image: url("{% static 'images/mapa.png' %}");
+    background-size: contain;
+    width: 887px;
+    height: 741px;
+    border: 2px solid black;
+    margin: auto;
+    cursor: crosshair;
+}
+
+.ponto {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* Centraliza o ponto */
+}
 
     </style>
+ 
 {% endblock %}
+
 
 {% block title %}Cadastro de ocorrências{% endblock %}
 
@@ -157,13 +178,15 @@
                         <p>{{ form.Nome_Animal }}</p>
                         <p class="text-muted">Informe o nome do animal envolvido.</p>
                     </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.Local.id_for_label }}">Local do Evento</label>
-                        <p>{{ form.Local }}</p>
-                        <p class="text-muted">Informe o local onde o incidente ocorreu.</p>
+                    
+                    <!-- Campo do ponto na rural -->
+                     <div class="form-group"
+                    <h3>Mapa da rural</h3>
+                        <div id="mapa"> 
+                            <p style="display: none;">{{ form.Localizacao_x }}</p>
+                            <p style="display: none;">{{ form.Localizacao_y }}</p>
+                        </div>
                     </div>
-
                     <div class="form-group">
                         <label for="{{ form.Referencia.id_for_label }}">Referência</label>
                         <p>{{ form.Referencia }}</p>

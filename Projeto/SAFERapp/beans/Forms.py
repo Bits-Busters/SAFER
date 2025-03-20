@@ -165,10 +165,13 @@ class FormularioForm(forms.ModelForm):
         model = Ocorrencia
         fields = [
             'Nome_Autor', 'Celular_Autor', 'Telefone_Autor', 'Relacao_Autor',
-            'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 'Descricao', 'Status'
+            'Nome_Animal','Referencia', 'Tipo_Caso', 'Descricao', 'Status',
+            'Localizacao_x', 'Localizacao_y'
         ]
         widgets = {
             'Descricao': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+            'Localizacao_x': forms.HiddenInput(),
+            'Localizacao_y': forms.HiddenInput()
         }
 
     def __init__(self, *args, **kwargs):
@@ -176,8 +179,8 @@ class FormularioForm(forms.ModelForm):
 
         required_fields = [
             'Nome_Autor', 'Celular_Autor', 'Relacao_Autor', 
-            'Nome_Animal', 'Local', 'Referencia', 'Tipo_Caso', 
-            'Descricao'
+            'Nome_Animal', 'Referencia', 'Tipo_Caso', 
+            'Descricao',
         ]
         
         for field in required_fields:
