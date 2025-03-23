@@ -25,9 +25,24 @@ SECRET_KEY = 'django-insecure-3vxq2c8_&+l!@t%b$g4yea4$e&8gp(bkd#shmj%e!ihm21dk-4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000"]
 
 PASSWORD_RESET_TIMEOUT = 300
+
+ASGI_APPLICATION = "SAFERapp.asgi.application"
+
+# Configurações de channel
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": ["redis://:SaferRedis@127.0.0.1:6379/0"],
+            'capacity': 1000,
+            'expiry': 10,
+        },
+    },
+}
 
 # Application definition
 
@@ -40,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap4',
+    'channels',
     'SAFERapp',
 ]
 
@@ -156,16 +172,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # configuração de email
 
 # backend no caso de só imprimir email no console sem enviar
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Backend padrão (com console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Backend padrão (com console)
 EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP
 
 # No caso de querer salvar o conteúdo em arquivo
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH = '/tmp/emails'  # Certifique-se de que este diretório existe
 
-
-EMAIL_PORT = 587  # Porta do servidor SMTP
-EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
-EMAIL_HOST_USER = 'safer.teamapp@gmail.com'  # Usuário do email
-EMAIL_HOST_PASSWORD = 'gqen reee xqtv weol'  # Senha do email
+#
+# EMAIL_PORT = 587  # Porta do servidor SMTP
+# EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
+# EMAIL_HOST_USER = 'safer.teamapp@gmail.com'  # Usuário do email
+# EMAIL_HOST_PASSWORD = 'gqen reee xqtv weol'  # Senha do email
 #DEFAULT_FROM_EMAIL = 'seu-email@example.com'  # Email padrão para envio
