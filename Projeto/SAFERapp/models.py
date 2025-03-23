@@ -114,17 +114,6 @@ def get_or_create_anonymous_user():
                 tipo_usuario="COMUM",
                 is_active=True
             )
-
-from SAFERapp.beans.Ocorrencia import Ocorrencia 
-class Notificacao(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ocorrencia = models.ForeignKey(Ocorrencia, on_delete=models.CASCADE, null=True, blank=True)
-    mensagem = models.CharField(max_length=255)
-    lida = models.BooleanField(default=False)
-    criada_em = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Notificação para {self.usuario} - {self.mensagem}"
     
 class PasswordHistory(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='password_history')
