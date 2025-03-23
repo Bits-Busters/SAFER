@@ -2,10 +2,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
-from SAFERapp.models import CustomUser  # Ajuste conforme o nome do seu app
+from SAFERapp.models import CustomUser
 from SAFERapp.beans.Ocorrencia import Ocorrencia 
-from SAFERapp.models import Notificacao
 from django.contrib.auth import get_user_model
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 @receiver(post_save, sender=CustomUser)
 def enviar_email_boas_vindas(sender, instance, created, **kwargs):
@@ -35,10 +36,14 @@ customuser = get_user_model() #pega o modelo de AUTH_USER_MODEL
 def notifica_novo_chamado(sender, instance, created, **kwargs):
     if created:
         lista_staff = CustomUser.objects.filter(is_staff=True)
+        channel_layer = get_channel_layer()  # Instância do layer do Channels
+        mensagem = f"Um novo chamado foi criado"
         for staff_instance in lista_staff:
-            notificacao = Notificacao.objects.create( # cria notificação
-                usuario = staff_instance, # Instancia da staff 
-                ocorrencia = instance, # instancia de Ocorrencia
-                mensagem = f"Um novo chamado foi criado"
-
+            # Envia a notificação em tempo real para o WebSocket do staff
+            async_to_sync(channel_layer.group_send)(
+                f"staff_notificacoes", # Esse é o nome do grupo (o mesmo do group_name de consumers.py)
+                {
+                    "type": "receber_notificacao",
+                    "mensagem": mensagem  # Mensagem para o WebSocket
+                }
             )
