@@ -23,6 +23,11 @@ from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
 
+def isstaff(user):
+    return user.is_staff
+
+def issuperuser(user):
+    return user.is_superuser
 
 # Create your views here.
 @login_required
@@ -189,6 +194,7 @@ def deletar_usuario(request, usuario_email):
     return redirect('gerenciarUsuarios')
 
 @login_required
+@user_passes_test(issuperuser)
 def telaGerenciarUsuarios(request):
     usuarios = CustomUser.objects.all().order_by('nome')
     # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
@@ -597,6 +603,8 @@ class GerenciarInformativosView(View):
 
         return redirect('gerenciarInformativos')
 
-def staff(user):
-    return user.is_staff
+
+
+
+
 
