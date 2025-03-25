@@ -30,6 +30,7 @@ def issuperuser(user):
     return user.is_superuser
 
 # Create your views here.
+@user_passes_test(issuperuser)
 @login_required
 def relatorio_view(request):
     # Inicializar os formulários com os dados GET
@@ -112,28 +113,7 @@ def relatorio_view(request):
         'status_counts': status_counts,
     })
 
-
-@login_required
-def telaOcorrencias(request, tipoChamado):
-    if tipoChamado == "meus-chamados":
-        # Obtém as ocorrências do usuário logado
-        nome = "Meus chamados"
-        ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
-    elif tipoChamado == "todos-os-chamados":
-        # Obtém as ocorrências do usuário logado
-        nome = "Todos os chamados"
-        ocorrencia = Ocorrencia.objects.order_by('-DataHora')
-    elif tipoChamado == "chamados-aceitos":
-        # Obtém as ocorrências do usuário logado
-        nome = "Chamados aceitos"
-        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
-    elif tipoChamado == "chamados-em-aberto":
-        # Obtém as ocorrências do usuário logado
-        nome = "Chamados em aberto"
-        ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
-    else:
-        messages.error(request, "Esta não é uma página válida")
-        return render(request, 'home.html')
+def renderiza_tela_chamados(request, ocorrencia, nome, tipoChamado):
     form = FilterForm(request.GET or None)
 
     if form.is_valid():
@@ -167,8 +147,50 @@ def telaOcorrencias(request, tipoChamado):
 
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
+def meus_chamados_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Meus chamados"
+    ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "meus-chamados")
+
+
+@user_passes_test(isstaff)
+def todos_os_chamados_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Todos os chamados"
+    ocorrencia = Ocorrencia.objects.order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "todos-os-chamados")
+
+@user_passes_test(isstaff)
+def chamados_aceitos_view(request):
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados aceitos"
+        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
+        return renderiza_tela_chamados(request, ocorrencia, nome, "chamado-aceitos")
+
+@user_passes_test(isstaff)
+def chamados_abertos_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Chamados em aberto"
+    ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "chamados-em-aberto")
+@login_required
+def telaOcorrencias(request, tipoChamado):
+    if tipoChamado == "meus-chamados":
+        return meus_chamados_view(request)
+    elif tipoChamado == "todos-os-chamados":
+        return todos_os_chamados_view(request)
+    elif tipoChamado == "chamados-aceitos":
+        return chamados_aceitos_view(request)
+    elif tipoChamado == "chamados-em-aberto":
+        return chamados_abertos_view(request)
+    else:
+        messages.error(request, "Esta não é uma página válida")
+        return render(request, 'home.html')
+
 
 @login_required
+@user_passes_test(issuperuser())
 def editar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
 
@@ -183,6 +205,7 @@ def editar_usuario(request, usuario_email):
     return render(request, 'DetalhesUsuario.html', {'form': form, 'usuario': usuario})
 
 @login_required
+@user_passes_test(issuperuser)
 def deletar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
     
@@ -413,6 +436,8 @@ class PerfilView(LoginRequiredMixin, View):
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
 
+@login_required()
+@user_passes_test(isstaff)
 def deletar_ocorrencia(request, id):
     if request.method == 'POST':
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
@@ -543,6 +568,7 @@ class InformativosView(View):
 
         # Renderiza o template com o contexto
         return render(request, 'TelaInformativos.html', contexto)
+
 
 class CriarInformativoView(View):
     def get(self, request, id=None):
