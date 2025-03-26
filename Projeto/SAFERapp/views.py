@@ -444,8 +444,8 @@ class FormularioView(View):
             if form.is_valid() and formset.is_valid():
                 # Acesse form.cleaned_data somente após a validação
                 print("Dados do form:", form.cleaned_data)
-                form.instance.Localizacao_x = int(request.POST.get("Localizacao_x", 0))
-                form.instance.Localizacao_y = int(request.POST.get("Localizacao_y", 0))
+                form.instance.Localizacao_x = request.POST.get('Localizacao_x')
+                form.instance.Localizacao_y = request.POST.get('Localizacao_y')
                 ocorrencia = form.save(commit=False)
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user

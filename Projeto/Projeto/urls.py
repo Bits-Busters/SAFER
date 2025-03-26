@@ -77,9 +77,6 @@ urlpatterns = [
     path('relatorios/', safv.relatorio_view, name = 'tela_relatorios'),
     #Deletar ocorrência
     path('chamado/<int:id>/deletar', safv.deletar_ocorrencia, name = 'deletar_chamado'),
-
-
+]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-

@@ -39,8 +39,8 @@ class Ocorrencia(models.Model):
         related_name="ocorrencias_analizadas",
         verbose_name="Resgatista responsável"
     )
-    Localizacao_x = models.IntegerField(default=0, null=False, blank=False)
-    Localizacao_y = models.IntegerField(default=0, null=False, blank=False)
+    Localizacao_x = models.FloatField(default=0, null=False, blank=False)
+    Localizacao_y = models.FloatField(default=0, null=False, blank=False)
 
 
     def alterar_status(self, novo_status: StatusChamado):
