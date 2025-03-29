@@ -20,6 +20,8 @@ crispy-bootstrap4 = "^2024.10"
 gunicorn = "^23.0.0"
 whitenoise = "^6.9.0"
 mssql-django = "^1.5"
+numpy = "^2.2.4"
+folium = "^0.19.5"
 
 
 [build-system]

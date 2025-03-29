@@ -77,6 +77,9 @@ urlpatterns = [
     path('relatorios/', safv.relatorio_view, name = 'tela_relatorios'),
     #Deletar ocorrência
     path('chamado/<int:id>/deletar', safv.deletar_ocorrencia, name = 'deletar_chamado'),
+
+    # URLs do mapa de calor
+    path('mapa-calor', safv.render_mapa_calor, name='render_mapa_calor'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

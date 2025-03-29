@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -8,7 +9,6 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 
@@ -631,8 +631,28 @@ def notificacao_lida(request):
 
 
 
-def mapa_view(request):
-    return render(request, 'mapa/mapa.html')
 
 
+def render_mapa_calor(request):
+        import folium
+        import numpy as np
+        from folium.plugins import HeatMap
+        from django.http import HttpResponse
 
+
+        pontos = list(Ocorrencia.objects.values_list('Localizacao_x', "Localizacao_y"))
+        coordenadas = np.array(pontos)
+
+        # Centro do mapa
+        latitude = np.mean(coordenadas[:, 0])
+        logintude = np.mean(coordenadas[:, 1])
+
+        mapa = folium.Map(location=[-8.017598865420956, -34.94933404268544], zoom_start=14.11)
+
+
+        # Adição do mapa de calor
+        HeatMap(coordenadas, radius=20, blur=10).add_to(mapa)
+
+        # Retorno do mapa como HTML
+        mapa_html = mapa._repr_html_()
+        return HttpResponse(mapa_html)

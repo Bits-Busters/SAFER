@@ -204,15 +204,15 @@
                                     .bindPopup("Você clicou aqui!")
                                     .openPopup();
                                 // Atualiza os campos ocultos com as novas coordenadas
-                                document.getElementById('id_latitude').value = lat;
-                                document.getElementById('id_longitude').value = lng;
+                                document.getElementById('id_Localizacao_x').value = lat;
+                                document.getElementById('id_Localizacao_y').value = lng;
                             });
                             </script>
                         </div>
                     </div>
                     <!-- Campos ocultos para latitude e longitude -->
-                    <input type="hidden" id="id_latitude" name="Localizacao_x">
-                    <input type="hidden" id="id_longitude" name="Localizacao_y">
+                    {{ form.Localizacao_x }}
+                    {{ form.Localizacao_y }}
 
                     <div class="form-group">
                         <label for="{{ form.Referencia.id_for_label }}">Referência</label>
