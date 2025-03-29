@@ -19,8 +19,11 @@ tzdata = "2024.2"
 crispy-bootstrap4 = "^2024.10"
 gunicorn = "^23.0.0"
 whitenoise = "^6.9.0"
+channels = "^4.2.1"
+channels-redis = "^4.2.1"
+redis = "^5.2.1"
+numpy = "^2.2.4"
 mssql-django = "^1.5"
-
 
 [build-system]
 requires = ["poetry-core"]

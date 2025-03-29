@@ -20,9 +20,8 @@ from django.urls import path
 
 from Projeto import settings
 
-from SAFERapp.views import HomeView, FormularioView, CadastroView, deletar_ocorrencia, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView, notificacoes_view, notificacao_lida
+from SAFERapp.views import HomeView, FormularioView, CadastroView, deletar_ocorrencia, relatorio_view, telaGerenciarUsuarios, deletar_usuario, editar_usuario, AtualizarOcorrenciaView, telaUsuario, logout_view, telaOcorrencias, PerfilView, TelaDetalhesChamadoView, InformativosView, GerenciarInformativosView, CriarInformativoView, TelaCriarObservacoesView
 from django.contrib.auth import views as auth_views
-
 
 # todas as URLs do projeto
 urlpatterns = [
@@ -54,10 +53,6 @@ urlpatterns = [
     path('informativos/criar/', CriarInformativoView.as_view(), name ='criarInformativoNovo'),
     #URL da página de gerenciamento de Informativos
     path('informativos/gerenciar/', GerenciarInformativosView.as_view(), name ='gerenciarInformativos'),
-    
-    # Noticicações
-    path('staff/notificacoes', notificacoes_view, name="staffNotificacoes" ),
-    path('staff/notificacaolida', notificacao_lida, name='notificacaolida'),
 
 
     # Página para reiniciar a senha

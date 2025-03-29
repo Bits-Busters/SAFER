@@ -28,6 +28,21 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ["https://*.azurecontainerapps.io"]
 
+PASSWORD_RESET_TIMEOUT = 300
+
+ASGI_APPLICATION = "SAFERapp.asgi.application"
+
+# Configurações de channel
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": ["redis://:SaferRedis@127.0.0.1:6379/0"],
+            'capacity': 1000,
+            'expiry': 10,
+        },
+    },
+}
 
 PASSWORD_RESET_TIMEOUT = 300
 

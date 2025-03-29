@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_css %}
     {% endblock %}
     <title>{% block title %}SAFER{% endblock %}</title>
@@ -17,6 +17,34 @@
           margin-right: 30px; /* Cria uma margem direita de 20 pixels */
           margin-left: 20px; /* Cria uma margem esquerda de 20 pixels */
         }
+    .popup-notificacao {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #333;
+        color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+        opacity: 0.9;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+    }
+
+    .fechar-popup {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .fechar-popup:hover {
+        color: #ff4d4d;
+    }
       </style>
 </head>
 <body>
@@ -24,7 +52,7 @@
         <div id="headerLeft">
             <div id ="hlContent">
                 <div id="logo">
-                    <img logo src="{% static 'images/iconSafer.png' %}" alt="" height="160" width="160">
+                    <img logo src="{% static 'images/iconSafer.png' %}" alt="" height="120" width="120">
                 </div>
                 <div id="hlTextContent">
                     <p>
@@ -157,86 +185,46 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script>
-        function marcarComoLida(notificationId, popup) {
-    // Obtenha o token CSRF (exemplo para Django, ajuste conforme sua implementação)
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    fetch("{% url 'notificacaolida' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": csrfToken
-        },
-        body: new URLSearchParams({
-            "notification_id": notificationId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success){
-            // Remove o pop-up se a notificação foi marcada como lida
-            popup.remove();
-        } else {
-            console.error("Erro:", data.error);
-        }
-    })
-    .catch(error => console.error("Erro ao marcar notificação:", error));
-}
-        function fetchNotificacoes() {
-            fetch("{% url 'staffNotificacoes' %}")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.notificacoes.length > 0) {
-                        // Exibe o pop-up com a primeira notificação (ou customize para listar todas)
-                        exibirPopup(data.notificacoes[0]);
-                    }
-                })
-                .catch(error => console.error("Erro ao buscar notificações:", error));
-        }
-        
-        function exibirPopup(notificacao) {
-            // Verifica se o pop-up já existe para não duplicar
-            if (document.getElementById("popup-notificacao")) return;
-        
-            let popup = document.createElement("div");
-            popup.id = "popup-notificacao";
-            popup.style.position = "fixed";
-            popup.style.bottom = "20px";
-            popup.style.right = "20px";
-            popup.style.backgroundColor = "#f0f0f0";
-            popup.style.padding = "15px";
-            popup.style.border = "1px solid #ccc";
-            popup.style.borderRadius = "5px";
-            popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.1)";
-            popup.style.cursor = "pointer";
-            popup.innerHTML = `
-                <span style="float:right; font-weight:bold; cursor:pointer;" id="popup-close">X</span>
-                <div>${notificacao.mensagem}</div>
-            `;
-        
-            // Ao clicar no pop-up (exceto no X), redireciona para a tela de chamados
-            popup.addEventListener("click", function(event) {
-                // Se o clique for no botão de fechar, não redireciona
-                if (event.target.id === "popup-close") return;
-                marcarComoLida(notificacao.id, popup)   
-                window.location.href = "/chamados/chamados-em-aberto";  // ajuste a URL conforme necessário
-            });
-        
-            // Botão de fechar: remove o pop-up
-            popup.querySelector("#popup-close").addEventListener("click", function(event) {
-                event.stopPropagation(); // evita que o clique seja propagado para o container
-                popup.remove();
-                marcarComoLida(notificacao.id, popup);
-            });
-        
-            document.body.appendChild(popup);
-        }
-        
-        // Consulta a cada 5 segundos
-        setInterval(fetchNotificacoes, 5000);
-        
-        </script>
+
+
+
+
+    <script>
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/staff/notificacoes/");
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        criarPopUpNotificacao(data.mensagem);
+    };
+
+    socket.onopen = function() {
+        console.log('Conectado ao WebSocket');
+    };
+
+    socket.onerror = function(error) {
+        console.error('Erro no WebSocket:', error);
+    };
+
+    function criarPopUpNotificacao(mensagem) {
+        console.log("Criando popup")
+        const popUp = document.createElement('div');
+        popUp.className = 'popup-notificacao';
+
+        const fechar = document.createElement('button');
+        fechar.className = 'fechar-popup';
+        fechar.textContent = 'X';
+        fechar.onclick = () => popUp.remove();
+
+        const texto = document.createElement('span');
+        texto.textContent = mensagem;
+
+        popUp.appendChild(texto);
+        popUp.appendChild(fechar);
+        document.body.appendChild(popUp);
+
+    }
+</script>
     <!-- Conteúdo específico da página -->
     <div class="content">
         {% block content %}

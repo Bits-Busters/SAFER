@@ -19,13 +19,18 @@ from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
 from SAFERapp.beans.Observacoes import Observacoes
-from SAFERapp.models import Notificacao
 from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
 
+def isstaff(user):
+    return user.is_staff
+
+def issuperuser(user):
+    return user.is_superuser
 
 # Create your views here.
+@user_passes_test(issuperuser)
 @login_required
 def relatorio_view(request):
     # Inicializar os formulários com os dados GET
@@ -108,28 +113,7 @@ def relatorio_view(request):
         'status_counts': status_counts,
     })
 
-
-@login_required
-def telaOcorrencias(request, tipoChamado):
-    if tipoChamado == "meus-chamados":
-        # Obtém as ocorrências do usuário logado
-        nome = "Meus chamados"
-        ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
-    elif tipoChamado == "todos-os-chamados":
-        # Obtém as ocorrências do usuário logado
-        nome = "Todos os chamados"
-        ocorrencia = Ocorrencia.objects.order_by('-DataHora')
-    elif tipoChamado == "chamados-aceitos":
-        # Obtém as ocorrências do usuário logado
-        nome = "Chamados aceitos"
-        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
-    elif tipoChamado == "chamados-em-aberto":
-        # Obtém as ocorrências do usuário logado
-        nome = "Chamados em aberto"
-        ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
-    else:
-        messages.error(request, "Esta não é uma página válida")
-        return render(request, 'home.html')
+def renderiza_tela_chamados(request, ocorrencia, nome, tipoChamado):
     form = FilterForm(request.GET or None)
 
     if form.is_valid():
@@ -163,8 +147,50 @@ def telaOcorrencias(request, tipoChamado):
 
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
+def meus_chamados_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Meus chamados"
+    ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "meus-chamados")
+
+
+@user_passes_test(isstaff)
+def todos_os_chamados_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Todos os chamados"
+    ocorrencia = Ocorrencia.objects.order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "todos-os-chamados")
+
+@user_passes_test(isstaff)
+def chamados_aceitos_view(request):
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados aceitos"
+        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
+        return renderiza_tela_chamados(request, ocorrencia, nome, "chamado-aceitos")
+
+@user_passes_test(isstaff)
+def chamados_abertos_view(request):
+    # Obtém as ocorrências do usuário logado
+    nome = "Chamados em aberto"
+    ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
+    return renderiza_tela_chamados(request, ocorrencia, nome, "chamados-em-aberto")
+@login_required
+def telaOcorrencias(request, tipoChamado):
+    if tipoChamado == "meus-chamados":
+        return meus_chamados_view(request)
+    elif tipoChamado == "todos-os-chamados":
+        return todos_os_chamados_view(request)
+    elif tipoChamado == "chamados-aceitos":
+        return chamados_aceitos_view(request)
+    elif tipoChamado == "chamados-em-aberto":
+        return chamados_abertos_view(request)
+    else:
+        messages.error(request, "Esta não é uma página válida")
+        return render(request, 'home.html')
+
 
 @login_required
+@user_passes_test(issuperuser())
 def editar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
 
@@ -179,6 +205,7 @@ def editar_usuario(request, usuario_email):
     return render(request, 'DetalhesUsuario.html', {'form': form, 'usuario': usuario})
 
 @login_required
+@user_passes_test(issuperuser)
 def deletar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
     
@@ -190,6 +217,7 @@ def deletar_usuario(request, usuario_email):
     return redirect('gerenciarUsuarios')
 
 @login_required
+@user_passes_test(issuperuser)
 def telaGerenciarUsuarios(request):
     usuarios = CustomUser.objects.all().order_by('nome')
     # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
@@ -408,6 +436,8 @@ class PerfilView(LoginRequiredMixin, View):
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
 
+@login_required()
+@user_passes_test(isstaff)
 def deletar_ocorrencia(request, id):
     if request.method == 'POST':
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
@@ -539,6 +569,7 @@ class InformativosView(View):
         # Renderiza o template com o contexto
         return render(request, 'TelaInformativos.html', contexto)
 
+
 class CriarInformativoView(View):
     def get(self, request, id=None):
         if id is None:
@@ -598,31 +629,8 @@ class GerenciarInformativosView(View):
 
         return redirect('gerenciarInformativos')
 
-def staff(user):
-    return user.is_staff
-# View que notifica um staff oua acima de um novo chamado
-@login_required # precisa esta logado
-@user_passes_test(staff) # precisa ser staff
-def notificacoes_view(request): # envia um JSON para página para criacao do popup de notificao
-    notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False)
-    dados = [{
-        'id': notificacao.id,
-        'mensagem': notificacao.mensagem,
-        'lida': notificacao.lida
-    } for notificacao in notificacoes]
-    return JsonResponse({'notificacoes': dados})
 
-# View que atualiaza uma notificacao para lida
-@login_required
-@require_POST
-def notificacao_lida(request):
-    notification_id = request.POST.get("notification_id")
-    if not notification_id: # Verifica o ID da notificao
-        return JsonResponse({"success": False, "error": "ID não fornecido."}, status=400)
-    
-    try:
-        notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True) # marca todas as notificacoes do usuario como lidas
-        Notification.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
-        return JsonResponse({"success": True, "notificacoes_lidas": notificacoes}) # envia resposta JSON a pagina
-    except Notificacao.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Notificação não encontrada."}, status=404)
+
+
+
+
