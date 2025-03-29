@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -8,7 +9,6 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic import View
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 
@@ -23,14 +23,8 @@ from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
 
-def isstaff(user):
-    return user.is_staff
-
-def issuperuser(user):
-    return user.is_superuser
 
 # Create your views here.
-@user_passes_test(issuperuser)
 @login_required
 def relatorio_view(request):
     # Inicializar os formulários com os dados GET
@@ -113,7 +107,28 @@ def relatorio_view(request):
         'status_counts': status_counts,
     })
 
-def renderiza_tela_chamados(request, ocorrencia, nome, tipoChamado):
+
+@login_required
+def telaOcorrencias(request, tipoChamado):
+    if tipoChamado == "meus-chamados":
+        # Obtém as ocorrências do usuário logado
+        nome = "Meus chamados"
+        ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
+    elif tipoChamado == "todos-os-chamados":
+        # Obtém as ocorrências do usuário logado
+        nome = "Todos os chamados"
+        ocorrencia = Ocorrencia.objects.order_by('-DataHora')
+    elif tipoChamado == "chamados-aceitos":
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados aceitos"
+        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
+    elif tipoChamado == "chamados-em-aberto":
+        # Obtém as ocorrências do usuário logado
+        nome = "Chamados em aberto"
+        ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
+    else:
+        messages.error(request, "Esta não é uma página válida")
+        return render(request, 'home.html')
     form = FilterForm(request.GET or None)
 
     if form.is_valid():
@@ -147,50 +162,8 @@ def renderiza_tela_chamados(request, ocorrencia, nome, tipoChamado):
 
     # Renderiza a página com as ocorrências paginadas
     return render(request, 'TelaChamados.html', {'page_obj': page_obj, 'form': form, 'nome': nome, 'filtro':tipoChamado})
-def meus_chamados_view(request):
-    # Obtém as ocorrências do usuário logado
-    nome = "Meus chamados"
-    ocorrencia = Ocorrencia.objects.filter(Autor=request.user).order_by('-DataHora')
-    return renderiza_tela_chamados(request, ocorrencia, nome, "meus-chamados")
-
-
-@user_passes_test(isstaff)
-def todos_os_chamados_view(request):
-    # Obtém as ocorrências do usuário logado
-    nome = "Todos os chamados"
-    ocorrencia = Ocorrencia.objects.order_by('-DataHora')
-    return renderiza_tela_chamados(request, ocorrencia, nome, "todos-os-chamados")
-
-@user_passes_test(isstaff)
-def chamados_aceitos_view(request):
-        # Obtém as ocorrências do usuário logado
-        nome = "Chamados aceitos"
-        ocorrencia = Ocorrencia.objects.filter(Resgatista=request.user).order_by('-DataHora')
-        return renderiza_tela_chamados(request, ocorrencia, nome, "chamado-aceitos")
-
-@user_passes_test(isstaff)
-def chamados_abertos_view(request):
-    # Obtém as ocorrências do usuário logado
-    nome = "Chamados em aberto"
-    ocorrencia = Ocorrencia.objects.filter(Status=StatusChamado.ABERTO).order_by('-DataHora')
-    return renderiza_tela_chamados(request, ocorrencia, nome, "chamados-em-aberto")
-@login_required
-def telaOcorrencias(request, tipoChamado):
-    if tipoChamado == "meus-chamados":
-        return meus_chamados_view(request)
-    elif tipoChamado == "todos-os-chamados":
-        return todos_os_chamados_view(request)
-    elif tipoChamado == "chamados-aceitos":
-        return chamados_aceitos_view(request)
-    elif tipoChamado == "chamados-em-aberto":
-        return chamados_abertos_view(request)
-    else:
-        messages.error(request, "Esta não é uma página válida")
-        return render(request, 'home.html')
-
 
 @login_required
-@user_passes_test(issuperuser())
 def editar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
 
@@ -205,7 +178,6 @@ def editar_usuario(request, usuario_email):
     return render(request, 'DetalhesUsuario.html', {'form': form, 'usuario': usuario})
 
 @login_required
-@user_passes_test(issuperuser)
 def deletar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
     
@@ -217,7 +189,6 @@ def deletar_usuario(request, usuario_email):
     return redirect('gerenciarUsuarios')
 
 @login_required
-@user_passes_test(issuperuser)
 def telaGerenciarUsuarios(request):
     usuarios = CustomUser.objects.all().order_by('nome')
     # Cria um objeto Paginator para dividir as ocorrências em páginas com 5 itens cada
@@ -436,8 +407,6 @@ class PerfilView(LoginRequiredMixin, View):
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
 
-@login_required()
-@user_passes_test(isstaff)
 def deletar_ocorrencia(request, id):
     if request.method == 'POST':
         ocorrencia = get_object_or_404(Ocorrencia, id=id)
@@ -474,6 +443,8 @@ class FormularioView(View):
             if form.is_valid() and formset.is_valid():
                 # Acesse form.cleaned_data somente após a validação
                 print("Dados do form:", form.cleaned_data)
+                form.instance.Localizacao_x = request.POST.get('Localizacao_x')
+                form.instance.Localizacao_y = request.POST.get('Localizacao_y')
                 ocorrencia = form.save(commit=False)
                 if request.user.is_authenticated:
                     ocorrencia.Autor = request.user
@@ -569,7 +540,6 @@ class InformativosView(View):
         # Renderiza o template com o contexto
         return render(request, 'TelaInformativos.html', contexto)
 
-
 class CriarInformativoView(View):
     def get(self, request, id=None):
         if id is None:
@@ -629,8 +599,41 @@ class GerenciarInformativosView(View):
 
         return redirect('gerenciarInformativos')
 
+def staff(user):
+    return user.is_staff
+# View que notifica um staff oua acima de um novo chamado
+@login_required # precisa esta logado
+@user_passes_test(staff) # precisa ser staff
+def notificacoes_view(request): # envia um JSON para página para criacao do popup de notificao
+    notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False)
+    dados = [{
+        'id': notificacao.id,
+        'mensagem': notificacao.mensagem,
+        'lida': notificacao.lida
+    } for notificacao in notificacoes]
+    return JsonResponse({'notificacoes': dados})
 
 
+def render_mapa_calor(request):
+        import folium
+        import numpy as np
+        from folium.plugins import HeatMap
+        from django.http import HttpResponse
 
 
+        pontos = list(Ocorrencia.objects.values_list('Localizacao_x', "Localizacao_y"))
+        coordenadas = np.array(pontos)
 
+        # Centro do mapa
+        latitude = np.mean(coordenadas[:, 0])
+        logintude = np.mean(coordenadas[:, 1])
+
+        mapa = folium.Map(location=[-8.017598865420956, -34.94933404268544], zoom_start=14.11)
+
+
+        # Adição do mapa de calor
+        HeatMap(coordenadas, radius=20, blur=10).add_to(mapa)
+
+        # Retorno do mapa como HTML
+        mapa_html = mapa._repr_html_()
+        return HttpResponse(mapa_html)

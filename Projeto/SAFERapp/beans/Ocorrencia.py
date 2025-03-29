@@ -22,12 +22,6 @@ class Ocorrencia(models.Model):
     )
     Descricao = models.TextField()
     Nome_Animal = models.CharField(max_length=100)
-    Local = models.CharField(
-        max_length=20,
-        choices=Local.choices,
-        default=Local.RU,
-        verbose_name="Local do caso"
-    )
     Referencia = models.CharField(max_length=100)
     DataHora = models.DateTimeField(default=now)
     Status = models.CharField(
@@ -45,6 +39,9 @@ class Ocorrencia(models.Model):
         related_name="ocorrencias_analizadas",
         verbose_name="Resgatista responsável"
     )
+    Localizacao_x = models.FloatField(default=0, null=False, blank=False)
+    Localizacao_y = models.FloatField(default=0, null=False, blank=False)
+
 
     def alterar_status(self, novo_status: StatusChamado):
         self.Status = novo_status

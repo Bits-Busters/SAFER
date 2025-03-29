@@ -37,14 +37,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ["redis://:SaferRedis@127.0.0.1:6379/0"],
+                "hosts": ["redis://SaferRedis:127.0.0.1:6379/0"],
             'capacity': 1000,
             'expiry': 10,
         },
     },
 }
 
-PASSWORD_RESET_TIMEOUT = 300
 
 # Application definition
 
@@ -103,17 +102,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Projeto.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # SQlite DB
-#DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.sqlite3',
-#          'NAME': BASE_DIR / 'db.sqlite3',
-#      }
-#  }
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': BASE_DIR / 'db.sqlite3',
+     }
+ }
 
 # ## Mysql DB
 # DATABASES = {
@@ -125,21 +123,21 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 #        'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
 #        'PORT': os.getenv('DB_PORT', '3306'),
 #    }
-# }
-## MS SQL DB
-DATABASES = {
-        'default': {
-            'ENGINE': 'mssql',
-            'NAME': 'safer-db',
-            'USER': 'safer-admin@safer-server',
-            'PASSWORD': '$af&r2o25',
-            'HOST': 'safer-server.database.windows.net',
-
-            'OPTIONS': {
-                'driver': 'ODBC Driver 18 for SQL Server',
-            },
-        },
-    }
+# # }
+# ## MS SQL DB
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'mssql',
+#             'NAME': 'safer-db',
+#             'USER': 'safer-admin@safer-server',
+#             'PASSWORD': '$af&r2o25',
+#             'HOST': 'safer-server.database.windows.net',
+#
+#             'OPTIONS': {
+#                 'driver': 'ODBC Driver 18 for SQL Server',
+#             },
+#         },
+#     }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

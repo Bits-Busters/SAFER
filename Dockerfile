@@ -38,6 +38,7 @@ RUN rm /packages-microsoft-prod.deb
 
 RUN  apt-get update && ACCEPT_EULA=Y apt-get install -y \
      msodbcsql18 \
+     redis-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala depedências pré-compiladas
@@ -49,11 +50,17 @@ RUN pip install --no-index --find-links=/wheels -r /wheels/requirements.txt
 # Copia todo o código do projeto para dentro do container
 COPY ./Projeto ./Projeto
 COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY ./gunicorn.conf.py ./
 # Porta usada pelo container
 EXPOSE 80
 RUN python Projeto/manage.py collectstatic --noinput
 
 ENV PYTHONPATH="/app/Projeto"
+
+# Configura o Redis
+RUN echo "appendonly yes" > /etc/redis/redis.conf
+RUN service redis-server start
+
 # Comando de inicialização do Gunicorn
+RUN chmod +x /entrypoint.sh
 CMD ["/entrypoint.sh"]

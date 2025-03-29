@@ -4,7 +4,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 from SAFERapp.models import CustomUser
 from SAFERapp.beans.Ocorrencia import Ocorrencia 
-from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -31,7 +30,6 @@ def envia_email_status_alterado(sender, instance, **kwargs):
 
 
 
-customuser = get_user_model() #pega o modelo de AUTH_USER_MODEL 
 @receiver(post_save, sender=Ocorrencia)
 def notifica_novo_chamado(sender, instance, created, **kwargs):
     if created:
