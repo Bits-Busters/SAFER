@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-3vxq2c8_&+l!@t%b$g4yea4$e&8gp(bkd#shmj%e!ihm21dk-4
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ["https://*.azurecontainerapps.io"]
+# CSRF_TRUSTED_ORIGINS = ["https://*.azurecontainerapps.io"]
+CSRF_TRUSTED_ORIGINS = ["http://*"]
 
 PASSWORD_RESET_TIMEOUT = 300
 
@@ -37,7 +38,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-                "hosts": ["redis://SaferRedis:127.0.0.1:6379/0"],
+                 "hosts": [("127.0.0.1", 6379)],
             'capacity': 1000,
             'expiry': 10,
         },

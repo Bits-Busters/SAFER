@@ -614,7 +614,7 @@ def notificacoes_view(request): # envia um JSON para página para criacao do pop
     return JsonResponse({'notificacoes': dados})
 
 
-def render_mapa_calor(request):
+def     render_mapa_calor(request):
         import folium
         import numpy as np
         from folium.plugins import HeatMap
@@ -632,7 +632,7 @@ def render_mapa_calor(request):
 
 
         # Adição do mapa de calor
-        HeatMap(coordenadas, radius=20, blur=10).add_to(mapa)
+        HeatMap(coordenadas, radius=20, blur=25).add_to(mapa)
 
         # Retorno do mapa como HTML
         mapa_html = mapa._repr_html_()

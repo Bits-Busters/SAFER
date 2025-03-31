@@ -47,19 +47,25 @@ COPY --from=builder /app/requirements.txt /wheels/requirements.txt
 RUN pip install --no-index --find-links=/wheels -r /wheels/requirements.txt
 
 
-# Copia todo o código do projeto para dentro do container
+# Copia arquivos do projeto
 COPY ./Projeto ./Projeto
 COPY ./entrypoint.sh /entrypoint.sh
 COPY ./gunicorn.conf.py ./
-# Porta usada pelo container
-EXPOSE 80
-RUN python Projeto/manage.py collectstatic --noinput
 
-ENV PYTHONPATH="/app/Projeto"
 
 # Configura o Redis
 RUN echo "appendonly yes" > /etc/redis/redis.conf
 RUN service redis-server start
+
+
+# Porta usada pelo container
+EXPOSE 8000 6379
+
+# Carrega arquivos estaticos
+RUN python Projeto/manage.py collectstatic --noinput
+
+# Define variavel de ambiente
+ENV PYTHONPATH="/app/Projeto"
 
 # Comando de inicialização do Gunicorn
 RUN chmod +x /entrypoint.sh

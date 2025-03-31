@@ -6,8 +6,7 @@ set -e
 # Aplica as migrações
 python3 Projeto/manage.py makemigrations SAFERapp
 python3 Projeto/manage.py migrate
-
-
-
+redis-server --daemonize yes
+export PYTHONPATH="$PYTHONPATH:/home/samuel/git/SAFER/Projeto"
 # Inicia o Gunicorn
 exec gunicorn --bind 0.0.0.0:8000 Projeto.asgi:application -c gunicorn.conf.py

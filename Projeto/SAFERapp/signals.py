@@ -37,8 +37,10 @@ def notifica_novo_chamado(sender, instance, created, **kwargs):
         channel_layer = get_channel_layer()  # Instância do layer do Channels
         mensagem = f"Um novo chamado foi criado"
         # Envia a notificação em tempo real para o WebSocket do staff
-        async_to_sync(channel_layer.group_send)(
-                f"staff_notificacoes", # Esse é o nome do grupo (o mesmo do group_name de consumers.py)
+        for staff_instance in lista_staff:
+            # Envia a notificação em tempo real para o WebSocket do staff
+            async_to_sync(channel_layer.group_send)(
+                f"staff_notificacoes",  # Esse é o nome do grupo (o mesmo do group_name de consumers.py)
                 {
                     "type": "receber_notificacao",
                     "mensagem": mensagem  # Mensagem para o WebSocket
