@@ -190,7 +190,7 @@ def telaOcorrencias(request, tipoChamado):
 
 
 @login_required
-@user_passes_test(issuperuser())
+@user_passes_test(issuperuser)
 def editar_usuario(request, usuario_email):
     usuario = get_object_or_404(CustomUser, email=usuario_email)
 

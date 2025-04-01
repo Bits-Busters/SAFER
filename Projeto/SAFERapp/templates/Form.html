@@ -75,6 +75,30 @@
             width: 0;
         }
 
+        .btnLoggin.loading {
+            position: relative;
+            pointer-events: none;
+            padding-right: 40px; /* Espaço para o spinner */
+        }
+
+        .btnLoggin.loading::after {
+            content: "";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
     </style>
 {% endblock %}
 
@@ -252,6 +276,12 @@
 
         function handleSubmit(event) {
             event.preventDefault();
+    
+            const submitButton = event.target;
+            const originalText = submitButton.innerHTML; // Guarda o HTML original
+            submitButton.classList.add('loading');
+            submitButton.innerHTML = originalText; // Mantém o texto original
+            submitButton.disabled = true;
 
             const form = document.getElementById('form_ocorrencia');
             const currentPage = document.querySelector('.page.active');
@@ -268,42 +298,43 @@
                         field.insertAdjacentElement('afterend', errorElement);
                     }
                 });
+                
+                // Remove animação
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText; // Restaura o texto
                 return;
             }
             
-
-            // Usando fetch para enviar o formulário via AJAX
             const formData = new FormData(form);
 
             fetch(form.action, {
                 method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Certifique-se de incluir isso
-                },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData
             })
-
             .then(response => response.json())
             .then(data => {
-                console.log(data);  // Log parsed data here
-                for (const [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
-
-                    if (data.success) {
-                        alert("Formulário enviado com sucesso!");
+                if (data.success) {
+                    submitButton.textContent = 'Sucesso!';
+                    setTimeout(() => {
                         window.location.href = data.redirect_url;
-                    } else {
-                        alert('Erro: ' + data.errors.join('\n'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar o formulário:', error);
-                    alert('Ocorreu um erro ao enviar o formulário.');
-                });
-
+                    }, 1000);
+                } else {
+                    submitButton.classList.remove('loading');
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    alert('Erro: ' + data.errors.join('\n'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar o formulário:', error);
+                submitButton.classList.remove('loading');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                alert('Ocorreu um erro ao enviar o formulário.');
+            });
         }
-
 
     </script>
     
