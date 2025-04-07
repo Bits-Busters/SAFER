@@ -182,18 +182,21 @@ class FormularioForm(forms.ModelForm):
             'Nome_Animal', 'Referencia', 'Tipo_Caso', 
             'Descricao',
         ]
-        
         for field in required_fields:
             self.fields[field].required = True
 
         non_required_fields = ['Telefone_Autor', 'Status']
         for field in non_required_fields:
             self.fields[field].required = False
-        
-        # Se for uma nova ocorrência, defina o status automaticamente como "aberto"
-        if not self.instance.pk:  # Verifica se é uma nova ocorrência (sem PK)
+
+        # Se for uma nova ocorrência, define o status inicial
+        if not self.instance.pk:
             self.fields['Status'].initial = StatusChamado.ABERTO
-        
+        else:
+            # Se estiver editando, remove os campos de localização do form
+            self.fields.pop('Localizacao_x', None)
+            self.fields.pop('Localizacao_y', None)
+
         for field_name in self.fields:
             self.fields[field_name].widget.attrs.update({'class': 'form-control'})
 
@@ -203,16 +206,21 @@ class FormularioForm(forms.ModelForm):
         self.helper.form_tag = True
         self.helper.add_input(Submit('submit', 'Enviar'))
 
+
     def save(self, commit=True):
         instancia = super().save(commit=False)
-        
-        # Se a ocorrência for nova, defina o status como "aberto"
-        if not self.instance.pk:
+
+        # Se for uma edição, mantém as coordenadas antigas
+        if self.instance.pk:
+            instancia.Localizacao_x = self.instance.Localizacao_x
+            instancia.Localizacao_y = self.instance.Localizacao_y
+        else:
+            # Se for novo, garante o status
             instancia.Status = StatusChamado.ABERTO
-        
+
         if commit:
             instancia.save()
-        
+
         return instancia
 
 class CadastroForm(forms.ModelForm):

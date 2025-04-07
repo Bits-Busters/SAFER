@@ -4,6 +4,19 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
+        .image-preview img {
+        max-width: 100%; /* A imagem ocupará no máximo 100% da largura disponível */
+        max-height: 200px; /* Limita a altura da imagem */
+        object-fit: contain; /* Garante que a imagem seja redimensionada proporcionalmente */
+        border: 1px solid #ddd; /* Adiciona uma borda para visualização */
+        margin-bottom: 10px; /* Espaçamento abaixo da imagem */
+        float: left; /* Faz a imagem flutuar à esquerda */
+        margin-right: 15px; /* Espaçamento entre a imagem e o campo de upload */
+        }
+
+        .image-form {
+            clear: both; /* Garante que o conteúdo depois da imagem não fique ao lado dela */
+        }
         #map {
           height: 400px;
           width: 100%;
@@ -249,14 +262,19 @@
                         <div id="image-formset">
                             {% for imagem_form in formset %}
                                 <div class="image-form" data-form-id="{{ forloop.counter0 }}">
+                                    <!-- Container para a visualização da imagem acima do campo -->
+                                    <div class="image-preview" id="image-preview-{{ forloop.counter0 }}"></div> 
+                    
+                                    <!-- Campo de upload da imagem -->
                                     {{ imagem_form.Image }}
+                    
                                     <button type="button" class="remove-image-form btn btn-danger" style="margin-top: 5px;">Remover</button>
                                 </div>
                             {% endfor %}
                         </div>
                         <button type="button" id="add-image-form" class="btn btn-primary mt-3">Adicionar Imagem</button>
                         <p class="text-muted">Adicione imagens relacionadas ao caso</p>
-                    </div>                    
+                    </div>                                        
                     <button type="button" class="btnLoggin" style="background-color: #D2A68D; color: aliceblue;" onclick="navigatePage(2)">Voltar</button>
                     <button type="button" class="btnLoggin" style="background-color: #70C296; color: aliceblue;" onclick="handleSubmit(event)" >Enviar</button>
                 </div>
@@ -370,79 +388,111 @@
                 });
 
         }
-
-
     </script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        const addButton = document.getElementById('add-image-form');
-        const formsetContainer = document.getElementById('image-formset');
-        const managementForm = document.querySelector('[name="Imagens_registradas-TOTAL_FORMS"]');
+            const addButton = document.getElementById('add-image-form');
+            const formsetContainer = document.getElementById('image-formset');
+            const managementForm = document.querySelector('[name="Imagens_registradas-TOTAL_FORMS"]');
+            let limit = 10;
+            let current = 3;
 
-        if (addButton) {
-            addButton.addEventListener('click', function() {
-                console.log('Add image form clicked');  // Log para debugging
+            // Adicionando evento para quando um arquivo for selecionado
+            formsetContainer.addEventListener('change', function(event) {
+                if (event.target && event.target.type === 'file') {
+                    const formId = event.target.closest('.image-form').getAttribute('data-form-id');
+                    const imagePreviewContainer = document.getElementById('image-preview-' + formId);
+                    const file = event.target.files[0];
 
-                // Verificar se o TOTAL_FORMS está presente
-                if (!managementForm) {
-                    console.error('Formset TOTAL_FORMS element not found');
-                    return;
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imgElement = document.createElement('img');
+                            imgElement.src = e.target.result;
+                            imgElement.classList.add('img-thumbnail', 'mt-2'); // Para estilizar a imagem com uma borda
+                            imagePreviewContainer.innerHTML = ''; // Limpa qualquer imagem anterior
+                            imagePreviewContainer.appendChild(imgElement); // Exibe a nova imagem
+                        };
+                        reader.readAsDataURL(file);
+                    }
                 }
-
-                const totalForms = parseInt(managementForm.value);  // Pega o número total de formulários
-                const newFormId = totalForms;  // O novo ID do formulário será igual ao número total de formulários
-
-                // Verificar se há formulários de imagem para clonar
-                const imageForms = formsetContainer.querySelectorAll('.image-form');
-                if (imageForms.length === 0) {
-                    console.error('No image forms to clone');
-                    return;
-                }
-
-                // Clonar o primeiro formulário de imagem
-                const newForm = imageForms[0].cloneNode(true);
-                newForm.setAttribute('data-form-id', newFormId);  // Atribui um novo ID ao formulário clonado
-
-                // Resetar o campo de entrada de imagem
-                const imageInput = newForm.querySelector('input[type="file"]');
-                imageInput.value = '';  // Reseta o valor do campo de entrada de arquivo
-
-                // Atualizar o atributo 'name' para que ele siga a estrutura do formset
-                newForm.querySelector('input[type="file"]').name = `formset-${newFormId}-Image`;
-
-                // Adicionar o novo formulário à lista
-                formsetContainer.appendChild(newForm);
-
-                // Adicionar evento de remoção ao novo formulário
-                newForm.querySelector('.remove-image-form').addEventListener('click', function() {
-                    removeImageForm(newFormId);
-                });
-
-                // Atualizar o campo TOTAL_FORMS para refletir o novo número total de formulários
-                managementForm.value = totalForms + 1;
             });
-        } else {
-            console.error('Add image form button not found');
-        }
 
-        function removeImageForm(formId) {
-            const formToRemove = formsetContainer.querySelector(`.image-form[data-form-id="${formId}"]`);
-            if (formToRemove) {
-                formsetContainer.removeChild(formToRemove);
-                updateManagementForm();  // Atualizar o número total de formulários
-            }
-        }
+            if (addButton) {
+                addButton.addEventListener('click', function() {
+                    // Adiciona um novo formulário de imagem
+                    const totalForms = parseInt(managementForm.value);
+                    const newFormId = totalForms;
 
-        function updateManagementForm() {
-            const forms = formsetContainer.querySelectorAll('.image-form');
-            if (managementForm) {
-                managementForm.value = forms.length;  // Atualiza o valor de TOTAL_FORMS
+                    // Clonar o primeiro formulário de imagem
+                    const imageForms = formsetContainer.querySelectorAll('.image-form');
+                    const newForm = imageForms[0].cloneNode(true);
+                    newForm.setAttribute('data-form-id', newFormId);
+
+                    // Limpar a visualização de imagem para o novo formulário
+                    const imagePreviewContainer = newForm.querySelector('.image-preview');
+                    imagePreviewContainer.innerHTML = ''; // Limpar qualquer imagem anterior
+
+                    // Resetar o campo de entrada de imagem
+                    const imageInput = newForm.querySelector('input[type="file"]');
+                    imageInput.value = ''; // Limpar o valor do campo de arquivo
+
+                    // Atualizar o atributo 'name' para que ele siga a estrutura do formset
+                    newForm.querySelector('input[type="file"]').name = `Imagens_registradas-${newFormId}-Image`;
+
+                    // Criar um novo contêiner para a visualização de imagem
+                    const newImagePreviewContainer = document.createElement('div');
+                    newImagePreviewContainer.classList.add('image-preview');
+                    newImagePreviewContainer.id = 'image-preview-' + newFormId;  // Atribui ID único para cada preview
+                    
+                    // Inserir o novo contêiner de visualização *antes* do campo de entrada de imagem
+                    newForm.insertBefore(newImagePreviewContainer, newForm.querySelector('input[type="file"]'));
+
+                    // Adicionar o novo formulário à lista
+                    formsetContainer.appendChild(newForm);
+
+                    // Adicionar evento de remoção ao novo formulário
+                    newForm.querySelector('.remove-image-form').addEventListener('click', function() {
+                        removeImageForm(newFormId);
+                    });
+
+                    // Atualizar o campo TOTAL_FORMS para refletir o novo número total de formulários
+                    managementForm.value = totalForms + 1;
+                    current++;
+                    checkAddButton();
+                });
             } else {
-                console.error('Formset TOTAL_FORMS element not found when updating');
+                console.error('Add image form button not found');
             }
-        }
-    });
+
+            function removeImageForm(formId) {
+                const formToRemove = formsetContainer.querySelector(`.image-form[data-form-id="${formId}"]`);
+                if (formToRemove) {
+                    formsetContainer.removeChild(formToRemove);
+                    updateManagementForm(); // Atualiza o número total de formulários
+                    current--;
+                    checkAddButton();
+                }
+            }
+
+            function updateManagementForm() {
+                const forms = formsetContainer.querySelectorAll('.image-form');
+                if (managementForm) {
+                    managementForm.value = forms.length; // Atualiza o valor de TOTAL_FORMS
+                } else {
+                    console.error('Formset TOTAL_FORMS element not found when updating');
+                }
+            }
+
+            function checkAddButton() {
+                if (current >= limit) {
+                    $('#add-image-form').prop('disabled', true); // Desativa o botão
+                } else {
+                    $('#add-image-form').prop('disabled', false); // Habilita o botão
+                }
+            }
+        });
     </script>    
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>

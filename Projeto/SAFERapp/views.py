@@ -302,19 +302,32 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
         
         # Preenche o formulário com os dados da ocorrência
         form = FormularioForm(instance=ocorrencia)
-    
+        
         # Obtém as imagens associadas à ocorrência
         imagens = Imagens.objects.filter(IdOcorrencia=ocorrencia)
         
+        # Adiciona um print para depuração - ver quantas imagens e seus nomes
+        print(f'Número de imagens associadas à ocorrência {ocorrencia_id}: {len(imagens)}')
+        for imagem in imagens:
+            print(f'Imagem: {imagem.Image.name}')  # Mostra o nome do arquivo de imagem
+        
         # Cria o formset para as imagens, passando as imagens já associadas
-        formset = ImagemFormSet(queryset=imagens)
-    
+        formset = ImagemFormSet(queryset=imagens, instance=ocorrencia)  # Passa o queryset das imagens para o formset
+
+        # Adiciona um print para depuração - ver o conteúdo do formset
+        print("Conteúdo do formset:")
+        for idx, imagem_form in enumerate(formset):
+            print(f"Formulário {idx+1} no formset:")
+            for field in imagem_form:
+                print(f"  Campo: {field.name} | Valor: {field.value()}")
+        
         return render(request, 'TelaAtualizarDetalhesChamado.html', {
             'form': form,
             'formset': formset,  # Passa o formset para o template
             'ocorrencia': ocorrencia,
             'resgatistas': self.resgatistas
         })
+
     
     def post(self, request, ocorrencia_id):
         """ Processa os dados do formulário """
@@ -323,8 +336,15 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
         
         # Cria ou atualiza os formulários com os dados POST
         form = FormularioForm(request.POST, request.FILES, instance=ocorrencia)  # Associando a ocorrência para atualização
-        formset = ImagemFormSet(request.POST, request.FILES, queryset=Imagens.objects.filter(IdOcorrencia=ocorrencia))  # Passa o queryset das imagens já existentes
+        formset = ImagemFormSet(request.POST, request.FILES, instance=ocorrencia)  # Passa o queryset das imagens já existentes
         
+        print("Conteúdo do formset:")
+        for idx, imagem_form in enumerate(formset):
+            print(f"Formulário {idx+1} no formset:")
+            for field in imagem_form:
+                print(f"  Campo: {field.name} | Valor: {field.value()}")
+        
+
         if form.is_valid() and formset.is_valid():
             # Salva ou atualiza a ocorrência
             ocorrencia = form.save(commit=False)
@@ -339,6 +359,10 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
             for imagem in imagens:
                 imagem.IdOcorrencia = ocorrencia  # Atribui a imagem à ocorrência correta
                 imagem.save()  # Salva ou atualiza as imagens
+
+            # 🔥 ESSA PARTE AQUI FAZ A REMOÇÃO FUNCIONAR
+            for obj in formset.deleted_objects:
+                obj.delete()
 
             # Retorna uma resposta de sucesso
             return JsonResponse({'success': True, 'message': 'Formulário enviado com sucesso!', 'redirect_url': reverse('home')})
@@ -454,9 +478,28 @@ class FormularioView(View):
                 ocorrencia.save()
 
                 imagens = formset.save(commit=False)
+
+                # Verificar e exibir a quantidade de imagens e os nomes
+                imagens_salvas = []
                 for imagem in imagens:
                     imagem.IdOcorrencia = ocorrencia
                     imagem.save()
+                
+                    # Adicionar o nome da imagem à lista
+                    imagens_salvas.append(imagem.Image.name)
+            
+                # Exibir a quantidade de imagens e seus nomes
+                print(f"Quantidade de imagens recebidas: {len(imagens_salvas)}")
+                print("Nomes das imagens recebidas:", imagens_salvas)
+
+                for imagem in imagens:
+                    imagem.IdOcorrencia = ocorrencia
+                    imagem.save()
+
+                # Verificar se o request.FILES contém todas as imagens
+                print("Arquivos recebidos em request.FILES:")
+                for key, value in request.FILES.items():
+                    print(f"{key}: {value.name}")  # Exibe o nome de cada arquivo enviado
 
                 # Reseta o formulário após salvar
                 form = FormularioForm()
