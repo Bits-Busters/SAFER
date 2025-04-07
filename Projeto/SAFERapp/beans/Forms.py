@@ -98,7 +98,7 @@ class CustomPasswordChangeForm(forms.Form):
 class CustomUserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['relacao_ufrpe', 'tipo_usuario']  # Apenas os campos editáveis
+        fields = ['nome', 'relacao_ufrpe', 'telefone', 'telefone_fixo', 'tipo_usuario']
 
 class UserFilterFormRelatorio(forms.Form):
     relacao_ufrpe = forms.ChoiceField(

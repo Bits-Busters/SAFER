@@ -16,71 +16,82 @@
                     <div class="col-md-12">
                       <div class="card mb-3">
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-3">
-                                <h6 class="mb-0">Nome</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    {{ user.nome }}
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                <h6 class="mb-0">Relação</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    {{ user.relacao_ufrpe }}
-                                </div>
-                            </div>
-                            <hr>
-                            {% if user.tipo_usuario == 'admin' or user.tipo_usuario == 'gestor' or user.tipo_usuario == 'analista' %}
+                            <form method="POST" id="form-edicao">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="editar_perfil">
+                            
                                 <div class="row">
                                     <div class="col-sm-3">
-                                    <h6 class="mb-0">Acesso</h6>
+                                        <h6 class="mb-0">Nome</h6>
                                     </div>
                                     <div class="col-sm-9 text-secondary">
-                                        {{ user.tipo_usuario }}
+                                        <span class="info-span">{{ user.nome }}</span>
+                                        <input type="text" name="nome" value="{{ user.nome }}" class="form-control edit-input d-none">
                                     </div>
                                 </div>
                                 <hr>
-                            {% endif %}
-                            <div class="row">
-                                <div class="col-sm-3">
-                                <h6 class="mb-0">Email</h6>
+                            
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Relação com a UFRPE</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary">
+                                        <span class="info-span">{{ user.get_relacao_ufrpe_display }}</span>
+                                        <select name="relacao_ufrpe" class="form-control edit-input d-none">
+                                            {% for valor, label in relacoes %}
+                                                <option value="{{ valor }}" {% if user.relacao_ufrpe == valor %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>                                     
+                                    </div>
                                 </div>
-                                <div class="col-sm-9 text-secondary">
-                                    {{ user.email }}
+                                <hr>
+                            
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Email</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary">
+                                        {{ user.email }}
+                                    </div>
                                 </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                <h6 class="mb-0">Celular</h6>
+                                <hr>
+                            
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Celular</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary">
+                                        <span class="info-span">{{ user.telefone }}</span>
+                                        <input type="text" name="telefone" value="{{ user.telefone }}" class="form-control edit-input d-none">
+                                    </div>
                                 </div>
-                                <div class="col-sm-9 text-secondary">
-                                    {{ user.telefone }}
+                                <hr>
+                            
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Telefone/Ramal</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary">
+                                        <span class="info-span">
+                                            {% if user.telefone_fixo %}
+                                                {{ user.telefone_fixo }}
+                                            {% else %}
+                                                Não informado
+                                            {% endif %}
+                                        </span>
+                                        <input type="text" name="telefone_fixo" value="{{ user.telefone_fixo }}" class="form-control edit-input d-none">
+                                    </div>
                                 </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                <h6 class="mb-0">Telefone(Ramal)</h6>
+                                <hr>
+                            
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <button type="button" class="btn btnPadrao" onclick="habilitarEdicao()">Editar</button>
+                                        <button type="submit" id="confirmarEdicao" class="btn btn-success d-none">Confirmar Edição</button>
+                                        <button type="button" id="cancelarEdicao" class="btn btn-secondary d-none" onclick="desabilitarEdicao()">Cancelar</button>
+                                    </div>
                                 </div>
-                                <div class="col-sm-9 text-secondary">                                    
-                                    {% if user.telefone_fixo %}
-                                        {{ user.telefone_fixo }}
-                                    {% else %}
-                                        Telefone/Ramal não informado.
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                            <div class="col-sm-12">
-                              <a class="btn btnPadrao" target="__blank" href="">Editar</a>
-                            </div>
-                          </div>
+                            </form>                            
                         </div>
                     </div>
                     </div>
@@ -155,5 +166,42 @@
             </script>
         {% endfor %}
     {% endif %}
-    </div>
+    </div>    
+    
+    <script>
+        function habilitarEdicao() {
+            // Armazenar valores originais
+            document.querySelectorAll('.edit-input').forEach(input => {
+                input.dataset.original = input.value;
+            });
+    
+            // Alternar elementos
+            document.querySelectorAll('.info-span').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.edit-input').forEach(el => el.classList.remove('d-none'));
+            
+            // Alternar botões
+            document.querySelector('.btnPadrao').classList.add('d-none');
+            document.getElementById('confirmarEdicao').classList.remove('d-none');
+            document.getElementById('cancelarEdicao').classList.remove('d-none');
+        }
+    </script>
+    <script>
+        function desabilitarEdicao() {
+            console.log("cancelarEdicao() chamado");
+            // Restaurar elementos
+            document.querySelectorAll('.info-span').forEach(el => el.classList.remove('d-none'));
+            document.querySelectorAll('.edit-input').forEach(el => {
+                el.classList.add('d-none');
+                // Restaurar valores originais
+                if(el.dataset.original) {
+                    el.value = el.dataset.original;
+                }
+            });
+    
+            // Restaurar botões
+            document.querySelector('.btnPadrao').classList.remove('d-none');
+            document.getElementById('confirmarEdicao').classList.add('d-none');
+            document.getElementById('cancelarEdicao').classList.add('d-none');
+        }
+    </script>
 {% endblock %}

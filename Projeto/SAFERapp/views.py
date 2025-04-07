@@ -404,9 +404,11 @@ class PerfilView(LoginRequiredMixin, View):
             return redirect('home')
 
         form = CustomPasswordChangeForm(user=request.user)
+        relacoes = CustomUser._meta.get_field('relacao_ufrpe').choices
         return render(request, 'TelaPerfil.html', {
             'user': request.user,
-            'form': form
+            'form': form,
+            'relacoes': relacoes
         })
 
     def post(self, request, username):
@@ -415,6 +417,7 @@ class PerfilView(LoginRequiredMixin, View):
             return redirect('home')
 
         form_type = request.POST.get("form_type")
+        print(f"Form type: {form_type}")
 
         if form_type == "alterar_senha":
             form = CustomPasswordChangeForm(user=request.user, data=request.POST)
@@ -435,6 +438,13 @@ class PerfilView(LoginRequiredMixin, View):
             user.delete()
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
+        
+        elif form_type == "editar_perfil":
+            form = CustomUserForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Dados atualizados com sucesso!")
+                return redirect('telaPerfil', username=request.user.nome)
 
 @login_required()
 @user_passes_test(isstaff)
