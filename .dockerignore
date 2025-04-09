@@ -1,3 +1,5 @@
 __pycache__/
 
-db.sqlite3
+Projeto/db.sqlite3
+
+Projeto/SAFERapp/tests/

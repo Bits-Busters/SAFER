@@ -438,7 +438,7 @@ class PerfilView(LoginRequiredMixin, View):
             user.delete()
             messages.success(request, "Sua conta foi excluída com sucesso!")
             return redirect('home')  # Redireciona para a página inicial após exclusão
-        
+
         elif form_type == "editar_perfil":
             form = CustomUserForm(request.POST, instance=request.user)
             if form.is_valid():
@@ -579,7 +579,6 @@ class InformativosView(View):
         # Renderiza o template com o contexto
         return render(request, 'TelaInformativos.html', contexto)
 
-
 class CriarInformativoView(View):
     def get(self, request, id=None):
         if id is None:
@@ -638,9 +637,4 @@ class GerenciarInformativosView(View):
             messages.error(request, "Você não tem permissão para excluir este informativo.")
 
         return redirect('gerenciarInformativos')
-
-
-
-
-
 

@@ -1,7 +1,14 @@
 {% extends 'TopTemplate.html' %}
-
+{% load static %}
 {% block extra_css %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
+        #map {
+          height: 400px;
+          width: 100%;
+          position: relative;
+        }
         .page {
             display: none;
         }
@@ -182,11 +189,53 @@
                         <p class="text-muted">Informe o nome do animal envolvido.</p>
                     </div>
 
+                    <!-- Campo do ponto na rural -->
                     <div class="form-group">
-                        <label for="{{ form.Local.id_for_label }}">Local do Evento</label>
-                        <p>{{ form.Local }}</p>
-                        <p class="text-muted">Informe o local onde o incidente ocorreu.</p>
+                        <h3>Mapa da rural</h3>
+                        <div id="map">
+                            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+                            <script>
+                            // Inicialize o mapa
+                            // Definindo os limites geográficos
+                            var maxBounds = [[-8.032416227691224, -34.96295787378685], [-8.008066751036676, -34.937476728609184]]; // Região permitida
+                            var currentMarker = null; // Variável para armazenar o marcador atual
+                            // Inicializando o mapa
+                            var map = L.map('map', {
+                                center: [-8.017598865420956, -34.94933404268544], // Centro inicial
+                                zoom: 15,
+                                maxBounds: maxBounds,
+                            });
+
+                            // Adiciona a camada de mapa (a base, usando o OpenStreetMap)
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                detectRetina: true
+                            }).addTo(map);
+
+                            // Evento de clique no mapa
+                            map.on('click', function(e) {
+                                var lat = e.latlng.lat;
+                                var lng = e.latlng.lng;
+
+                                // Se já houver um marcador, remova-o
+                                if (currentMarker) {
+                                    map.removeLayer(currentMarker);
+                                }
+
+                                // Adiciona o novo marcador
+                                currentMarker = L.marker([lat, lng]).addTo(map)
+                                    .bindPopup("Você clicou aqui!")
+                                    .openPopup();
+                                // Atualiza os campos ocultos com as novas coordenadas
+                                document.getElementById('id_Localizacao_x').value = lat;
+                                document.getElementById('id_Localizacao_y').value = lng;
+                            });
+                            </script>
+                        </div>
                     </div>
+                    <!-- Campos ocultos para latitude e longitude -->
+                    {{ form.Localizacao_x }}
+                    {{ form.Localizacao_y }}
 
                     <div class="form-group">
                         <label for="{{ form.Referencia.id_for_label }}">Referência</label>
@@ -252,31 +301,47 @@
 
         function navigatePage(pageNumber) {
             const pages = document.querySelectorAll('.page');
-            if (pageNumber > 1) {
-                    const currentPage = document.querySelector('.page.active');
-                    const invalidFields = currentPage.querySelectorAll(':invalid');
-                    if (invalidFields.length > 0) {
-                        invalidFields[0].focus();
-                        invalidFields.forEach(field => {
-                            field.classList.add('is-invalid');
-                            let errorElement = document.createElement('div');
-                            errorElement.className = 'invalid-feedback';
-                            errorElement.innerText = field.validationMessage;
-                            if (!field.nextElementSibling) {
-                                field.insertAdjacentElement('afterend', errorElement);
-                            }
-                        });
-                        return;
+
+            // Verifica se a página 2 está sendo ativada
+            if (pageNumber === 2) {
+                // Espera um tempo curto para garantir que o DOM foi renderizado
+                setTimeout(function() {
+                    // Verifica se o mapa existe antes de chamar invalidateSize
+                    if (typeof map !== 'undefined') {
+                        map.invalidateSize(); // Ajusta o mapa após a renderização da página 2
                     }
+                }, 100);  // 100 ms para garantir o tempo de renderização
+            }
+
+            // Validação e navegação para outras páginas
+            if (pageNumber > 1) {
+                const currentPage = document.querySelector('.page.active');
+                const invalidFields = currentPage.querySelectorAll(':invalid');
+                if (invalidFields.length > 0) {
+                    invalidFields[0].focus();
+                    invalidFields.forEach(field => {
+                        field.classList.add('is-invalid');
+                        let errorElement = document.createElement('div');
+                        errorElement.className = 'invalid-feedback';
+                        errorElement.innerText = field.validationMessage;
+                        if (!field.nextElementSibling) {
+                            field.insertAdjacentElement('afterend', errorElement);
+                        }
+                    });
+                    return;
                 }
+            }
+
+            // Esconde todas as páginas e mostra a página escolhida
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById('page' + pageNumber).classList.add('active');
+
             updateProgressIndicator(pageNumber);
         }
 
         function handleSubmit(event) {
             event.preventDefault();
-    
+
             const submitButton = event.target;
             const originalText = submitButton.innerHTML; // Guarda o HTML original
             submitButton.classList.add('loading');
@@ -298,7 +363,7 @@
                         field.insertAdjacentElement('afterend', errorElement);
                     }
                 });
-                
+
                 // Remove animação
                 submitButton.classList.remove('loading');
                 submitButton.disabled = false;
@@ -306,7 +371,10 @@
                 return;
             }
             
+
+            // Usando fetch para enviar o formulário via AJAX
             const formData = new FormData(form);
+            console.log('Form Data:', formData);  // Log para depuração
 
             fetch(form.action, {
                 method: 'POST',
@@ -335,6 +403,7 @@
                 alert('Ocorreu um erro ao enviar o formulário.');
             });
         }
+
 
     </script>
     

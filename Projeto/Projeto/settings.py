@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap4',
-    'channels',
     'SAFERapp',
 ]
 
@@ -108,24 +107,37 @@ WSGI_APPLICATION = 'Projeto.wsgi.application'
 
 # SQlite DB
 DATABASES = {
-      'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': BASE_DIR / 'db.sqlite3',
-      }
-  }
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': BASE_DIR / 'db.sqlite3',
+     }
+ }
 
-## Mysql DB
-#DATABASES = {
-#   'default': {
-#       'ENGINE': 'django.db.backends.mysql',
-#       'NAME': os.getenv('DB_NAME', 'safer_db'),
-#       'USER': os.getenv('DB_USER', 'safer_user'),
-#       'PASSWORD': os.getenv('DB_PASSWORD', 'safer_pass'),
-#       'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
-#       'PORT': os.getenv('DB_PORT', '3306'),
-#   }
-#}
-
+# ## Mysql DB
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': os.getenv('DB_NAME', 'safer_db'),
+#        'USER': os.getenv('DB_USER', 'safer_user'),
+#        'PASSWORD': os.getenv('DB_PASSWORD', 'safer_pass'),
+#        'HOST': os.getenv('DB_HOST', 'db'),  # Nome do serviço do MySQL no docker-compose
+#        'PORT': os.getenv('DB_PORT', '3306'),
+#    }
+# # }
+# ## MS SQL DB
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'mssql',
+#             'NAME': 'safer-db',
+#             'USER': 'safer-admin@safer-server',
+#             'PASSWORD': '$af&r2o25',
+#             'HOST': 'safer-server.database.windows.net',
+#
+#             'OPTIONS': {
+#                 'driver': 'ODBC Driver 18 for SQL Server',
+#             },
+#         },
+#     }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -172,16 +184,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # configuração de email
 
 # backend no caso de só imprimir email no console sem enviar
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Backend padrão (com console)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Backend padrão (com console)
 EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP
 
 # No caso de querer salvar o conteúdo em arquivo
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH = '/tmp/emails'  # Certifique-se de que este diretório existe
 
-#
-# EMAIL_PORT = 587  # Porta do servidor SMTP
-# EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
-# EMAIL_HOST_USER = 'safer.teamapp@gmail.com'  # Usuário do email
-# EMAIL_HOST_PASSWORD = 'gqen reee xqtv weol'  # Senha do email
+
+EMAIL_PORT = 587  # Porta do servidor SMTP
+EMAIL_USE_TLS = True  # Habilitar TLS (ou use EMAIL_USE_SSL para SSL)
+EMAIL_HOST_USER = 'safer.teamapp@gmail.com'  # Usuário do email
+EMAIL_HOST_PASSWORD = 'gqen reee xqtv weol'  # Senha do email
 #DEFAULT_FROM_EMAIL = 'seu-email@example.com'  # Email padrão para envio
