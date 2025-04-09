@@ -34,6 +34,9 @@
         <h3>Relatório de Ocorrências</h3>
         <p><strong>Total de Ocorrências:</strong> {{ quantidadeOcorrencias }} | <strong>Total de Usuários:</strong> {{ quantidadeUsuarios }}</p>
         <p><strong>Ocorrências Filtradas:</strong> {{ quantidadeOcorrenciasFiltrados }} | <strong>Usuários Filtrados:</strong> {{ quantidadeUsuariosFiltrados }}</p>
+        <div class="text-center mt-4">
+            <a href="{% url 'render_mapa_calor' %}" class="btn btn-danger">Mapa de Calor</a>
+        </div>
 
         <div class="row mt-4">
             <div class="col-md-6">

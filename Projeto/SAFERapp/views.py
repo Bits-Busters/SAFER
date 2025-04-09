@@ -344,53 +344,60 @@ class AtualizarOcorrenciaView(LoginRequiredMixin, View):
             for field in imagem_form:
                 print(f"  Campo: {field.name} | Valor: {field.value()}")
         
+        print("Ajax")
+        # Verifica se é uma requisição AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid() and formset.is_valid():
+                # Salva ou atualiza a ocorrência
+                ocorrencia = form.save(commit=False)
+                if request.user.is_authenticated:
+                    ocorrencia.Autor = request.user
+                else:
+                    ocorrencia.Autor = get_or_create_anonymous_user()
+                ocorrencia.save()  # Salva a ocorrência (atualização)
 
-        if form.is_valid() and formset.is_valid():
-            # Salva ou atualiza a ocorrência
-            ocorrencia = form.save(commit=False)
-            if request.user.is_authenticated:
-                ocorrencia.Autor = request.user
+                # Atualiza as imagens
+                imagens = formset.save(commit=False)
+                for imagem in imagens:
+                    imagem.IdOcorrencia = ocorrencia  # Atribui a imagem à ocorrência correta
+                    imagem.save()  # Salva ou atualiza as imagens
+
+                # 🔥 ESSA PARTE AQUI FAZ A REMOÇÃO FUNCIONAR
+                for obj in formset.deleted_objects:
+                    obj.delete()
+
+                print("Sucesso")
+                # Retorna uma resposta de sucesso
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Formulário enviado com sucesso!', 
+                    'redirect_url': reverse('home')
+                })
             else:
-                ocorrencia.Autor = get_or_create_anonymous_user()
-            ocorrencia.save()  # Salva a ocorrência (atualização)
+                # Se o formulário ou o formset estiverem inválidos, coleta os erros
+                error_messages = []
 
-            # Atualiza as imagens
-            imagens = formset.save(commit=False)
-            for imagem in imagens:
-                imagem.IdOcorrencia = ocorrencia  # Atribui a imagem à ocorrência correta
-                imagem.save()  # Salva ou atualiza as imagens
-
-            # 🔥 ESSA PARTE AQUI FAZ A REMOÇÃO FUNCIONAR
-            for obj in formset.deleted_objects:
-                obj.delete()
-
-            # Retorna uma resposta de sucesso
-            return JsonResponse({'success': True, 'message': 'Formulário enviado com sucesso!', 'redirect_url': reverse('home')})
-
-        else:
-            # Se o formulário ou o formset estiverem inválidos, coleta os erros
-            error_messages = []
-
-            # Erros do formulário principal
-            if not form.is_valid():
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        error_messages.append(f"Erro no campo '{field}': {error}")
-
-            # Erros do formset
-            if not formset.is_valid():
-                for i, form_errors in enumerate(formset.errors):
-                    for field, errors in form_errors.items():
+                # Erros do formulário principal
+                if not form.is_valid():
+                    for field, errors in form.errors.items():
                         for error in errors:
-                            error_messages.append(f"Erro no formulário de imagem {i + 1} - campo '{field}': {error}")
+                            error_messages.append(f"Erro no campo '{field}': {error}")
 
-            # Erros gerais do formset
-            if formset.non_form_errors():
-                for error in formset.non_form_errors():
-                    error_messages.append(f"Erro geral no formset de imagens: {error}")
-                    
-            # Retorna os erros no contexto
-            return JsonResponse({'success': False, 'errors': error_messages})
+                # Erros do formset
+                if not formset.is_valid():
+                    for i, form_errors in enumerate(formset.errors):
+                        for field, errors in form_errors.items():
+                            for error in errors:
+                                error_messages.append(f"Erro no formulário de imagem {i + 1} - campo '{field}': {error}")
+
+                # Erros gerais do formset
+                if formset.non_form_errors():
+                    for error in formset.non_form_errors():
+                        error_messages.append(f"Erro geral no formset de imagens: {error}")
+                        
+                # Retorna os erros no contexto
+                return JsonResponse({'success': False, 'errors': error_messages})
+        return JsonResponse({'success': False, 'message': 'Erro desconhecido'})
 
 
 class PerfilView(LoginRequiredMixin, View):
