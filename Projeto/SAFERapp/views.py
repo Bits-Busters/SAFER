@@ -19,12 +19,19 @@ from SAFERapp.beans.Forms import CadastroForm, InformativoForm, ObservacaoForm
 from SAFERapp.beans.Ocorrencia import Ocorrencia
 from SAFERapp.beans.Informativos import Informativo
 from SAFERapp.beans.Observacoes import Observacoes
+from SAFERapp.models import Notificacao
 from .models import CustomUser, get_or_create_anonymous_user
 
 from SAFERapp.beans.Imagens import Imagens
 
+def isstaff(user):
+    return user.is_staff
+
+def issuperuser(user):
+    return user.is_superuser
 
 # Create your views here.
+@user_passes_test(issuperuser)
 @login_required
 def relatorio_view(request):
     # Inicializar os formulários com os dados GET
@@ -613,8 +620,26 @@ def notificacoes_view(request): # envia um JSON para página para criacao do pop
     } for notificacao in notificacoes]
     return JsonResponse({'notificacoes': dados})
 
+# View que atualiaza uma notificacao para lida
+@login_required
+@require_POST
+def notificacao_lida(request):
+    notification_id = request.POST.get("notification_id")
+    if not notification_id: # Verifica o ID da notificao
+        return JsonResponse({"success": False, "error": "ID não fornecido."}, status=400)
+    
+    try:
+        notificacoes = Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True) # marca todas as notificacoes do usuario como lidas
+        Notificacao.objects.filter(usuario=request.user, lida=True).delete() # apaga do banco todas as mensagens lidas
+        return JsonResponse({"success": True, "notificacoes_lidas": notificacoes}) # envia resposta JSON a pagina
+    except Notificacao.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Notificação não encontrada."}, status=404)
 
-def     render_mapa_calor(request):
+
+
+
+
+def render_mapa_calor(request):
         import folium
         import numpy as np
         from folium.plugins import HeatMap
@@ -632,7 +657,7 @@ def     render_mapa_calor(request):
 
 
         # Adição do mapa de calor
-        HeatMap(coordenadas, radius=20, blur=25).add_to(mapa)
+        HeatMap(coordenadas, radius=20, blur=10).add_to(mapa)
 
         # Retorno do mapa como HTML
         mapa_html = mapa._repr_html_()

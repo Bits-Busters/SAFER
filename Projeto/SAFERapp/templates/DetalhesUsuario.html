@@ -1,41 +1,53 @@
 {% extends 'TopTemplate.html' %}
 
-{% block extra_css %}
-{% endblock %}
-
 {% block title %}Detalhes do Usuário{% endblock %}
 
 {% block content %}
-<body>
+<div class="container mt-4">
     <h1>Editar Usuário: {{ usuario.nome }}</h1>
 
-    <!-- Exibe as informações não editáveis do usuário -->
-    <div>
+    <!-- Informações não editáveis -->
+    <div class="mb-4">
         <p><strong>Nome:</strong> {{ usuario.nome }}</p>
         <p><strong>Email:</strong> {{ usuario.email }}</p>
         <p><strong>Telefone:</strong> {{ usuario.telefone }}</p>
         <p><strong>Telefone Fixo:</strong> {{ usuario.telefone_fixo }}</p>
     </div>
 
-    <!-- Exibe o formulário para editar apenas os campos de relação e tipo de usuário -->
+    <!-- Formulário de edição -->
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Exibe os campos editáveis (relacao e tipo de usuario) -->
         
-        <button type="submit">Salvar Alterações</button>
+        <div class="form-group mb-3">
+            <label for="{{ form.relacao_ufrpe.id_for_label }}">Relação com a UFRPE</label>
+            {{ form.relacao_ufrpe }}
+            {% if form.relacao_ufrpe.errors %}
+                <div class="text-danger">
+                    {{ form.relacao_ufrpe.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="{{ form.tipo_usuario.id_for_label }}">Tipo de Usuário</label>
+            {{ form.tipo_usuario }}
+            {% if form.tipo_usuario.errors %}
+                <div class="text-danger">
+                    {{ form.tipo_usuario.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-success">Salvar Alterações</button>
     </form>
 
-    <!-- Botão para excluir o usuário -->
+    <!-- Formulário de exclusão -->
     <form action="{% url 'deletar_usuario' usuario.email %}" method="POST" onsubmit="return confirm('Você tem certeza que deseja excluir este usuário?')">
         {% csrf_token %}
-        <button type="submit" style="background-color: red; color: white;">Excluir Usuário</button>
+        <button type="submit" class="btn btn-danger mt-3">Excluir Usuário</button>
     </form>
 
     <br>
-    <a href="{% url 'gerenciarUsuarios' %}">Voltar para a lista de usuários</a>
-</body>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <a href="{% url 'gerenciarUsuarios' %}" class="btn btn-secondary mt-3">Voltar para a lista de usuários</a>
+</div>
 {% endblock %}

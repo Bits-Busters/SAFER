@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-3vxq2c8_&+l!@t%b$g4yea4$e&8gp(bkd#shmj%e!ihm21dk-4
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-# CSRF_TRUSTED_ORIGINS = ["https://*.azurecontainerapps.io"]
+CSRF_TRUSTED_ORIGINS = ["https://*.azurecontainerapps.io"]
 CSRF_TRUSTED_ORIGINS = ["http://*"]
 
 PASSWORD_RESET_TIMEOUT = 300
@@ -102,6 +102,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Projeto.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

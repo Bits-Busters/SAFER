@@ -81,10 +81,33 @@
         .step:last-child::after {
             width: 0;
         }
-    </style>
- 
-{% endblock %}
 
+        .btnLoggin.loading {
+            position: relative;
+            pointer-events: none;
+            padding-right: 40px; /* Espaço para o spinner */
+        }
+
+        .btnLoggin.loading::after {
+            content: "";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+    </style>
+{% endblock %}
 
 {% block title %}Cadastro de ocorrências{% endblock %}
 
@@ -165,11 +188,11 @@
                         <p>{{ form.Nome_Animal }}</p>
                         <p class="text-muted">Informe o nome do animal envolvido.</p>
                     </div>
-                    
+
                     <!-- Campo do ponto na rural -->
                     <div class="form-group">
                         <h3>Mapa da rural</h3>
-                        <div id="map"> 
+                        <div id="map">
                             <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
                             <script>
                             // Inicialize o mapa
@@ -182,13 +205,13 @@
                                 zoom: 15,
                                 maxBounds: maxBounds,
                             });
-                        
+
                             // Adiciona a camada de mapa (a base, usando o OpenStreetMap)
                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                                 detectRetina: true
                             }).addTo(map);
-                        
+
                             // Evento de clique no mapa
                             map.on('click', function(e) {
                                 var lat = e.latlng.lat;
@@ -278,7 +301,7 @@
 
         function navigatePage(pageNumber) {
             const pages = document.querySelectorAll('.page');
-            
+
             // Verifica se a página 2 está sendo ativada
             if (pageNumber === 2) {
                 // Espera um tempo curto para garantir que o DOM foi renderizado
@@ -312,12 +335,18 @@
             // Esconde todas as páginas e mostra a página escolhida
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById('page' + pageNumber).classList.add('active');
-            
+
             updateProgressIndicator(pageNumber);
         }
 
         function handleSubmit(event) {
             event.preventDefault();
+
+            const submitButton = event.target;
+            const originalText = submitButton.innerHTML; // Guarda o HTML original
+            submitButton.classList.add('loading');
+            submitButton.innerHTML = originalText; // Mantém o texto original
+            submitButton.disabled = true;
 
             const form = document.getElementById('form_ocorrencia');
             const currentPage = document.querySelector('.page.active');
@@ -334,6 +363,11 @@
                         field.insertAdjacentElement('afterend', errorElement);
                     }
                 });
+
+                // Remove animação
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText; // Restaura o texto
                 return;
             }
             
@@ -344,31 +378,30 @@
 
             fetch(form.action, {
                 method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Certifique-se de incluir isso
-                },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData
             })
-
             .then(response => response.json())
             .then(data => {
-                console.log(data);  // Log parsed data here
-                for (const [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
-
-                    if (data.success) {
-                        alert("Formulário enviado com sucesso!");
+                if (data.success) {
+                    submitButton.textContent = 'Sucesso!';
+                    setTimeout(() => {
                         window.location.href = data.redirect_url;
-                    } else {
-                        alert('Erro: ' + data.errors.join('\n'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar o formulário:', error);
-                    alert('Ocorreu um erro ao enviar o formulário.');
-                });
-
+                    }, 1000);
+                } else {
+                    submitButton.classList.remove('loading');
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    alert('Erro: ' + data.errors.join('\n'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar o formulário:', error);
+                submitButton.classList.remove('loading');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                alert('Ocorreu um erro ao enviar o formulário.');
+            });
         }
 
 

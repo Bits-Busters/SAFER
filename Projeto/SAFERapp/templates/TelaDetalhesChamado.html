@@ -59,7 +59,7 @@
                             <strong>Relação com a UFRPE:</strong>
                         </div>
                         <div class="col-sm-9 text-secondary">
-                            {{ ocorrencia.Relacao_Autor }}
+                            {{ ocorrencia.get_Relacao_Autor_display }}
                         </div>                        
                     </div>
                     <hr>
@@ -68,7 +68,7 @@
                             <strong>Tipo do Caso:</strong>
                         </div>
                         <div class="col-sm-9 text-secondary">
-                            {{ ocorrencia.Tipo_Caso }}
+                            {{ ocorrencia.get_Tipo_Caso_display }}
                         </div>                        
                     </div>         
                 </div>
@@ -91,7 +91,7 @@
                             <strong>Local:</strong>
                         </div>
                         <div class="col-sm-9 text-secondary">
-                            {{ ocorrencia.Local }}
+                            {{ ocorrencia.get_Local_display }}
                         </div>                        
                     </div>
                     <hr>
@@ -118,7 +118,7 @@
                             <strong>Status:</strong>
                         </div>
                         <div class="col-sm-9 text-secondary">
-                            {{ ocorrencia.Status }}
+                            {{ ocorrencia.get_Status_display }}
                         </div>                        
                     </div>         
                 </div>
@@ -204,7 +204,7 @@
                     </div>
                     <div class="row">
                         <div class="col lg3">
-                            <button id="btnMostrar" class="btn btn-info" onclick="mostrarAtualizacao()">Adcionar</button>
+                            <button id="btnMostrar" class="btn btn-info" onclick="mostrarAtualizacao()">Adicionar</button>
 
                             <!-- Div oculta que será exibida -->
                             <div id="divAtualizacao" class="mt-3 p-3 border rounded bg-light" style="display: none;">

@@ -72,21 +72,21 @@
                                     <span class="user-subhead">{{ ocorrencia.DataHora|date:"d/m/Y H:i" }}</span>
                                 </td>
                                 <td class="user-subhead">
-                                    <span class="user-subhead">{{ ocorrencia.Status }}</span>
+                                    <span class="user-subhead">{{ ocorrencia.get_Status_display }}</span>
                                 </td>
                                 <td class="user-subhead">
                                     <span class="user-subhead">{{ ocorrencia.Nome_Animal }}</span>
                                 </td>
                                 <td>
-                                    <span class="user-subhead">{{ ocorrencia.Local }}</span>
+                                    <span class="user-subhead">{{ ocorrencia.get_Local_display }}</span>
                                 </td>
                                 <td style="width: 20%;">
-                                    <a onclick="window.open('/chamado/{{ ocorrencia.id }}', '_blank')" class="table-link" style="color: royalblue;">
+                                    <button type="button" onclick="window.location.href='/chamado/{{ ocorrencia.id }}'" class="table-link btn btn-link" style="color: royalblue; padding: 0; border: none; background: none;">
                                         <span class="fa-stack">
                                             <i class="fa fa-square fa-stack-2x"></i>
                                             <i class="fa fa-search-plus fa-stack-1x fa-inverse"></i>
                                         </span>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
