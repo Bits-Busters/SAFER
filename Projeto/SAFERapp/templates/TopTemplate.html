@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,43 +12,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     {% block extra_css %}
     {% endblock %}
-    <title>{% block title %}SAFER{% endblock %}</title>
-    <style>
-        img {
-          float: right; /* Faz a imagem flutuar para a esquerda */
-          margin-right: 30px; /* Cria uma margem direita de 20 pixels */
-          margin-left: 20px; /* Cria uma margem esquerda de 20 pixels */
-        }
-    .popup-notificacao {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #333;
-        color: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
-        opacity: 0.9;
-        z-index: 1000;
-        transition: opacity 0.3s ease;
-    }
-
-    .fechar-popup {
-        position: absolute;
-        top: 5px;
-        right: 8px;
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 14px;
-        cursor: pointer;
-    }
-
-    .fechar-popup:hover {
-        color: #ff4d4d;
-    }
-      </style>
+    <title>{% block title %}SAFER{% endblock %}</title>    
 </head>
+
 <body>
     <header>
         <div id="headerLeft">
@@ -186,46 +153,8 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="{% static 'js/notificacao.js' %}"></script>
 
-
-
-
-
-    <script>
-    const socket = new WebSocket("ws://" + window.location.host + "/ws/staff/notificacoes/");
-
-    socket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        criarPopUpNotificacao(data.mensagem);
-    };
-
-    socket.onopen = function() {
-        console.log('Conectado ao WebSocket');
-    };
-
-    socket.onerror = function(error) {
-        console.error('Erro no WebSocket:', error);
-    };
-
-    function criarPopUpNotificacao(mensagem) {
-        console.log("Criando popup")
-        const popUp = document.createElement('div');
-        popUp.className = 'popup-notificacao';
-
-        const fechar = document.createElement('button');
-        fechar.className = 'fechar-popup';
-        fechar.textContent = 'X';
-        fechar.onclick = () => popUp.remove();
-
-        const texto = document.createElement('span');
-        texto.textContent = mensagem;
-
-        popUp.appendChild(texto);
-        popUp.appendChild(fechar);
-        document.body.appendChild(popUp);
-
-    }
-</script>
     <!-- Conteúdo específico da página -->
     <div class="content">
         {% block content %}
