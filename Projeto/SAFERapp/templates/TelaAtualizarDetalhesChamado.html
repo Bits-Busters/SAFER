@@ -1,6 +1,9 @@
 {% extends 'TopTemplate.html' %}
 
+{% load static %}
+
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
 {% endblock %}
 
 {% block title %}Atualizar Ocorrência{% endblock %}
@@ -21,7 +24,7 @@
 
             <div class="row">
                 <div class="col-md-4">
-                    <div class="form-group">
+                    <div class="">
                         <label for="id_Nome_Autor">Autor:</label>
                         {% if user == ocorrencia.Autor %}
                             {{ form.Nome_Autor }}

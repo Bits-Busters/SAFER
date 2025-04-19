@@ -59,3 +59,8 @@ body{
 .shadow-none {
     box-shadow: none!important;
 }
+
+.btnPadrao {
+    background-color: royalblue; 
+    color: aliceblue;
+}
